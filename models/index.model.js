@@ -60,7 +60,7 @@ db.user.belongsToMany(db.role, {
   otherKey: "RoleId",
 });
 
-db.user.hasOne(db.employer, { foreignKey: "UserId" });
+db.user.hasMany(db.employer, { foreignKey: "UserId" });
 db.employer.belongsTo(db.user, { foreignKey: "UserId" });
 
 db.user.hasMany(db.place, { foreignKey: "UserId" });
