@@ -14,6 +14,9 @@ module.exports = (sequelize, Sequelize) => {
     LastName: {
       type: Sequelize.STRING,
     },
+    MaidenName: {
+      type: Sequelize.STRING,
+    },
     UserName: {
       type: Sequelize.STRING,
     },
@@ -26,6 +29,9 @@ module.exports = (sequelize, Sequelize) => {
     Sex: {
       type: Sequelize.STRING,
     },
+    Age: {
+      type: Sequelize.STRING,
+    },
     BloodGroup: {
       type: Sequelize.STRING,
     },
@@ -33,6 +39,9 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     Languages: {
+      type: Sequelize.STRING,
+    },
+    Occupation: {
       type: Sequelize.STRING,
     },
     EmploymentStatus: {
@@ -87,14 +96,6 @@ module.exports = (sequelize, Sequelize) => {
     },
     updatedAt: {
       type: Sequelize.DATETIME,
-    },
-
-    relationship: {
-      type: Sequelize.ENUM(0, 1, 2, 3),
-      defaultValue: 0,
-    },
-    published: {
-      type: Sequelize.BOOLEAN,
     },
   });
 
