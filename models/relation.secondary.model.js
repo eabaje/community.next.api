@@ -18,6 +18,9 @@ module.exports = (sequelize, Sequelize) => {
     LastName: {
       type: Sequelize.STRING,
     },
+    MaidenName: {
+      type: Sequelize.STRING,
+    },
     Nickname: {
       type: Sequelize.STRING,
     },
@@ -41,7 +44,7 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       max: 50,
     },
-    AgeCategory: {
+    Age: {
       type: Sequelize.STRING,
     },
     Sex: {
@@ -50,13 +53,11 @@ module.exports = (sequelize, Sequelize) => {
     Tribe: {
       type: Sequelize.STRING,
     },
-    MaidenName: {
-      type: Sequelize.STRING,
-    },
+
     FamilyName: {
       type: Sequelize.STRING,
     },
-    FamilyLanguage: {
+    Language: {
       type: Sequelize.STRING,
     },
     Kindred: {
