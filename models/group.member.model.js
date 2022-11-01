@@ -1,7 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
-  const GroupMember = sequelize.define("GroupMember", {
+  const GroupMember = sequelize.define("Group_Member", {
     GroupMemberId: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -19,13 +19,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     createdAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     updatedBy: {
       type: Sequelize.STRING,
     },
     updatedAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
   });
 

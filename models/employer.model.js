@@ -1,7 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
   const Employer = sequelize.define("Employer", {
     EmployerId: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -27,23 +27,23 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     YearFrom: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
 
     YearTo: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     createdBy: {
       type: Sequelize.STRING,
     },
     createdAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     updatedBy: {
       type: Sequelize.STRING,
     },
     updatedAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
   });
 

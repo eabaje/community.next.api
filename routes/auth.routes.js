@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const controller = require("../controller/auth.controller");
+const controller = require("../controllers/auth.controller");
 // var passportFacebook = require('../middleware/facebook');
 // var passportGoogle = require('../middleware/google');
 

@@ -19,22 +19,6 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.employer = require("./employer.model.js")(sequelize, Sequelize);
-db.groupmeta = require("./group.meta.model.js")(sequelize, Sequelize);
-db.groupmember = require("./group.member.model.js")(sequelize, Sequelize);
-db.group = require("./group.model.js")(sequelize, Sequelize);
-db.groupfollower = require("./group.follower.model.js")(sequelize, Sequelize);
-db.grouppost = require("./group.post.model.js")(sequelize, Sequelize);
-db.groupmessage = require("./group.message.model.js")(sequelize, Sequelize);
-
-db.relationprimary = require("./relation.primary.model.js")(
-  sequelize,
-  Sequelize
-);
-db.relationsecondary = require("./relation.secondary.model.js")(
-  sequelize,
-  Sequelize
-);
 db.school = require("./school.model.js")(sequelize, Sequelize);
 db.place = require("./place.model.js")(sequelize, Sequelize);
 db.user = require("./user.model.js")(sequelize, Sequelize);
@@ -47,6 +31,23 @@ db.payment = require("./payment.model.js")(sequelize, Sequelize);
 db.review = require("./review.model.js")(sequelize, Sequelize);
 db.chat = require("./user.chat.model.js")(sequelize, Sequelize);
 db.video = require("./user.video.model.js")(sequelize, Sequelize);
+
+db.relationprimary = require("./relation.primary.model.js")(
+  sequelize,
+  Sequelize
+);
+db.relationsecondary = require("./relation.secondary.model.js")(
+  sequelize,
+  Sequelize
+);
+
+db.employer = require("./employer.model.js")(sequelize, Sequelize);
+db.group = require("./group.model.js")(sequelize, Sequelize);
+db.groupmeta = require("./group.meta.model.js")(sequelize, Sequelize);
+db.groupmember = require("./group.member.model.js")(sequelize, Sequelize);
+db.groupfollower = require("./group.follower.model.js")(sequelize, Sequelize);
+db.grouppost = require("./group.post.model.js")(sequelize, Sequelize);
+db.groupmessage = require("./group.message.model.js")(sequelize, Sequelize);
 
 db.role.belongsToMany(db.user, {
   through: "UserRoles",
@@ -84,7 +85,7 @@ db.relationprimary.belongsTo(db.user, { foreignKey: "UserId" });
 db.user.hasMany(db.relationsecondary, { foreignKey: "UserId" });
 db.relationsecondary.belongsTo(db.user, { foreignKey: "UserId" });
 
-db.user.hasOne(db.group, { foreignKey: "UserId" });
+db.user.hasMany(db.group, { foreignKey: "UserId" });
 db.group.belongsTo(db.user, { foreignKey: "UserId" });
 
 db.user.hasMany(db.groupmessage, { foreignKey: "UserId" });
@@ -105,8 +106,8 @@ db.payment.belongsTo(db.user, { foreignKey: "UserId" });
 db.user.hasMany(db.review, { foreignKey: "UserId" });
 db.review.belongsTo(db.user, { foreignKey: "UserId" });
 
-db.group.hasOne(db.group, { foreignKey: "GroupId" });
-db.groupmeta.belongsTo(db.groupmeta, { foreignKey: "GroupId" });
+db.group.hasOne(db.groupmeta, { foreignKey: "GroupId" });
+db.groupmeta.belongsTo(db.group, { foreignKey: "GroupId" });
 
 db.group.hasMany(db.groupfollower, { foreignKey: "GroupId" });
 db.groupfollower.belongsTo(db.group, { foreignKey: "GroupId" });

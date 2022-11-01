@@ -27,20 +27,25 @@ const { subscribe } = require("./models/index.model");
 const Role = db.role;
 const User = db.user;
 const UserRole = db.userrole;
-const Company = db.company;
-const Subscription = db.subscribe;
-const UserSubscription = db.usersubscription;
+
 //db.sequelize.sync();
 //force: true will drop the table if it already exists
-// db.sequelize.sync({ force: true }).then(() => {
-//   console.log('Drop and Resync Database with { force: true }');
-//   initial();
-// });
+// db.sequelize
+//   .sync({ force: true })
+//   .then(() => {
+//     console.log("Drop and Resync Database with { force: true }");
+//     initial();
+//   })
+//   .catch((err) => {
+//     console.log("Failed to sync db: " + err.message);
+//   });
 
 // db.sequelize.sync({ alter: true }).then(() => {
-//   console.log('Drop and Resync Database with { force: true }');
-//   // initial();
-// });
+//   console.log("Drop and Resync Database with { force: true }");
+//   initial();
+// }).catch((err) => {
+//    console.log("Failed to sync db: " + err.message);
+//  });
 
 // app.use(
 //   session({
@@ -53,10 +58,10 @@ const UserSubscription = db.usersubscription;
 // app.use(passport.session());
 // simple route
 app.get("/", (req, res) => {
-  res.json({ message: "Welcome to Loadboard Logistics api." });
+  res.json({ message: "Welcome to MyArea api." });
 });
 app.get("/api", (req, res) => {
-  res.json({ message: "Welcome to Loadboard Logistics api." });
+  res.json({ message: "Welcome to MyArea api." });
 });
 app.use(express.static("uploads"));
 app.use("/uploads", express.static("uploads"));
@@ -67,13 +72,13 @@ app.use("/docs", express.static("docs"));
 require("./routes/auth.routes")(app);
 require("./routes/user.routes")(app);
 require("./routes/group.routes")(app);
-require("./routes/employer.routes")(app);
-require("./routes/vehicle.routes")(app);
-require("./routes/shipment.routes")(app);
-require("./routes/trip.routes")(app);
-require("./routes/order.routes")(app);
-require("./routes/payment.routes")(app);
-require("./routes/subscription.routes")(app);
+//require("./routes/employer.routes")(app);
+// require("./routes/vehicle.routes")(app);
+// require("./routes/shipment.routes")(app);
+// require("./routes/trip.routes")(app);
+// require("./routes/order.routes")(app);
+// require("./routes/payment.routes")(app);
+// require("./routes/subscription.routes")(app);
 //require('./routes/upload.routes')(app);
 
 app.use("/api/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
@@ -170,35 +175,22 @@ function initial() {
   let endDate = new Date();
   endDate.setDate(endDate.getDate() + 30);
 
-  Company.create({
-    //  CompanyId: 1,
-    CompanyName: "Global Load Dispatch",
-    ContactEmail: "admin@loaddispatch.com.ng",
-    ContactPhone: "08057886381",
-    CompanyType: "admin",
-    Address: "Lagos",
-    City: "LG",
-    Country: "NG",
-  });
+  // Company.create({
+  //   //  CompanyId: 1,
+  //   CompanyName: "Global Load Dispatch",
+  //   ContactEmail: "admin@loaddispatch.com.ng",
+  //   ContactPhone: "08057886381",
+  //   CompanyType: "admin",
+  //   Address: "Lagos",
+  //   City: "LG",
+  //   Country: "NG",
+  // });
 
   Role.create({
     RoleId: shipperRoleId,
-    Name: "shipper",
+    Name: "user",
   });
 
-  Role.create({
-    RoleId: driverRoleId,
-    Name: "driver",
-  });
-
-  Role.create({
-    RoleId: carrierRoleId,
-    Name: "carrier",
-  });
-  Role.create({
-    RoleId: brokerRoleId,
-    Name: "broker",
-  });
   Role.create({
     RoleId: adminRoleId,
     Name: "admin",
@@ -211,16 +203,15 @@ function initial() {
 
   User.create({
     UserId: initialUserId,
-    FullName: "Gabriel Ehima",
-    Email: "admin@loaddispatch.com.ng",
-    Phone: "08057886381",
-    UserName: "admin@loaddispatch.com.ng",
-    Password: encryptedPassword,
+    FirstName: "Prince",
+    LastName: "Nweke",
+    Email: "admin@myarea.com.ng",
+    Mobile: "08057886381",
+    UserName: "admin@myarea.com.ng",
+    PasswordHash: encryptedPassword,
     Address: "Lagos",
     City: "LG",
     Country: "NG",
-    IsActivated: false,
-    CompanyId: 1,
   });
 
   UserRole.create({
@@ -228,23 +219,23 @@ function initial() {
     RoleId: adminRoleId,
   });
 
-  Subscription.create({
-    // SubscribeId: 1,
-    SubscriptionType: "free Trial",
-    SubscriptionName: "Free 30 Day Trial",
-    Amount: 0.0,
-    Description: "Basic ",
-    Active: true,
-    Duration: 30,
-  });
+  // Subscription.create({
+  //   // SubscribeId: 1,
+  //   SubscriptionType: "free Trial",
+  //   SubscriptionName: "Free 30 Day Trial",
+  //   Amount: 0.0,
+  //   Description: "Basic ",
+  //   Active: true,
+  //   Duration: 30,
+  // });
 
-  UserSubscription.create({
-    // UserSubscriptionId: 1,
-    SubscribeId: 1,
-    SubscriptionName: "Free 30 Day Trial",
-    UserId: initialUserId,
-    Active: true,
-    StartDate: startDate,
-    EndDate: endDate,
-  });
+  // UserSubscription.create({
+  //   // UserSubscriptionId: 1,
+  //   SubscribeId: 1,
+  //   SubscriptionName: "Free 30 Day Trial",
+  //   UserId: initialUserId,
+  //   Active: true,
+  //   StartDate: startDate,
+  //   EndDate: endDate,
+  // });
 }

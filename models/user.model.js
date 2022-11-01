@@ -1,8 +1,8 @@
 module.exports = (sequelize, Sequelize) => {
   const User = sequelize.define("user", {
     UserId: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
     FirstName: {
@@ -59,10 +59,10 @@ module.exports = (sequelize, Sequelize) => {
       defaultValue: "",
     },
     RegisteredAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     LastLogin: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
       allowNull: true,
     },
     Desc: {
@@ -85,17 +85,21 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
 
+    IsActivated: {
+      type: Sequelize.BOOLEAN,
+    },
+
     createdBy: {
       type: Sequelize.STRING,
     },
     createdAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     updatedBy: {
       type: Sequelize.STRING,
     },
     updatedAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
   });
 

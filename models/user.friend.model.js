@@ -1,7 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
-  const UserFriend = sequelize.define("UserFriend", {
+  const UserFriend = sequelize.define("user_friend", {
     UserFriendId: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -15,13 +15,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     createdAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     updatedBy: {
       type: Sequelize.STRING,
     },
     updatedAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
   });
 

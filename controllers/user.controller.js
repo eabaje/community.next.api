@@ -1,17 +1,39 @@
-require('dotenv').config();
-const path = require('path');
-var fs = require('fs');
-require('../config/nodemailer.config');
-const nodemailer = require('nodemailer');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const db = require('../models/index.model');
+require("dotenv").config();
+const path = require("path");
+var fs = require("fs");
+require("../config/nodemailer.config");
+const nodemailer = require("nodemailer");
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const db = require("../models/index.model");
 
 const User = db.user;
-const UserSubscription = db.usersubscription;
-const Subscription = db.subscribe;
-const Company = db.company;
-const CompanyDoc = db.companydoc;
+const userfollower = db.userfollower;
+const userfriend = db.userfriend;
+const userpost = db.userpost;
+const userrole = db.userrole;
+const chat = db.chat;
+const employer = db.employer;
+
+const video = db.video;
+
+const relationprimary = db.relationprimary;
+
+const relationsecondary = db.relationsecondary;
+
+const group = db.group;
+const groupfollower = db.groupfollower;
+const groupmember = db.groupmember;
+const groupmessage = db.groupmessage;
+const groupmeta = db.groupmeta;
+const grouppost = db.grouppost;
+
+const place = db.place;
+const school = db.school;
+const review = db.review;
+
+// const Company = db.company;
+// const CompanyDoc = db.companydoc;
 
 const Role = db.role;
 const UserRole = db.userrole;
@@ -25,7 +47,7 @@ exports.create = (req, res) => {
     },
   }).then((user) => {
     if (user) {
-      return res.status(404).send({ message: 'Email already exists' });
+      return res.status(404).send({ message: "Email already exists" });
     }
   });
 
@@ -46,12 +68,18 @@ exports.create = (req, res) => {
         : bcrypt.hashSync(generator.generate({ length: 8, numbers: true }), 10);
 
       //console.log('Password:', encryptedPassword);
-      const email = req.body.ContactEmail ? req.body.ContactEmail : req.body.Email;
-      const fullname = req.body.FullName ? req.body.FullName : req.body.FirstName + ' ' + req.body.LastName;
+      const email = req.body.ContactEmail
+        ? req.body.ContactEmail
+        : req.body.Email;
+      const fullname = req.body.FullName
+        ? req.body.FullName
+        : req.body.FirstName + " " + req.body.LastName;
 
       User.create({
         CompanyId: company.CompanyId,
-        FullName: req.body.FullName ? req.body.FullName : req.body.FirstName + ' ' + req.body.LastName,
+        FullName: req.body.FullName
+          ? req.body.FullName
+          : req.body.FirstName + " " + req.body.LastName,
         Email: req.body.Email.toLowerCase(),
         Phone: req.body.Phone,
         Address: req.body.Address,
@@ -74,9 +102,13 @@ exports.create = (req, res) => {
 
               // Add User Subscription
               // user.setRoles(roles).then(() => {
-              const token = jwt.sign({ UserId: user.UserId }, `${process.env.TOKEN_KEY}`, {
-                expiresIn: '2h',
-              });
+              const token = jwt.sign(
+                { UserId: user.UserId },
+                `${process.env.TOKEN_KEY}`,
+                {
+                  expiresIn: "2h",
+                }
+              );
               // save user token
               user.Token = token;
               user.save();
@@ -96,26 +128,26 @@ exports.create = (req, res) => {
               // point to the template folder
               const handlebarOptions = {
                 viewEngine: {
-                  partialsDir: path.resolve('./views/'),
+                  partialsDir: path.resolve("./views/"),
                   defaultLayout: false,
                 },
-                viewPath: path.resolve('./views/'),
+                viewPath: path.resolve("./views/"),
               };
 
               // use a template file with nodemailer
-              transporter.use('compile', hbs(handlebarOptions));
+              transporter.use("compile", hbs(handlebarOptions));
 
               const url = `${process.env.BASE_URL}` + `auth/verify/${token}`;
               transporter
                 .sendMail({
                   from: `${process.env.FROM_EMAIL}`,
                   to: email,
-                  template: 'email2', // the name of the template file i.e email.handlebars
+                  template: "email2", // the name of the template file i.e email.handlebars
                   context: {
                     name: fullname,
                     url: url,
                   },
-                  subject: 'Welcome to Global Load Dispatch',
+                  subject: "Welcome to Global Load Dispatch",
                   //     html: `<h1>Email Confirmation</h1>
                   // <h2>Hello ${fullname}</h2>
 
@@ -128,7 +160,9 @@ exports.create = (req, res) => {
                 })
                 .catch(console.error);
 
-              res.status(200).send({ message: 'User registered successfully!' });
+              res
+                .status(200)
+                .send({ message: "User registered successfully!" });
               // });
             });
             // } else {
@@ -146,8 +180,153 @@ exports.create = (req, res) => {
 
     .catch((err) => {
       console.log(`err`, err);
-      res.status(500).send({ message: 'Company Error:' + err.message });
+      res.status(500).send({ message: "Company Error:" + err.message });
     });
+};
+
+exports.addSpouse = async (req, res) => {
+  try {
+    const { Email, UserId } = req.body;
+
+    const spouse = await relationprimary.findOne({
+      where: { [Op.and]: [{ RelationType: "sp" }, { UserId: UserId }] },
+    });
+
+    if (spouse) {
+      return res
+        .status(404)
+        .send({ message: "An error occurred with Role Type Provision" });
+    }
+
+    const newSpouse = await relationprimary.create({
+      // req.body,
+      FirstName: req.body.FirstName,
+      LastName: req.body.LastName,
+      MiddleName: req.body.MiddleName,
+      Email: req.body.Email.toLowerCase(),
+      Age: req.body.Age,
+      Sex: req.body.Sex,
+      Mobile: req.body.Mobile,
+      Address: req.body.Address,
+      City: req.body.City,
+      State: req.body.State,
+      Country: req.body.Country,
+      UserId: UserId,
+      // UserName: req.body.Email.toLowerCase(),
+      // AcceptTerms: req.body.AcceptTerms,
+      // PaymentMethod: req.body.PaymentMethod,
+      // Currency: req.body.Currency,
+      // IsActivated: false,
+      // IsConfirmed: false,
+    });
+
+    if (newSpouse) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      res
+        .status(200)
+        .send({ message: "Added Spousal information successfully!" });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+exports.addChildOrSibling = async (req, res) => {
+  try {
+    const { Email, UserId, RelationType } = req.body;
+
+    await req.body.child.map((item, index) => {
+      const newChildOrSibling = relationprimary.create({
+        RelationType: RelationType,
+        FirstName: item.FirstName,
+        MiddleName: item.MiddleName,
+        LastName: item.LastName,
+        Nickname: item.Nickname,
+
+        UserId: UserId,
+        // PurchaseYear: vehicle.Veh
+      });
+
+      if (newChildOrSibling)
+        return res.status(200).send({
+          message: "Added new information successfully!.",
+          data: newChildOrSibling,
+        });
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+exports.addSchoolPlaceWork = async (req, res) => {
+  try {
+    const { Email, UserId, RelationType } = req.body;
+
+    await req.body.child.map((item, index) => {
+      if (RelationType === "sch") {
+        const newSchool = school.create({
+          SchoolName: item.SchoolName,
+          Address: item.Address,
+          City: item.City,
+          State: item.State,
+          Country: item.Country,
+          YearFrom: item.YearFrom,
+          YearTo: item.YearTo,
+          UserId: UserId,
+          // PurchaseYear: vehicle.Veh
+        });
+
+        if (newSchool)
+          return res.status(200).send({
+            message: "Added School information successfully!.",
+            data: newSchool,
+          });
+      } else if (RelationType === "wk") {
+        const newEmployer = employer.create({
+          CompanyName: item.CompanyName,
+          Address: item.Address,
+          City: item.City,
+          State: item.State,
+          Country: item.Country,
+          YearFrom: item.YearFrom,
+          YearTo: item.YearTo,
+          UserId: UserId,
+          // PurchaseYear: vehicle.Veh
+        });
+        if (newEmployer)
+          return res.status(200).send({
+            message: "Added work information successfully!.",
+            data: newEmployer,
+          });
+      } else {
+        const newPlace = place.create({
+          NeighbourhoodName: item.NeighbourhoodName,
+          Address: item.Address,
+          City: item.City,
+          State: item.State,
+          Country: item.Country,
+          YearFrom: item.YearFrom,
+          YearTo: item.YearTo,
+          UserId: UserId,
+          // PurchaseYear: vehicle.Veh
+        });
+        if (newPlace)
+          return res.status(200).send({
+            message: "Added place(s) of residence history successfully!.",
+            data: newPlace,
+          });
+      }
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
 };
 
 // Retrieve all Users from the database.
@@ -162,21 +341,21 @@ exports.findAll = (req, res) => {
       },
       {
         model: Role,
-        attributes: ['Name'],
+        attributes: ["Name"],
       },
     ],
 
-    order: [['createdAt', 'DESC']],
+    order: [["createdAt", "DESC"]],
   })
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
     .catch((err) => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
+        message: err.message || "Some error occurred while retrieving Users.",
       });
     });
 };
@@ -193,21 +372,21 @@ exports.findAllBySearch = (req, res) => {
       },
       {
         model: Role,
-        attributes: ['Name'],
+        attributes: ["Name"],
       },
     ],
 
-    order: [['createdAt', 'DESC']],
+    order: [["createdAt", "DESC"]],
   })
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
     .catch((err) => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
+        message: err.message || "Some error occurred while retrieving Users.",
       });
     });
 };
@@ -224,21 +403,21 @@ exports.findOne = (req, res) => {
       },
       {
         model: Role,
-        attributes: ['Name'],
+        attributes: ["Name"],
       },
     ],
-    order: [['createdAt', 'DESC']],
+    order: [["createdAt", "DESC"]],
   })
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
     .catch((err) => {
-      console.log('err', err);
+      console.log("err", err);
       res.status(500).send({
-        message: 'Error retrieving User with UserId=' + id,
+        message: "Error retrieving User with UserId=" + id,
       });
     });
 };
@@ -255,7 +434,7 @@ exports.update = (req, res) => {
     .then((num) => {
       if (num == 1) {
         res.send({
-          message: 'User was updated successfully.',
+          message: "User was updated successfully.",
         });
       } else {
         res.send({
@@ -265,7 +444,7 @@ exports.update = (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        message: 'Error updating User with id=' + id,
+        message: "Error updating User with id=" + id,
       });
     });
 };
@@ -279,7 +458,7 @@ exports.updateUserRole = (req, res) => {
     .then((num) => {
       if (num == 1) {
         res.send({
-          message: 'User Role was updated successfully.',
+          message: "User Role was updated successfully.",
         });
       } else {
         res.send({
@@ -289,7 +468,7 @@ exports.updateUserRole = (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        message: 'Error updating User with id=' + id,
+        message: "Error updating User with id=" + id,
       });
     });
 };
@@ -302,20 +481,25 @@ exports.updateFile = (req, res) => {
     },
   }).then((user) => {
     if (user) {
-      console.log('user', user);
+      console.log("user", user);
       const uploadFile = req.file ? req.file : null;
 
-      const picpath = uploadFile ? `${user.CompanyId}/${user.Email}/${uploadFile.originalname}` : '';
+      const picpath = uploadFile
+        ? `${user.CompanyId}/${user.Email}/${uploadFile.originalname}`
+        : "";
 
-      var condition = req.body.FileType === 'image' ? { UserPicUrl: picpath } : { UserPicUrl: picpath };
-      console.log('condition', condition);
+      var condition =
+        req.body.FileType === "image"
+          ? { UserPicUrl: picpath }
+          : { UserPicUrl: picpath };
+      console.log("condition", condition);
       User.update(condition, {
         where: { UserId: req.body.UserId },
       })
         .then((num) => {
           if (num == 1) {
             res.send({
-              message: 'File uploaded successfully.',
+              message: "File uploaded successfully.",
             });
           } else {
             res.send({
@@ -325,12 +509,12 @@ exports.updateFile = (req, res) => {
         })
         .catch((err) => {
           res.status(500).send({
-            message: 'Error updating Driver with id=' + id,
+            message: "Error updating Driver with id=" + id,
           });
         });
     } else {
       res.status(500).send({
-        message: 'Error updating the record',
+        message: "Error updating the record",
       });
     }
   });
@@ -349,15 +533,20 @@ exports.changeImageProfile = async (req, res = response) => {
   try {
     const imagePath = req.file.filename;
 
-    const imagedb = await pool.query('SELECT image FROM person WHERE uid = ?', [req.uid]);
+    const imagedb = await pool.query("SELECT image FROM person WHERE uid = ?", [
+      req.uid,
+    ]);
 
-    await fs.unlink(path.resolve('src/Uploads/Profile/' + imagedb[0].image));
+    await fs.unlink(path.resolve("src/Uploads/Profile/" + imagedb[0].image));
 
-    await pool.query('UPDATE person SET image = ? WHERE uid = ?', [imagePath, req.uid]);
+    await pool.query("UPDATE person SET image = ? WHERE uid = ?", [
+      imagePath,
+      req.uid,
+    ]);
 
     res.json({
       resp: true,
-      msg: 'Picture changed',
+      msg: "Picture changed",
     });
   } catch (e) {
     return res.status(500).json({
@@ -377,7 +566,7 @@ exports.delete = (req, res) => {
     .then((num) => {
       if (num == 1) {
         res.send({
-          message: 'User was deleted successfully!',
+          message: "User was deleted successfully!",
         });
       } else {
         res.send({
@@ -387,7 +576,7 @@ exports.delete = (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        message: 'Could not delete User with id=' + id,
+        message: "Could not delete User with id=" + id,
       });
     });
 };
@@ -403,7 +592,7 @@ exports.deleteAll = (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while removing all Users.',
+        message: err.message || "Some error occurred while removing all Users.",
       });
     });
 };
@@ -421,21 +610,21 @@ exports.findAllUsersByDate = (req, res) => {
     },
     include: {
       model: Company,
-      attributes: ['CompanyName'],
+      attributes: ["CompanyName"],
     },
 
-    order: [['createdAt', 'DESC']],
+    order: [["createdAt", "DESC"]],
   })
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
 
     .catch((err) => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
+        message: err.message || "Some error occurred while retrieving Users.",
       });
     });
 };
@@ -449,13 +638,13 @@ exports.findRoles = (req, res) => {
   Role.findAll({ where: condition })
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
     .catch((err) => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
+        message: err.message || "Some error occurred while retrieving Users.",
       });
     });
 };
@@ -467,13 +656,13 @@ exports.findUserRoles = (req, res) => {
   UserRole.findAll({ where: condition })
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
     .catch((err) => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
+        message: err.message || "Some error occurred while retrieving Users.",
       });
     });
 };
@@ -487,7 +676,7 @@ exports.updateRole = (req, res) => {
     .then((num) => {
       if (num == 1) {
         res.send({
-          message: 'Role was updated successfully.',
+          message: "Role was updated successfully.",
         });
       } else {
         res.send({
@@ -497,7 +686,7 @@ exports.updateRole = (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        message: 'Error updating Role with id=' + id,
+        message: "Error updating Role with id=" + id,
       });
     });
 };
@@ -511,7 +700,7 @@ exports.deleteRole = (req, res) => {
     .then((num) => {
       if (num == 1) {
         res.send({
-          message: 'Role was deleted successfully!',
+          message: "Role was deleted successfully!",
         });
       } else {
         res.send({
@@ -521,119 +710,7 @@ exports.deleteRole = (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        message: 'Could not delete Role with id=' + id,
-      });
-    });
-};
-
-exports.createCompany = (req, res) => {
-  // Validate request
-
-  // Create a Order
-  const company = {
-    CompanyName: req.body.CompanyName,
-    ContactEmail: req.body.ContactEmail,
-    ContactPhone: req.body.ContactPhone,
-    Address: req.body.Address,
-    Country: req.body.Country,
-    CompanyType: req.body.CompanyType,
-  };
-
-  // Save Order in the database
-  Company.create(company)
-
-    .then((data) => {
-      res.status(200).send({
-        message: 'Company was added successfully',
-        data: data,
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || 'Some error occurred while creating the Order.',
-      });
-    });
-};
-
-exports.updateCompany = (req, res) => {
-  const id = req.body.CompanyId;
-
-  Company.update(req.body, {
-    where: { CompanyId: id },
-  })
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          message: 'Company was updated successfully.',
-        });
-      } else {
-        res.send({
-          message: `Cannot update Company with id=${id}. Maybe Company was not found or req.body is empty!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: 'Error updating Company with id=' + id,
-      });
-    });
-};
-
-exports.vetCompany = (req, res) => {
-  const id = req.body.CompanyId;
-
-  Company.update(req.body, {
-    where: { CompanyId: id },
-  })
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          message: 'Company is vetted successfully.',
-        });
-      } else {
-        res.send({
-          message: `Cannot update Company with id=${id}. Maybe Company was not found or req.body is empty!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: 'Error updating Company with id=' + id,
-      });
-    });
-};
-
-exports.findAllCompanyDoc = (req, res) => {
-  const id = req.params.companyId;
-
-  CompanyDoc.findAll({ where: { RefId: id } })
-
-    .then((data) => {
-      res.status(200).send({
-        message: 'Success',
-        data: data,
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
-      });
-    });
-};
-exports.findCompanyDocById = (req, res) => {
-  const id = req.params.docId;
-
-  CompanyDoc.findOne({ where: { DocId: id } })
-
-    .then((data) => {
-      res.status(200).send({
-        message: 'Success',
-        data: data,
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
+        message: "Could not delete Role with id=" + id,
       });
     });
 };
@@ -655,7 +732,7 @@ exports.uploadCompanyDoc = async (req, res) => {
   //   // const dir = `${process.env.UPLOADS_URL}/${UploadType}/${RefId}`;
 
   try {
-    console.log('req', req);
+    console.log("req", req);
     // req.body.document.map((document, index) => {
     //   console.log('document', JSON.parse(document.DocTitle));
     // });
@@ -663,7 +740,7 @@ exports.uploadCompanyDoc = async (req, res) => {
     //   console.log('document', doc.DocTitle);
     // }
     await req.files.map((file, index) => {
-      console.log('index', index);
+      console.log("index", index);
       const companyDoc = {
         RefId: req.body.RefId,
         DocTitle: req.body.DocTitle[index],
@@ -679,7 +756,7 @@ exports.uploadCompanyDoc = async (req, res) => {
     //  const picurl = picName + path.extname(req.file.originalname);
 
     return res.status(200).send({
-      message: 'Success',
+      message: "Success",
     });
   } catch (error) {
     console.log(`An error occurred during processing: ${error.message}`);
@@ -693,32 +770,34 @@ exports.findCompany = (req, res) => {
 
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
     .catch((err) => {
       res.status(500).send({
-        message: 'Error retrieving Company with CompanyId=' + id,
+        message: "Error retrieving Company with CompanyId=" + id,
       });
     });
 };
 
 exports.findAllCompanys = (req, res) => {
   const CompanyType = req.query.companyType;
-  var condition = CompanyType ? { CompanyType: { [Op.iLike]: `%${CompanyType}%` } } : null;
+  var condition = CompanyType
+    ? { CompanyType: { [Op.iLike]: `%${CompanyType}%` } }
+    : null;
 
   Company.findAll({ where: condition })
 
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
     .catch((err) => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
+        message: err.message || "Some error occurred while retrieving Users.",
       });
     });
 };
@@ -733,19 +812,19 @@ exports.findAllCompanysByDate = (req, res) => {
         [Op.between]: [new Date(Date(startDate)), new Date(Date(endDate))],
       },
     },
-    order: [['createdAt', 'ASC']],
+    order: [["createdAt", "ASC"]],
   })
 
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
 
     .catch((err) => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
+        message: err.message || "Some error occurred while retrieving Users.",
       });
     });
 };
@@ -759,7 +838,7 @@ exports.deleteCompany = (req, res) => {
     .then((num) => {
       if (num == 1) {
         res.send({
-          message: 'Company was deleted successfully!',
+          message: "Company was deleted successfully!",
         });
       } else {
         res.send({
@@ -769,7 +848,7 @@ exports.deleteCompany = (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        message: 'Could not delete Company with id=' + id,
+        message: "Could not delete Company with id=" + id,
       });
     });
 };
@@ -779,15 +858,23 @@ exports.subscribe = (req, res) => {
 
   const UserId = req.body.UserId;
 
-  const IsSubscribed = UserSubscription.findAll({ where: { UserId: UserId, Active: true } });
+  const IsSubscribed = UserSubscription.findAll({
+    where: { UserId: UserId, Active: true },
+  });
 
   if (IsSubscribed) {
-    return res.status(409).send('User Already Subscribed. Do you want to upgrade your subscription?');
+    return res
+      .status(409)
+      .send(
+        "User Already Subscribed. Do you want to upgrade your subscription?"
+      );
   }
 
   // Get the subscription package
 
-  Subscription.findOne({ where: { SubscribeId: req.body.SubscriptionId } }).then((subscribeRes) => {
+  Subscription.findOne({
+    where: { SubscribeId: req.body.SubscriptionId },
+  }).then((subscribeRes) => {
     let startDate = new Date();
 
     let endDate = new Date();
@@ -804,7 +891,9 @@ exports.subscribe = (req, res) => {
 
     UserSubscription.create(subscribe).then((UserSubscribed) => {
       if (UserSubscribed) {
-        return res.status(201).send({ message: `User Subscribed to  ${subscribeRes.SubscriptionName} package.` });
+        return res.status(201).send({
+          message: `User Subscribed to  ${subscribeRes.SubscriptionName} package.`,
+        });
       }
     });
   });
@@ -821,7 +910,7 @@ exports.subscribe = (req, res) => {
 
   transporter.sendMail({
     to: email,
-    subject: 'Tnanks for your subscription',
+    subject: "Tnanks for your subscription",
     html: `Dear ${User.FullName}<p> You subscribed to package ${SubscriptionName} from ${StartDate} to ${EndDate}</p>kindly Click <a href = '${url}'>here</a> to your dashboard to begin.`,
   });
   return res.status(201).send({
@@ -846,14 +935,16 @@ exports.upgradeUserSubscription = (req, res) => {
             where: {
               UserId: UserId,
             },
-          },
+          }
         );
       }
 
       // Get the subscription package
       // console.log('req.body.SubscriptionId', req.body.SubscriptionId);
-      Subscription.findOne({ where: { SubscribeId: req.body.SubscriptionId } }).then((subscribeRes) => {
-        console.log('subscribeRes', subscribeRes);
+      Subscription.findOne({
+        where: { SubscribeId: req.body.SubscriptionId },
+      }).then((subscribeRes) => {
+        console.log("subscribeRes", subscribeRes);
         let startDate = new Date();
 
         let endDate = new Date();
@@ -870,7 +961,9 @@ exports.upgradeUserSubscription = (req, res) => {
 
         UserSubscription.create(subscribe).then((UserSubscribed) => {
           if (UserSubscribed) {
-            return res.status(201).send({ message: `User Subscribed to  ${subscribeRes.SubscriptionName} package.` });
+            return res.status(201).send({
+              message: `User Subscribed to  ${subscribeRes.SubscriptionName} package.`,
+            });
           }
         });
       });
@@ -889,7 +982,7 @@ exports.updateUserSubscription = (req, res) => {
     .then((num) => {
       if (num == 1) {
         res.send({
-          message: 'User was updated successfully.',
+          message: "User was updated successfully.",
         });
       } else {
         res.send({
@@ -899,7 +992,7 @@ exports.updateUserSubscription = (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        message: 'Error updating User Subscription with id=' + id,
+        message: "Error updating User Subscription with id=" + id,
       });
     });
 };
@@ -912,20 +1005,20 @@ exports.findUserSubscription = (req, res) => {
 
     include: {
       model: User,
-      attributes: ['FullName', 'Email', 'PaymentMethod', 'Currency'],
+      attributes: ["FullName", "Email", "PaymentMethod", "Currency"],
     },
   })
 
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
     .catch((err) => {
       console.log(`error`, err);
       res.status(500).send({
-        message: 'Error retrieving User with UserId=' + id,
+        message: "Error retrieving User with UserId=" + id,
       });
     });
 };
@@ -938,21 +1031,21 @@ exports.findAllUserSubscriptions = (req, res) => {
     where: condition,
     include: {
       model: User,
-      attributes: ['FullName', 'Email', 'PaymentMethod', 'Currency'],
+      attributes: ["FullName", "Email", "PaymentMethod", "Currency"],
     },
-    order: [['createdAt', 'DESC']],
+    order: [["createdAt", "DESC"]],
   })
 
     .then((data) => {
       console.log(`data`, data);
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
     .catch((err) => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
+        message: err.message || "Some error occurred while retrieving Users.",
       });
     });
 };
@@ -969,22 +1062,22 @@ exports.findAllUserSubscriptionsByDate = (req, res) => {
     },
     include: {
       model: User,
-      attributes: ['FullName', 'Email', 'PaymentMethod', 'Currency'],
+      attributes: ["FullName", "Email", "PaymentMethod", "Currency"],
     },
 
-    order: [['createdAt', 'DESC']],
+    order: [["createdAt", "DESC"]],
   })
 
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
 
     .catch((err) => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
+        message: err.message || "Some error occurred while retrieving Users.",
       });
     });
 };
@@ -1001,21 +1094,21 @@ exports.findAllUserSubscriptionsByStartDate = (req, res) => {
     },
     include: {
       model: User,
-      attributes: ['FullName', 'Email', 'PaymentMethod', 'Currency'],
+      attributes: ["FullName", "Email", "PaymentMethod", "Currency"],
     },
-    order: [['createdAt', 'ASC']],
+    order: [["createdAt", "ASC"]],
   })
 
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
 
     .catch((err) => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
+        message: err.message || "Some error occurred while retrieving Users.",
       });
     });
 };
@@ -1032,21 +1125,21 @@ exports.findAllUserSubscriptionsByEndDate = (req, res) => {
     },
     include: {
       model: User,
-      attributes: ['FullName', 'Email', 'PaymentMethod', 'Currency'],
+      attributes: ["FullName", "Email", "PaymentMethod", "Currency"],
     },
-    order: [['createdAt', 'DESC']],
+    order: [["createdAt", "DESC"]],
   })
 
     .then((data) => {
       res.status(200).send({
-        message: 'Success',
+        message: "Success",
         data: data,
       });
     })
 
     .catch((err) => {
       res.status(500).send({
-        message: err.message || 'Some error occurred while retrieving Users.',
+        message: err.message || "Some error occurred while retrieving Users.",
       });
     });
 };
@@ -1060,7 +1153,7 @@ exports.deleteUserSubscription = (req, res) => {
     .then((num) => {
       if (num == 1) {
         res.send({
-          message: 'User was deleted successfully!',
+          message: "User was deleted successfully!",
         });
       } else {
         res.send({
@@ -1070,7 +1163,7 @@ exports.deleteUserSubscription = (req, res) => {
     })
     .catch((err) => {
       res.status(500).send({
-        message: 'Could not delete User with id=' + id,
+        message: "Could not delete User with id=" + id,
       });
     });
 };

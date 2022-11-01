@@ -1,7 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
-  const UserPostLike = sequelize.define("UserPostLike", {
+  const UserPostLike = sequelize.define("user_post_like", {
     UserPostLikeId: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -18,13 +18,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     createdAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     updatedBy: {
       type: Sequelize.STRING,
     },
     updatedAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
   });
 

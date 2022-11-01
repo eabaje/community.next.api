@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const UserMessage = sequelize.define("UserMessage", {
+  const UserMessage = sequelize.define("user_message", {
     UserMessageId: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -18,13 +18,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     createdAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     updatedBy: {
       type: Sequelize.STRING,
     },
     updatedAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
   });
 

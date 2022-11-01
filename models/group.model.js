@@ -1,7 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
-  const Group = sequelize.define("Group", {
+  const Group = sequelize.define("groups", {
     GroupId: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -18,7 +18,7 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     Status: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       defaultValue: 0,
     },
 
@@ -34,13 +34,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     createdAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     updatedBy: {
       type: Sequelize.STRING,
     },
     updatedAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
   });
 

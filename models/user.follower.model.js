@@ -1,7 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
-  const UserFollower = sequelize.define("UserFollower", {
+  const UserFollower = sequelize.define("user_follower", {
     UserFollowerId: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -16,13 +16,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     createdAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     updatedBy: {
       type: Sequelize.STRING,
     },
     updatedAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
   });
 

@@ -1,14 +1,14 @@
 module.exports = (sequelize, Sequelize) => {
-  const RelationPrimary = sequelize.define("RelationPrimary", {
+  const RelationPrimary = sequelize.define("relation_primary", {
     RelationPrimaryId: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
 
     RelationType: {
-      type: Sequelize.ENUM(0, 1, 2, 3),
-      defaultValue: 0,
+      type: Sequelize.ENUM("sp", "ch", "sib"),
+      defaultValue: "sp",
     },
     FirstName: {
       type: Sequelize.STRING,
@@ -28,12 +28,18 @@ module.exports = (sequelize, Sequelize) => {
     Email: {
       type: Sequelize.STRING,
     },
-
+    Age: {
+      type: Sequelize.STRING,
+    },
     ProfilePicture: {
       type: Sequelize.STRING,
       defaultValue: "",
     },
     CoverPicture: {
+      type: Sequelize.STRING,
+      defaultValue: "",
+    },
+    Language: {
       type: Sequelize.STRING,
       defaultValue: "",
     },
@@ -50,13 +56,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     createdAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     updatedBy: {
       type: Sequelize.STRING,
     },
     updatedAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
   });
 

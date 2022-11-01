@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const controller = require("../controller/user.controller");
+const controller = require("../controllers/user.controller");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -82,6 +82,12 @@ module.exports = function (app) {
   });
 
   app.post("/api/user/create", controller.create);
+
+  app.post("/api/user/addSpouse", controller.addSpouse);
+
+  app.post("/api/user/addChildOrSibling", controller.addChildOrSibling);
+
+  app.post("/api/user/addschoolplacework", controller.addSchoolPlaceWork);
 
   app.get("/api/user/findOne/:userId", controller.findOne);
 

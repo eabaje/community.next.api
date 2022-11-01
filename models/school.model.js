@@ -1,8 +1,8 @@
 module.exports = (sequelize, Sequelize) => {
   const School = sequelize.define("School", {
     SchoolId: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
     SchoolName: {
@@ -21,24 +21,24 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     YearFrom: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
 
     YearTo: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
 
     createdBy: {
       type: Sequelize.STRING,
     },
     createdAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     updatedBy: {
       type: Sequelize.STRING,
     },
     updatedAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
   });
 

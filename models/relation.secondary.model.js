@@ -1,13 +1,13 @@
 module.exports = (sequelize, Sequelize) => {
-  const RelationSecondary = sequelize.define("RelationSecondary", {
+  const RelationSecondary = sequelize.define("relation_secondary", {
     RelationId: {
-      type: DataTypes.UUID,
-      defaultValue: DataTypes.UUIDV4,
+      type: Sequelize.UUID,
+      defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
     },
     RelationType: {
-      type: Sequelize.ENUM(0, 1, 2, 3),
-      defaultValue: 0,
+      type: Sequelize.ENUM("p", "gp", "ggp"),
+      defaultValue: "p",
     },
     FirstName: {
       type: Sequelize.STRING,
@@ -86,13 +86,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     createdAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     updatedBy: {
       type: Sequelize.STRING,
     },
     updatedAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
   });
 

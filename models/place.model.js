@@ -1,7 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
-  const PlaceLived = sequelize.define("PlaceLived", {
+  const PlaceLived = sequelize.define("Place_of_residence", {
     PlaceLivedId: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
@@ -17,25 +17,25 @@ module.exports = (sequelize, Sequelize) => {
     Country: {
       type: Sequelize.STRING,
     },
-    YearLivedFrom: {
-      type: Sequelize.DATETIME,
+    YearFrom: {
+      type: Sequelize.DATE,
     },
 
-    YearLivedTo: {
-      type: Sequelize.DATETIME,
+    YearTo: {
+      type: Sequelize.DATE,
     },
 
     createdBy: {
       type: Sequelize.STRING,
     },
     createdAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
     updatedBy: {
       type: Sequelize.STRING,
     },
     updatedAt: {
-      type: Sequelize.DATETIME,
+      type: Sequelize.DATE,
     },
   });
 
