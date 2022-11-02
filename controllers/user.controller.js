@@ -263,6 +263,58 @@ exports.addChildOrSibling = async (req, res) => {
   }
 };
 
+
+exports.addSpouse = async (req, res) => {
+  try {
+    const { Email, UserId } = req.body;
+
+    const spouse = await relationprimary.findOne({
+      where: { [Op.and]: [{ RelationType: "sp" }, { UserId: UserId }] },
+    });
+
+    if (spouse) {
+      return res
+        .status(404)
+        .send({ message: "An error occurred with Role Type Provision" });
+    }
+
+    const newSpouse = await relationprimary.create({
+      // req.body,
+      FirstName: req.body.FirstName,
+      LastName: req.body.LastName,
+      MiddleName: req.body.MiddleName,
+      Email: req.body.Email.toLowerCase(),
+      Age: req.body.Age,
+      Sex: req.body.Sex,
+      Mobile: req.body.Mobile,
+      Address: req.body.Address,
+      City: req.body.City,
+      State: req.body.State,
+      Country: req.body.Country,
+      UserId: UserId,
+      // UserName: req.body.Email.toLowerCase(),
+      // AcceptTerms: req.body.AcceptTerms,
+      // PaymentMethod: req.body.PaymentMethod,
+      // Currency: req.body.Currency,
+      // IsActivated: false,
+      // IsConfirmed: false,
+    });
+
+    if (newSpouse) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      res
+        .status(200)
+        .send({ message: "Added Spousal information successfully!" });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
 exports.addSchoolPlaceWork = async (req, res) => {
   try {
     const { Email, UserId, RelationType } = req.body;
