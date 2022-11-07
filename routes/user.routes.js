@@ -171,39 +171,39 @@ module.exports = function (app) {
 
   app.post("/api/user/delete", controller.delete);
 
-  app.post("/api/user/createCompany", controller.createCompany);
+  // app.post("/api/user/createCompany", controller.createCompany);
 
-  app.put("/api/user/updateCompany/:companyId", controller.updateCompany);
+  // app.put("/api/user/updateCompany/:companyId", controller.updateCompany);
 
-  app.post(
-    "/api/user/company/uploadCompanyDoc",
+  // app.post(
+  //   "/api/user/company/uploadCompanyDoc",
 
-    imageUploader.single("file"),
-    controller.uploadCompanyDoc
-  );
+  //   imageUploader.single("file"),
+  //   controller.uploadCompanyDoc
+  // );
 
-  app.post(
-    "/api/user/company/updateCompanyDoc",
+  // app.post(
+  //   "/api/user/company/updateCompanyDoc",
 
-    imageUploader.single("file"),
-    controller.uploadCompanyDoc
-  );
+  //   imageUploader.single("file"),
+  //   controller.uploadCompanyDoc
+  // );
 
-  app.get("/api/user/findCompany/:companyId", controller.findCompany);
+  // app.get("/api/user/findCompany/:companyId", controller.findCompany);
 
-  app.get("/api/user/findAllCompanys/", controller.findAllCompanys);
+  // app.get("/api/user/findAllCompanys/", controller.findAllCompanys);
 
-  app.get(
-    "/api/user/findAllCompanyDoc/:companyId",
-    controller.findAllCompanyDoc
-  );
+  // app.get(
+  //   "/api/user/findAllCompanyDoc/:companyId",
+  //   controller.findAllCompanyDoc
+  // );
 
-  app.get("/api/user/findCompanyDocById/:docId", controller.findCompanyDocById);
+  // app.get("/api/user/findCompanyDocById/:docId", controller.findCompanyDocById);
 
-  app.get(
-    "/api/user/findAllCompanysByDate/:startDate/:toDate",
-    controller.findAllCompanysByDate
-  );
+  // app.get(
+  //   "/api/user/findAllCompanysByDate/:startDate/:toDate",
+  //   controller.findAllCompanysByDate
+  // );
 
-  app.delete("/api/user/deleteCompany/:companyId", controller.deleteCompany);
+  // app.delete("/api/user/deleteCompany/:companyId", controller.deleteCompany);
 };

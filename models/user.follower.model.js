@@ -7,10 +7,10 @@ module.exports = (sequelize, Sequelize) => {
     },
 
     SourceId: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
     },
     TargetId: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
     },
     createdBy: {
       type: Sequelize.STRING,

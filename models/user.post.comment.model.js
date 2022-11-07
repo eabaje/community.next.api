@@ -1,15 +1,18 @@
 module.exports = (sequelize, Sequelize) => {
-  const UserFriend = sequelize.define("user_friend", {
-    UserFriendId: {
+  const UserPostComment = sequelize.define("user_post_comment", {
+    UserPostCommentId: {
       type: Sequelize.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },
-    SourceId: {
-      type: Sequelize.STRING,
+    UserPostId: {
+      type: Sequelize.INTEGER,
     },
-    TargetId: {
-      type: Sequelize.STRING,
+    SenderId: {
+      type: Sequelize.INTEGER,
+    },
+    Likes: {
+      type: Sequelize.INTEGER,
     },
     createdBy: {
       type: Sequelize.STRING,
@@ -25,5 +28,5 @@ module.exports = (sequelize, Sequelize) => {
     },
   });
 
-  return UserFriend;
+  return UserPostComment;
 };

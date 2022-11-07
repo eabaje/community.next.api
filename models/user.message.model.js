@@ -6,10 +6,10 @@ module.exports = (sequelize, Sequelize) => {
       primaryKey: true,
     },
     SourceId: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
     },
     TargetId: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
     },
     Likes: {
       type: Sequelize.INTEGER,

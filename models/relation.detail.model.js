@@ -1,28 +1,9 @@
 module.exports = (sequelize, Sequelize) => {
-  const RelationSecondary = sequelize.define("relation_secondary", {
-    RelationId: {
+  const RelationDetail = sequelize.define("Relation_Detail", {
+    RelationDetailId: {
       type: Sequelize.UUID,
       defaultValue: Sequelize.UUIDV4,
       primaryKey: true,
-    },
-    RelationType: {
-      type: Sequelize.ENUM("p", "gp", "ggp"),
-      defaultValue: "p",
-    },
-    FirstName: {
-      type: Sequelize.STRING,
-    },
-    MiddleName: {
-      type: Sequelize.STRING,
-    },
-    LastName: {
-      type: Sequelize.STRING,
-    },
-    MaidenName: {
-      type: Sequelize.STRING,
-    },
-    Nickname: {
-      type: Sequelize.STRING,
     },
     Mobile: {
       type: Sequelize.STRING,
@@ -96,5 +77,5 @@ module.exports = (sequelize, Sequelize) => {
     },
   });
 
-  return RelationSecondary;
+  return RelationDetail;
 };
