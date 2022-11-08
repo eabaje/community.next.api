@@ -42,6 +42,9 @@ const Role = db.role;
 const UserRole = db.userrole;
 const Op = db.Sequelize.Op;
 
+
+//Group 
+
 exports.addGroup = async (req, res) => {
   try {
     const { UserId } = req.body;
@@ -184,7 +187,46 @@ exports.getAllGroup = async (req, res) => {
     });
   }
 };
-//Get one post
+
+exports.findAllGroupByDate = async (req, res) => {
+  const startDate = req.params.startDate;
+  const endDate = req.params.endDate;
+  try {
+    const found = await group.findAll({
+      where: {
+        createdAt: {
+          [Op.between]: [new Date(Date(startDate)), new Date(Date(endDate))],
+        },
+      },
+      include: [
+        {
+          model: groupmember,
+        },
+        {
+          model: groupmeta,
+          //  attributes: ["Name"],
+        },
+      ],
+      groupBy: ["GroupId"],
+
+
+      order: [["createdAt", "DESC"]],
+    });
+    if (found) {
+      return res.status(200).send({
+        message: "Success",
+        data: found,
+      });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      message: err.message || "Some error occurred while retrieving Users.",
+    });
+  }
+};
+
+
+//Get Group
 exports.getGroup = async (req, res) => {
   try {
     const id = req.params.GroupId;
@@ -223,6 +265,8 @@ exports.getGroup = async (req, res) => {
     });
   }
 };
+
+//Group Member
 
 exports.addGroupMember = async (req, res) => {
   try {
@@ -290,9 +334,7 @@ exports.getAllGroupMember = async (req, res) => {
     });
 
     if (allGroupMember) {
-      // return res.status(200).json({
-      //   message: "Registration Link Sent",
-      // });
+     
       return res.status(200).send({ message: "Success", data: allGroupMember });
     }
   } catch (error) {
@@ -301,6 +343,43 @@ exports.getAllGroupMember = async (req, res) => {
     });
   }
 };
+
+exports.findAllGroupMemberByDate = async (req, res) => {
+  const startDate = req.params.startDate;
+  const endDate = req.params.endDate;
+  try {
+    const found = await groupmember.findAll({
+      where: {
+        createdAt: {
+          [Op.between]: [new Date(Date(startDate)), new Date(Date(endDate))],
+        },
+      },
+      include: [
+        {
+          model: group,
+        },
+        {
+          model: User,
+        },
+      ],
+      groupBy: ["GroupId"],
+
+
+      order: [["createdAt", "DESC"]],
+    });
+    if (found) {
+      return res.status(200).send({
+        message: "Success",
+        data: found,
+      });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      message: err.message || "Some error occurred while retrieving Users.",
+    });
+  }
+};
+
 
 exports.getGroupMember = async (req, res) => {
   try {
@@ -327,9 +406,7 @@ exports.getGroupMember = async (req, res) => {
     });
 
     if (foundGroupMember) {
-      // return res.status(200).json({
-      //   message: "Registration Link Sent",
-      // });
+     
       return res
         .status(200)
         .send({ message: "Success", data: foundGroupMember });
@@ -357,9 +434,7 @@ exports.deleteGroupMember = async (req, res) => {
     });
 
     if (deletedGroupMember) {
-      // return res.status(200).json({
-      //   message: "Registration Link Sent",
-      // });
+      
       res.status(200).send({ message: "Group Member has been deleted.!" });
     }
   } catch (error) {
@@ -369,9 +444,12 @@ exports.deleteGroupMember = async (req, res) => {
   }
 };
 
+
+//Group Post
+
 exports.addGroupPost = async (req, res) => {
   try {
-    const { UserId, PostId } = req.body;
+    const { UserId, PostId,GroupId,GroupPostId } = req.body;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -381,52 +459,50 @@ exports.addGroupPost = async (req, res) => {
 
     // });
 
-    const foundPostLike = await grouppost.findOne({
-      where: { PostId: PostId, UserId: UserId },
+    const foundGroupPost = await grouppost.findOne({
+      where: { GroupPostId: GroupPostId, UserId: UserId },
       order: [["createdAt", "DESC"]],
     });
-    if (foundPostLike) {
-      const updatePostLike = await userpostlike.update(
+    if (foundGroupPost) {
+      const updateGroupPost = await grouppost.update(
         {
-          UserPostId: req.body.UserPostId,
-          Likes: parseInt(foundPostLike.Likes) - 1,
+         
+          Message: req.body.Message,
           SenderId: req.body.UserId,
           updatedBy: UserId,
           updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-
           UserId: UserId,
         },
         {
-          where: { UserPostLikeId: foundPostLike.UserPostLikeId },
+          where: { GroupPostId: foundGroupPost.GroupPostId },
         }
       );
 
-      if (updatePostLike) {
+      if (updateGroupPost) {
         // return res.status(200).json({
         //   message: "Registration Link Sent",
         // });
         return res.status(200).send({
-          message: "Post Comment has been updated.!",
-          data: updatePostLike,
+          message: "Group Post has been updated.!",
+          data: updateGroupPost,
         });
       }
     }
-    const newPostLike = await userpostlike.create({
+    const newGroupPost = await grouppost.create({
       // req.body,
-      UserPostId: PostId,
-      Likes: 1,
+     
+      Message: req.body.Message,
       SenderId: req.body.UserId,
       createdBy: UserId,
       createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-
       UserId: UserId,
     });
 
-    if (newPostLike) {
+    if (newGroupPost) {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      res.status(200).send({ message: "Post Comment has been created.!" });
+      res.status(200).send({ message: "Group Post has been created.!" });
     }
   } catch (error) {
     res.status(500).send({
@@ -435,48 +511,9 @@ exports.addGroupPost = async (req, res) => {
   }
 };
 
-exports.updatePostLike = async (req, res) => {
-  try {
-    const { UserId, PostId } = req.body;
 
-    // const token = req.cookies.accessToken;
-    // if (!token) return res.status(401).json("Not logged in!");
 
-    // jwt.verify(token, "secretkey", (err, userInfo) => {
-    //   if (err) return res.status(403).json("Token is not valid!");
-
-    // });
-    const updatePostLike = await userpostlike.update(
-      {
-        UserPostId: req.body.UserPostId,
-        SenderId: req.body.UserId,
-        updatedBy: UserId,
-        updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-
-        UserId: UserId,
-      },
-      {
-        where: { UserPostLikeId: req.body.UserPostLikeId },
-      }
-    );
-
-    if (updatePostLike) {
-      // return res.status(200).json({
-      //   message: "Registration Link Sent",
-      // });
-      res.status(200).send({
-        message: "Post Comment has been updated.!",
-        data: updatePostLike,
-      });
-    }
-  } catch (error) {
-    res.status(500).send({
-      message: error.message || "Some error occurred .",
-    });
-  }
-};
-
-exports.getAllPostLike = async (req, res) => {
+exports.getAllGroupPost = async (req, res) => {
   try {
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -485,25 +522,25 @@ exports.getAllPostLike = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const allPostLike = await userpostLike.findAll({
-      // include: [
-      //   {
-      //     model: userpostlike,
-      //   },
-      //   {
-      //     model: userpostcomment,
-      //   //  attributes: ["Name"],
-      //   },
-      // ],
+    const allGroupPost = await grouppost.findAll({
+      include: [
+        {
+          model: User,
+        },
+        // {
+        //   model: userpostcomment,
+        // //  attributes: ["Name"],
+        // },
+      ],
 
       order: [["createdAt", "DESC"]],
     });
 
-    if (allPostLike) {
+    if (allGroupPost) {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      return res.status(200).send({ message: "Success", data: allPostLike });
+      return res.status(200).send({ message: "Success", data: allGroupPost });
     }
   } catch (error) {
     res.status(500).send({
@@ -512,9 +549,9 @@ exports.getAllPostLike = async (req, res) => {
   }
 };
 
-exports.getPostLike = async (req, res) => {
+exports.getGroupPost = async (req, res) => {
   try {
-    const id = req.params.UserPostLikeId;
+    const id = req.params.GroupPostId;
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
 
@@ -522,22 +559,22 @@ exports.getPostLike = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const onePostLike = await userpostlike.findOne({
-      where: { UserPostLikeId: id },
-      // include: [
-      //   {
-      //     model: userpostlike,
-      //   },
-      //   {
-      //     model: userpostcomment,
-      //   //  attributes: ["Name"],
-      //   },
-      // ],
+    const oneGroupPost = await grouppost.findOne({
+      where: { GroupPostId: id },
+      include: [
+        {
+          model: User,
+        },
+        // {
+        //   model: userpostcomment,
+        // //  attributes: ["Name"],
+        // },
+      ],
 
       order: [["createdAt", "DESC"]],
     });
 
-    if (onePostLike) {
+    if (oneGroupPost) {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
@@ -550,9 +587,9 @@ exports.getPostLike = async (req, res) => {
   }
 };
 
-exports.deletePostLike = async (req, res) => {
+exports.deleteGroupPost = async (req, res) => {
   try {
-    const id = req.params.UserPostCommentId;
+    const id = req.params.GroupPostId;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -561,15 +598,15 @@ exports.deletePostLike = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const deletedPostComment = await userpostcomment.destroy({
-      where: { UserPostCommentId: id },
+    const deletedGroupPost = await grouppost.destroy({
+      where: { GroupPostId: id },
     });
 
-    if (deletedPostComment) {
+    if (deletedGroupPost) {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      res.status(200).send({ message: "Post Comment has been deleted.!" });
+      res.status(200).send({ message: "Group Post has been deleted.!" });
     }
   } catch (error) {
     res.status(500).send({
@@ -578,43 +615,13 @@ exports.deletePostLike = async (req, res) => {
   }
 };
 
-// Retrieve all Users from the database.
-exports.findAll = (req, res) => {
-  // const name = req.params.name;
-  //var condition = name ? { FullName: { [Op.iLike]: `%${name}%` } } : null;{ where: condition }
-
-  User.findAll({
-    include: [
-      {
-        model: Company,
-      },
-      {
-        model: Role,
-        attributes: ["Name"],
-      },
-    ],
-
-    order: [["createdAt", "DESC"]],
-  })
-    .then((data) => {
-      res.status(200).send({
-        message: "Success",
-        data: data,
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving Users.",
-      });
-    });
-};
 
 // find all  Post by date
-exports.findAllPostByDate = async (req, res) => {
+exports.findAllGroupPostByDate = async (req, res) => {
   const startDate = req.params.startDate;
   const endDate = req.params.endDate;
   try {
-    const foundPost = await userpost.findAll({
+    const foundPost = await grouppost.findAll({
       where: {
         createdAt: {
           [Op.between]: [new Date(Date(startDate)), new Date(Date(endDate))],
@@ -622,11 +629,9 @@ exports.findAllPostByDate = async (req, res) => {
       },
       include: [
         {
-          model: userpostcomment,
+          model: User,
         },
-        {
-          model: userpostlike,
-        },
+       
       ],
 
       order: [["createdAt", "DESC"]],
@@ -635,6 +640,215 @@ exports.findAllPostByDate = async (req, res) => {
       return res.status(200).send({
         message: "Success",
         data: foundPost,
+      });
+    }
+  } catch (error) {
+    return res.status(500).send({
+      message: err.message || "Some error occurred while retrieving Users.",
+    });
+  }
+};
+
+
+
+//Group Message
+
+
+
+
+exports.addgroupMessage = async (req, res) => {
+  try {
+    const { UserId, MessageId,GroupId,groupmessageId } = req.body;
+
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+
+    const foundgroupmessage = await groupmessage.findOne({
+      where: { groupmessageId: groupmessageId, UserId: UserId },
+      order: [["createdAt", "DESC"]],
+    });
+    if (foundgroupmessage) {
+      const updategroupmessage = await groupmessage.update(
+        {
+         
+          Message: req.body.Message,
+          SenderId: req.body.UserId,
+          updatedBy: UserId,
+          updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+          UserId: UserId,
+        },
+        {
+          where: { groupmessageId: foundgroupmessage.groupmessageId },
+        }
+      );
+
+      if (updategroupmessage) {
+        // return res.status(200).json({
+        //   message: "Registration Link Sent",
+        // });
+        return res.status(200).send({
+          message: "Group Message has been updated.!",
+          data: updategroupmessage,
+        });
+      }
+    }
+    const newgroupmessage = await groupmessage.create({
+      // req.body,
+     
+      Message: req.body.Message,
+      SenderId: req.body.UserId,
+      createdBy: UserId,
+      createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+      UserId: UserId,
+    });
+
+    if (newgroupmessage) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      res.status(200).send({ message: "Group Message has been created.!" });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+
+
+exports.getAllGroupMessage = async (req, res) => {
+  try {
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const allgroupmessage = await groupmessage.findAll({
+      include: [
+        {
+          model: User,
+        },
+        // {
+        //   model: userMessagecomment,
+        // //  attributes: ["Name"],
+        // },
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (allgroupmessage) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: allgroupmessage });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+exports.getGroupMessage = async (req, res) => {
+  try {
+    const id = req.params.groupmessageId;
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const onegroupmessage = await groupmessage.findOne({
+      where: { groupmessageId: id },
+      include: [
+        {
+          model: User,
+        },
+        // {
+        //   model: userMessagecomment,
+        // //  attributes: ["Name"],
+        // },
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (onegroupmessage) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: oneMessageLike });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+exports.deleteGroupMessage = async (req, res) => {
+  try {
+    const id = req.params.groupmessageId;
+
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const isDeleted = await groupmessage.destroy({
+      where: { groupmessageId: id },
+    });
+
+    if (isDeleted) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      res.status(200).send({ message: "Group Message has been deleted.!" });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+
+// find all  Message by date
+exports.findAllGroupMessageByDate = async (req, res) => {
+  const startDate = req.params.startDate;
+  const endDate = req.params.endDate;
+  try {
+    const foundMessage = await groupmessage.findAll({
+      where: {
+        createdAt: {
+          [Op.between]: [new Date(Date(startDate)), new Date(Date(endDate))],
+        },
+      },
+      include: [
+        {
+          model: User,
+        },
+       
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+    if (foundMessage) {
+      return res.status(200).send({
+        message: "Success",
+        data: foundMessage,
       });
     }
   } catch (error) {

@@ -40,149 +40,6 @@ const UserRole = db.userrole;
 const Op = db.Sequelize.Op;
 
 // Create and Save a new User
-exports.create = (req, res) => {
-  User.findOne({
-    where: {
-      Email: req.body.Email,
-    },
-  }).then((user) => {
-    if (user) {
-      return res.status(404).send({ message: "Email already exists" });
-    }
-  });
-
-  Company.create({
-    CompanyName: req.body.CompanyName,
-    ContactEmail: req.body.ContactEmail,
-    ContactPhone: req.body.ContactPhone,
-    Address: req.body.CompanyAddress,
-    Region: req.body.Region,
-    Country: req.body.Country,
-    CompanyType: req.body.RoleType,
-    Specilaization: req.body.Specilaization,
-  })
-    .then((company) => {
-      //const company = Company.save();
-      const encryptedPassword = req.body.Password
-        ? bcrypt.hashSync(req.body.Password, 10)
-        : bcrypt.hashSync(generator.generate({ length: 8, numbers: true }), 10);
-
-      //console.log('Password:', encryptedPassword);
-      const email = req.body.ContactEmail
-        ? req.body.ContactEmail
-        : req.body.Email;
-      const fullname = req.body.FullName
-        ? req.body.FullName
-        : req.body.FirstName + " " + req.body.LastName;
-
-      User.create({
-        CompanyId: company.CompanyId,
-        FullName: req.body.FullName
-          ? req.body.FullName
-          : req.body.FirstName + " " + req.body.LastName,
-        Email: req.body.Email.toLowerCase(),
-        Phone: req.body.Phone,
-        Address: req.body.Address,
-        City: req.body.Region,
-        Country: req.body.Country,
-        UserName: req.body.Email.toLowerCase(),
-        AcceptTerms: req.body.AcceptTerms,
-        PaymentMethod: req.body.PaymentMethod,
-        Password: encryptedPassword,
-      })
-        .then((user) => {
-          console.log(`RoleType`, req.body.RoleType);
-          if (req.body.RoleType) {
-            Role.findOne({
-              where: {
-                Name: req.body.RoleType,
-              },
-            }).then((role) => {
-              UserRole.create({ UserId: user.UserId, RoleId: role.RoleId });
-
-              // Add User Subscription
-              // user.setRoles(roles).then(() => {
-              const token = jwt.sign(
-                { UserId: user.UserId },
-                `${process.env.TOKEN_KEY}`,
-                {
-                  expiresIn: "2h",
-                }
-              );
-              // save user token
-              user.Token = token;
-              user.save();
-
-              const transporter = nodemailer.createTransport({
-                service: `${process.env.MAIL_SERVICE}`,
-                auth: {
-                  user: `${process.env.EMAIL_USERNAME}`,
-                  pass: `${process.env.EMAIL_PASSWORD}`,
-                },
-              });
-              // //  mailgun
-              // // Step 2 - Generate a verification token with the user's ID
-              // const verificationToken = user.generateVerificationToken();
-              // // Step 3 - Email the user a unique verification link
-
-              // point to the template folder
-              const handlebarOptions = {
-                viewEngine: {
-                  partialsDir: path.resolve("./views/"),
-                  defaultLayout: false,
-                },
-                viewPath: path.resolve("./views/"),
-              };
-
-              // use a template file with nodemailer
-              transporter.use("compile", hbs(handlebarOptions));
-
-              const url = `${process.env.BASE_URL}` + `auth/verify/${token}`;
-              transporter
-                .sendMail({
-                  from: `${process.env.FROM_EMAIL}`,
-                  to: email,
-                  template: "email2", // the name of the template file i.e email.handlebars
-                  context: {
-                    name: fullname,
-                    url: url,
-                  },
-                  subject: "Welcome to Global Load Dispatch",
-                  //     html: `<h1>Email Confirmation</h1>
-                  // <h2>Hello ${fullname}</h2>
-
-                  // <p>By signing up for a free 90 day trial with Load Dispatch Service, you can connect with carriers,shippers and drivers.<br/></p>
-                  // To finish up the process kindly click on the link to confirm your email <a href = '${url}'>Click here</a>
-                  // </div>`,
-                })
-                .then((info) => {
-                  console.log({ info });
-                })
-                .catch(console.error);
-
-              res
-                .status(200)
-                .send({ message: "User registered successfully!" });
-              // });
-            });
-            // } else {
-            //   // user role = 1
-            //   user.setRoles([1]).then(() => {
-            //     res.send({ message: 'User registered successfully!' });
-            //   });
-          }
-        })
-
-        .catch((err) => {
-          res.status(500).send({ message: err.message });
-        });
-    })
-
-    .catch((err) => {
-      console.log(`err`, err);
-      res.status(500).send({ message: "Company Error:" + err.message });
-    });
-};
 
 exports.addSpouse = async (req, res) => {
   try {
@@ -212,6 +69,7 @@ exports.addSpouse = async (req, res) => {
       State: req.body.State,
       Country: req.body.Country,
       UserId: UserId,
+
       // UserName: req.body.Email.toLowerCase(),
       // AcceptTerms: req.body.AcceptTerms,
       // PaymentMethod: req.body.PaymentMethod,
@@ -247,6 +105,8 @@ exports.addChildOrSibling = async (req, res) => {
         Nickname: item.Nickname,
 
         UserId: UserId,
+        createdBy: UserId,
+        createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
         // PurchaseYear: vehicle.Veh
       });
 
@@ -278,20 +138,16 @@ exports.addSpouse = async (req, res) => {
         .send({ message: "An error occurred with Role Type Provision" });
     }
 
-    const newSpouse = await relationprimary.create({
+    const newRelation = await relationprimary.create({
       // req.body,
+      RelationType:"sp",
       FirstName: req.body.FirstName,
       LastName: req.body.LastName,
       MiddleName: req.body.MiddleName,
-      Email: req.body.Email.toLowerCase(),
-      Age: req.body.Age,
-      Sex: req.body.Sex,
-      Mobile: req.body.Mobile,
-      Address: req.body.Address,
-      City: req.body.City,
-      State: req.body.State,
-      Country: req.body.Country,
+      NickName: req.body.NickName,
       UserId: UserId,
+      createdBy: UserId,
+      createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
       // UserName: req.body.Email.toLowerCase(),
       // AcceptTerms: req.body.AcceptTerms,
       // PaymentMethod: req.body.PaymentMethod,
@@ -300,13 +156,223 @@ exports.addSpouse = async (req, res) => {
       // IsConfirmed: false,
     });
 
-    if (newSpouse) {
+    if (newRelation) {
+
+      
+  
+      const newRelationDetail = await relationsecondary.create({
+        // req.body,
+        
+        Email: req.body.Email.toLowerCase(),
+        Age: req.body.Age,
+        Sex: req.body.Sex,
+        Tribe: req.body.Tribe,
+        FamilyName:req.body.FamilyName,
+        Language: req.body.Language,
+        Kindred: req.body.Kindred,
+        Clan: req.body.Clan,
+        Mobile: req.body.Mobile,
+        Address: req.body.Address,
+        City: req.body.City,
+        HomeTown: req.body.HomeTown ,
+        LGA:req.body.LGA,
+        State: req.body.State,
+        Country: req.body.Country,
+        ProfilePicture:req.body.ProfilePicture ,
+        CoverPicture:req.body.CoverPicture ,
+        Desc:req.body.Desc ,
+        UserId: UserId,
+        RelationId:newRelation.RelationId,
+        createdBy: UserId,
+        createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+       
+     
+
+        // UserName: req.body.Email.toLowerCase(),
+        // AcceptTerms: req.body.AcceptTerms,
+        // PaymentMethod: req.body.PaymentMethod,
+        // Currency: req.body.Currency,
+        // IsActivated: false,
+        // IsConfirmed: false,
+      });
+       
+      if(newRelationDetail){
+
+        res
+        .status(200)
+        .send({ message: "Added Spousal information successfully!" });
+
+
+      }
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      res
+     
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+
+exports.updateSpouse = async (req, res) => {
+  try {
+    const { Email, UserId,RelationId } = req.body;
+
+    const spouse = await relationprimary.findOne({
+      where: { [Op.and]: [{ RelationType: "sp" }, { UserId: UserId }] },
+    });
+
+    if (spouse) {
+      return res
+        .status(404)
+        .send({ message: "An error occurred with Role Type Provision" });
+    }
+
+    const newRelation = await relationprimary.update({
+      // req.body,
+      RelationType:"sp",
+      FirstName: req.body.FirstName,
+      LastName: req.body.LastName,
+      MiddleName: req.body.MiddleName,
+      NickName: req.body.NickName,
+      UserId: UserId,
+      updatedBy: UserId,
+      updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+      // UserName: req.body.Email.toLowerCase(),
+      // AcceptTerms: req.body.AcceptTerms,
+      // PaymentMethod: req.body.PaymentMethod,
+      // Currency: req.body.Currency,
+      // IsActivated: false,
+      // IsConfirmed: false,
+    },{
+      where:{RealtionId:RelationId},
+    });
+
+    if (newRelation) {
+
+      
+  
+      const newRelationDetail = await relationsecondary.update({
+        // req.body,
+        
+        Email: req.body.Email.toLowerCase(),
+        Age: req.body.Age,
+        Sex: req.body.Sex,
+        Tribe: req.body.Tribe,
+        FamilyName:req.body.FamilyName,
+        Language: req.body.Language,
+        Kindred: req.body.Kindred,
+        Clan: req.body.Clan,
+        Mobile: req.body.Mobile,
+        Address: req.body.Address,
+        City: req.body.City,
+        HomeTown: req.body.HomeTown ,
+        LGA:req.body.LGA,
+        State: req.body.State,
+        Country: req.body.Country,
+        ProfilePicture:req.body.ProfilePicture ,
+        CoverPicture:req.body.CoverPicture ,
+        Desc:req.body.Desc ,
+        UserId: UserId,
+        RelationId:newRelation.RelationId,
+        updatedBy: UserId,
+        updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+       
+     
+
+        // UserName: req.body.Email.toLowerCase(),
+        // AcceptTerms: req.body.AcceptTerms,
+        // PaymentMethod: req.body.PaymentMethod,
+        // Currency: req.body.Currency,
+        // IsActivated: false,
+        // IsConfirmed: false,
+      },{
+        where:{RealtionDetailId:newRelation.RelationId},
+      });
+       
+      if(newRelationDetail){
+
+        res
         .status(200)
-        .send({ message: "Added Spousal information successfully!" });
+        .send({ message: "Updated Spousal information successfully!" });
+
+
+      }
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+     
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+exports.getAllSpouse = async (req, res) => {
+  try {
+    const id = req.params.UserId;
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const foundResult = await relationprimary.findAll({
+      where: { UserId: id,RelationType:"sp" },
+      include: [
+        {
+          model: relationsecondary,
+        },
+        
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (foundResult) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: foundResult });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+exports.getSpouse = async (req, res) => {
+  try {
+    const id = req.params.RelationId;
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const foundResult = await relationprimary.findOne({
+      where: { RelationId: id,RelationType:"sp" },
+      include: [
+        {
+          model: relationsecondary,
+        },
+        
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (foundResult) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: foundResult });
     }
   } catch (error) {
     res.status(500).send({

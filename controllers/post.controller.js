@@ -42,6 +42,8 @@ const Role = db.role;
 const UserRole = db.userrole;
 const Op = db.Sequelize.Op;
 
+//User Post
+
 exports.addPost = async (req, res) => {
   try {
     const { UserId } = req.body;
@@ -217,6 +219,7 @@ exports.getPost = async (req, res) => {
   }
 };
 
+//Post Comment
 exports.addPostComment = async (req, res) => {
   try {
     const { UserId, PostId, Comment } = req.body;
@@ -393,6 +396,8 @@ exports.deletePostComment = async (req, res) => {
     });
   }
 };
+
+//Post Likes 
 
 exports.addPostLike = async (req, res) => {
   try {
@@ -603,36 +608,6 @@ exports.deletePostLike = async (req, res) => {
   }
 };
 
-// Retrieve all Users from the database.
-exports.findAll = (req, res) => {
-  // const name = req.params.name;
-  //var condition = name ? { FullName: { [Op.iLike]: `%${name}%` } } : null;{ where: condition }
-
-  User.findAll({
-    include: [
-      {
-        model: Company,
-      },
-      {
-        model: Role,
-        attributes: ["Name"],
-      },
-    ],
-
-    order: [["createdAt", "DESC"]],
-  })
-    .then((data) => {
-      res.status(200).send({
-        message: "Success",
-        data: data,
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving Users.",
-      });
-    });
-};
 
 // find all  Post by date
 exports.findAllPostByDate = async (req, res) => {

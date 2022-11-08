@@ -129,6 +129,9 @@ db.advert.belongsTo(db.user, { foreignKey: "UserId" });
 db.user.hasMany(db.review, { foreignKey: "UserId" });
 db.review.belongsTo(db.user, { foreignKey: "UserId" });
 
+db.user.hasMany(db.grouppost, { foreignKey: "UserId" });
+db.grouppost.belongsTo(db.user, { foreignKey: "UserId" });
+
 db.group.hasOne(db.groupmeta, { foreignKey: "GroupId" });
 db.groupmeta.belongsTo(db.group, { foreignKey: "GroupId" });
 
