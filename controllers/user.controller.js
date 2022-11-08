@@ -123,7 +123,6 @@ exports.addChildOrSibling = async (req, res) => {
   }
 };
 
-
 exports.addSpouse = async (req, res) => {
   try {
     const { Email, UserId } = req.body;
@@ -140,7 +139,7 @@ exports.addSpouse = async (req, res) => {
 
     const newRelation = await relationprimary.create({
       // req.body,
-      RelationType:"sp",
+      RelationType: "sp",
       FirstName: req.body.FirstName,
       LastName: req.body.LastName,
       MiddleName: req.body.MiddleName,
@@ -157,36 +156,31 @@ exports.addSpouse = async (req, res) => {
     });
 
     if (newRelation) {
-
-      
-  
       const newRelationDetail = await relationsecondary.create({
         // req.body,
-        
+
         Email: req.body.Email.toLowerCase(),
         Age: req.body.Age,
         Sex: req.body.Sex,
         Tribe: req.body.Tribe,
-        FamilyName:req.body.FamilyName,
+        FamilyName: req.body.FamilyName,
         Language: req.body.Language,
         Kindred: req.body.Kindred,
         Clan: req.body.Clan,
         Mobile: req.body.Mobile,
         Address: req.body.Address,
         City: req.body.City,
-        HomeTown: req.body.HomeTown ,
-        LGA:req.body.LGA,
+        HomeTown: req.body.HomeTown,
+        LGA: req.body.LGA,
         State: req.body.State,
         Country: req.body.Country,
-        ProfilePicture:req.body.ProfilePicture ,
-        CoverPicture:req.body.CoverPicture ,
-        Desc:req.body.Desc ,
+        ProfilePicture: req.body.ProfilePicture,
+        CoverPicture: req.body.CoverPicture,
+        Desc: req.body.Desc,
         UserId: UserId,
-        RelationId:newRelation.RelationId,
+        RelationId: newRelation.RelationId,
         createdBy: UserId,
         createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-       
-     
 
         // UserName: req.body.Email.toLowerCase(),
         // AcceptTerms: req.body.AcceptTerms,
@@ -195,19 +189,15 @@ exports.addSpouse = async (req, res) => {
         // IsActivated: false,
         // IsConfirmed: false,
       });
-       
-      if(newRelationDetail){
 
+      if (newRelationDetail) {
         res
-        .status(200)
-        .send({ message: "Added Spousal information successfully!" });
-
-
+          .status(200)
+          .send({ message: "Added Spousal information successfully!" });
       }
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-     
     }
   } catch (error) {
     res.status(500).send({
@@ -216,10 +206,9 @@ exports.addSpouse = async (req, res) => {
   }
 };
 
-
 exports.updateSpouse = async (req, res) => {
   try {
-    const { Email, UserId,RelationId } = req.body;
+    const { Email, UserId, RelationId } = req.body;
 
     const spouse = await relationprimary.findOne({
       where: { [Op.and]: [{ RelationType: "sp" }, { UserId: UserId }] },
@@ -231,80 +220,77 @@ exports.updateSpouse = async (req, res) => {
         .send({ message: "An error occurred with Role Type Provision" });
     }
 
-    const newRelation = await relationprimary.update({
-      // req.body,
-      RelationType:"sp",
-      FirstName: req.body.FirstName,
-      LastName: req.body.LastName,
-      MiddleName: req.body.MiddleName,
-      NickName: req.body.NickName,
-      UserId: UserId,
-      updatedBy: UserId,
-      updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-      // UserName: req.body.Email.toLowerCase(),
-      // AcceptTerms: req.body.AcceptTerms,
-      // PaymentMethod: req.body.PaymentMethod,
-      // Currency: req.body.Currency,
-      // IsActivated: false,
-      // IsConfirmed: false,
-    },{
-      where:{RealtionId:RelationId},
-    });
-
-    if (newRelation) {
-
-      
-  
-      const newRelationDetail = await relationsecondary.update({
+    const newRelation = await relationprimary.update(
+      {
         // req.body,
-        
-        Email: req.body.Email.toLowerCase(),
-        Age: req.body.Age,
-        Sex: req.body.Sex,
-        Tribe: req.body.Tribe,
-        FamilyName:req.body.FamilyName,
-        Language: req.body.Language,
-        Kindred: req.body.Kindred,
-        Clan: req.body.Clan,
-        Mobile: req.body.Mobile,
-        Address: req.body.Address,
-        City: req.body.City,
-        HomeTown: req.body.HomeTown ,
-        LGA:req.body.LGA,
-        State: req.body.State,
-        Country: req.body.Country,
-        ProfilePicture:req.body.ProfilePicture ,
-        CoverPicture:req.body.CoverPicture ,
-        Desc:req.body.Desc ,
+        RelationType: "sp",
+        FirstName: req.body.FirstName,
+        LastName: req.body.LastName,
+        MiddleName: req.body.MiddleName,
+        NickName: req.body.NickName,
         UserId: UserId,
-        RelationId:newRelation.RelationId,
         updatedBy: UserId,
         updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-       
-     
-
         // UserName: req.body.Email.toLowerCase(),
         // AcceptTerms: req.body.AcceptTerms,
         // PaymentMethod: req.body.PaymentMethod,
         // Currency: req.body.Currency,
         // IsActivated: false,
         // IsConfirmed: false,
-      },{
-        where:{RealtionDetailId:newRelation.RelationId},
-      });
-       
-      if(newRelationDetail){
+      },
+      {
+        where: { RealtionId: RelationId },
+      }
+    );
 
+    if (newRelation) {
+      const newRelationDetail = await relationsecondary.update(
+        {
+          // req.body,
+
+          Email: req.body.Email.toLowerCase(),
+          Age: req.body.Age,
+          Sex: req.body.Sex,
+          Tribe: req.body.Tribe,
+          FamilyName: req.body.FamilyName,
+          Language: req.body.Language,
+          Kindred: req.body.Kindred,
+          Clan: req.body.Clan,
+          Mobile: req.body.Mobile,
+          Address: req.body.Address,
+          City: req.body.City,
+          HomeTown: req.body.HomeTown,
+          LGA: req.body.LGA,
+          State: req.body.State,
+          Country: req.body.Country,
+          ProfilePicture: req.body.ProfilePicture,
+          CoverPicture: req.body.CoverPicture,
+          Desc: req.body.Desc,
+          UserId: UserId,
+          RelationId: newRelation.RelationId,
+          updatedBy: UserId,
+          updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+
+          // UserName: req.body.Email.toLowerCase(),
+          // AcceptTerms: req.body.AcceptTerms,
+          // PaymentMethod: req.body.PaymentMethod,
+          // Currency: req.body.Currency,
+          // IsActivated: false,
+          // IsConfirmed: false,
+        },
+        {
+          where: { RealtionDetailId: newRelation.RelationId },
+        }
+      );
+
+      if (newRelationDetail) {
         res
-        .status(200)
-        .send({ message: "Updated Spousal information successfully!" });
-
-
+          .status(200)
+          .send({ message: "Updated Spousal information successfully!" });
       }
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-     
     }
   } catch (error) {
     res.status(500).send({
@@ -323,12 +309,11 @@ exports.getAllSpouse = async (req, res) => {
 
     // });
     const foundResult = await relationprimary.findAll({
-      where: { UserId: id,RelationType:"sp" },
+      where: { UserId: id, RelationType: "sp" },
       include: [
         {
           model: relationsecondary,
         },
-        
       ],
 
       order: [["createdAt", "DESC"]],
@@ -357,12 +342,11 @@ exports.getSpouse = async (req, res) => {
 
     // });
     const foundResult = await relationprimary.findOne({
-      where: { RelationId: id,RelationType:"sp" },
+      where: { RelationId: id, RelationType: "sp" },
       include: [
         {
           model: relationsecondary,
         },
-        
       ],
 
       order: [["createdAt", "DESC"]],
@@ -380,6 +364,41 @@ exports.getSpouse = async (req, res) => {
     });
   }
 };
+
+exports.deleteSpouse = async (req, res) => {
+  try {
+    const id = req.params.spouseId;
+
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const isDeleted = await relationprimary.destroy({
+      where: { RelationId: id },
+    });
+
+    if (isDeleted) {
+
+      const isDeletedMore = await relationsecondary.destroy({
+        where: { RelationId: id },
+      });
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      res.status(200).send({ message: "Group Message has been deleted.!" });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+
+// School Place Work
 
 exports.addSchoolPlaceWork = async (req, res) => {
   try {
@@ -446,6 +465,293 @@ exports.addSchoolPlaceWork = async (req, res) => {
     });
   }
 };
+
+exports.updateSchoolPlaceWork = async (req, res) => {
+  try {
+    const { Email, UserId, RelationType } = req.body;
+
+    await req.body.child.map((item, index) => {
+      if (RelationType === "sch") {
+        const updateSchool = school.update(
+          {
+            SchoolName: item.SchoolName,
+            Address: item.Address,
+            City: item.City,
+            State: item.State,
+            Country: item.Country,
+            YearFrom: item.YearFrom,
+            YearTo: item.YearTo,
+            UserId: UserId,
+            // PurchaseYear: vehicle.Veh
+          },
+          { where: { RelationId: item.SchoolId } }
+        );
+
+        if (updateSchool)
+          return res.status(200).send({
+            message: "Added School information successfully!.",
+            data: updateSchool,
+          });
+      } else if (RelationType === "wk") {
+        const newEmployer = employer.update(
+          {
+            CompanyName: item.CompanyName,
+            Address: item.Address,
+            City: item.City,
+            State: item.State,
+            Country: item.Country,
+            YearFrom: item.YearFrom,
+            YearTo: item.YearTo,
+            UserId: UserId,
+            // PurchaseYear: vehicle.Veh
+          },
+          { where: { EmployerId: item.EmployerId } }
+        );
+        if (newEmployer)
+          return res.status(200).send({
+            message: "Added work information successfully!.",
+            data: newEmployer,
+          });
+      } else {
+        const newPlace = place.update({
+          NeighbourhoodName: item.NeighbourhoodName,
+          Address: item.Address,
+          City: item.City,
+          State: item.State,
+          Country: item.Country,
+          YearFrom: item.YearFrom,
+          YearTo: item.YearTo,
+          UserId: UserId,
+          // PurchaseYear: vehicle.Veh
+        },
+        { where: { PlaceLivedId: item.PlaceLivedId } });
+        if (newPlace)
+          return res.status(200).send({
+            message: "Added place(s) of residence history successfully!.",
+            data: newPlace,
+          });
+      }
+    });
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+exports.getAllSchoolPlaceWork = async (req, res) => {
+  try {
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const RelationType = req.params.relationType;
+    let foundRecord=null;
+    if (RelationType === "sch") {
+
+      foundRecord= await school.findAll({
+        include: [
+          {
+            model: User,
+          },
+         
+        ],
+  
+        order: [["createdAt", "DESC"]],
+      });
+
+
+
+
+    }else if(RelationType === "wk"){
+
+      foundRecord= await employer.findAll({
+        include: [
+          {
+            model: User,
+          },
+         
+        ],
+  
+        order: [["createdAt", "DESC"]],
+      });
+
+    }else{
+
+      foundRecord= await place.findAll({
+        include: [
+          {
+            model: User,
+          },
+         
+        ],
+  
+        order: [["createdAt", "DESC"]],
+      });
+
+
+
+    }
+   
+
+    if (foundRecord) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: foundRecord });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+exports.getSchoolPlaceWork = async (req, res) => {
+  try {
+    const RelationType = req.params.relationType;
+
+    const Id = req.params.Id;
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    let foundRecord=null;
+    if (RelationType === "sch") {
+
+      foundRecord= await school.findOne({
+        where:{SchoolId:Id},
+        include: [
+          {
+            model: User,
+          },
+         
+        ],
+  
+        order: [["createdAt", "DESC"]],
+      });
+
+
+
+
+    }else if(RelationType === "wk"){
+
+      foundRecord= await employer.findOne({
+        where:{Employer:Id},
+        include: [
+          {
+            model: User,
+          },
+         
+        ],
+  
+        order: [["createdAt", "DESC"]],
+      });
+
+    }else{
+
+      foundRecord= await place.findOne({
+        where:{PlaceLived:Id},
+        include: [
+          {
+            model: User,
+          },
+         
+        ],
+  
+        order: [["createdAt", "DESC"]],
+      });
+
+
+
+    }
+
+    if (foundRecord) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: foundRecord });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+
+exports.deleteSchoolPlaceWork = async (req, res) => {
+  try {
+    const id = req.params.groupmessageId;
+
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+
+    const RelationType = req.params.relationType;
+
+    const Id = req.params.Id;
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    let isDeleted=null;
+    if (RelationType === "sch") {
+
+      isDeleted= await school.destroy({
+        where: { SchoolId: Id },
+      });
+
+
+
+
+    }else if(RelationType === "wk"){
+
+      isDeleted= await employer.destroy({
+        where: { Employer: Id },
+      });
+
+     
+
+    }else{
+
+      
+      isDeleted= await place.destroy({
+        where: { PlaceLived:Id },
+      });
+    
+
+
+
+    }
+
+  
+    if (isDeleted) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      res.status(200).send({ message: "Record has been deleted.!" });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
 
 // Retrieve all Users from the database.
 exports.findAll = (req, res) => {
