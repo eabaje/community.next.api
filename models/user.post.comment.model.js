@@ -9,10 +9,10 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.INTEGER,
     },
     SenderId: {
-      type: Sequelize.INTEGER,
+      type: Sequelize.STRING,
     },
-    Likes: {
-      type: Sequelize.INTEGER,
+    Comment: {
+      type: Sequelize.STRING,
     },
     createdBy: {
       type: Sequelize.STRING,

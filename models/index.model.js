@@ -111,6 +111,9 @@ db.groupmessage.belongsTo(db.user, { foreignKey: "UserId" });
 db.user.hasMany(db.groupfollower, { foreignKey: "UserId" });
 db.groupfollower.belongsTo(db.user, { foreignKey: "UserId" });
 
+db.user.hasMany(db.groupmember, { foreignKey: "UserId" });
+db.groupmember.belongsTo(db.user, { foreignKey: "UserId" });
+
 db.user.hasMany(db.chat, { foreignKey: "UserId" });
 db.chat.belongsTo(db.user, { foreignKey: "UserId" });
 
