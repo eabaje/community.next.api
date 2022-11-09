@@ -83,17 +83,74 @@ module.exports = function (app) {
 
   app.post("/api/user/create", controller.create);
 
-  app.post("/api/user/addSpouse", controller.addSpouse);
+  // Relation
+  app.post("/api/user/addRelation", controller.addRelation);
+
+  app.put("/api/user/updateRelation/:relationId", controller.updateRelation);
+
+  app.get(
+    "/api/user/getRelation/:relationType/:relationId",
+    controller.getRelation
+  );
+
+  app.get(
+    "/api/user/getAllRelation/:relationType/:userId",
+    controller.getAllRelation
+  );
+
+  app.delete("/api/user/deleteRelation/:relationId", controller.deleteRelation);
+
+  // ChildOrSibling
 
   app.post("/api/user/addChildOrSibling", controller.addChildOrSibling);
 
-  app.post("/api/user/addschoolplacework", controller.addSchoolPlaceWork);
+  app.post("/api/user/updateChildOrSibling", controller.updateChildOrSibling);
+  app.get(
+    "/api/user/getChildOrSibling/:relationId",
+    controller.getChildorSibling
+  );
 
-  app.get("/api/user/findOne/:userId", controller.findOne);
+  app.get(
+    "/api/user/getAllChildorSibling/:relationType/",
+    controller.getAllChildorSibling
+  );
 
-  app.get("/api/user/findAll", controller.findAll);
+  app.delete(
+    "/api/user/deleteChildorSibling/:relationId",
+    controller.deleteChildorSibling
+  );
 
-  app.get("/api/user/findAllBySearch/:name", controller.findAllBySearch);
+  //SchoolworkPlace
+
+  app.post("/api/user/addSchoolplacework", controller.addSchoolPlaceWork);
+
+  app.post("/api/user/updateSchoolPlaceWork", controller.updateSchoolPlaceWork);
+
+  app.get(
+    "/api/user/getSchoolPlaceWork/:relationType/:Id",
+    controller.getSchoolPlaceWork
+  );
+
+  app.get(
+    "/api/user/getAllSchoolPlaceWork/:relationType/",
+    controller.getAllSchoolPlaceWork
+  );
+
+  app.delete(
+    "/api/user/deleteChildorSibling/:relationType/:Id",
+    controller.deleteSchoolPlaceWork
+  );
+
+  //User
+
+  app.get("/api/user/findUser/:userId", controller.findOne);
+
+  app.get("/api/user/findAllUser", controller.findAll);
+
+  app.get(
+    "/api/user/findAllUserBySearch/:name",
+    controller.findAllUserBySearch
+  );
 
   app.get(
     "/api/user/findAllUsersByDate/:startDate/:toDate",

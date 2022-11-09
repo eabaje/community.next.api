@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const UserFollower = sequelize.define("user_follower", {
+  const UserRelationship = sequelize.define("user_relationship", {
     UserFollowerId: {
       type: Sequelize.INTEGER,
       autoIncrement: true,
@@ -10,6 +10,9 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
     },
     FollowedId: {
+      type: Sequelize.STRING,
+    },
+    Type: {
       type: Sequelize.STRING,
     },
     createdBy: {
@@ -26,5 +29,5 @@ module.exports = (sequelize, Sequelize) => {
     },
   });
 
-  return UserFollower;
+  return UserRelationship;
 };

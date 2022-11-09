@@ -32,6 +32,10 @@ db.userpostcomment = require("./user.post.comment.model.js")(
 );
 db.userfollower = require("./user.follower.model.js")(sequelize, Sequelize);
 db.userfriend = require("./user.friend.model.js")(sequelize, Sequelize);
+db.userrelationship = require("./user.relationship.model.js")(
+  sequelize,
+  Sequelize
+);
 db.payment = require("./payment.model.js")(sequelize, Sequelize);
 db.advert = require("./advert.model.js")(sequelize, Sequelize);
 db.review = require("./review.model.js")(sequelize, Sequelize);
@@ -93,6 +97,12 @@ db.userfollower.belongsTo(db.user, { foreignKey: "UserId" });
 
 db.user.hasMany(db.school, { foreignKey: "UserId" });
 db.school.belongsTo(db.user, { foreignKey: "UserId" });
+
+db.userrelationship.hasMany(db.user, { foreignKey: "FollowedId" });
+db.user.belongsTo(db.userrelationship, { foreignKey: "UserId" });
+
+db.userrelationship.hasMany(db.user, { foreignKey: "FollowerId" });
+db.user.belongsTo(db.userrelationship, { foreignKey: "UserId" });
 
 db.user.hasMany(db.relationprimary, { foreignKey: "UserId" });
 db.relationprimary.belongsTo(db.user, { foreignKey: "UserId" });

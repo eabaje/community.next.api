@@ -23,7 +23,13 @@ module.exports = (sequelize, Sequelize) => {
     AdvertRegion: {
       type: Sequelize.STRING,
     },
+    AdvertCountry: {
+      type: Sequelize.STRING,
+    },
     AdvertCost: {
+      type: Sequelize.STRING,
+    },
+    Currency: {
       type: Sequelize.STRING,
     },
     IsEnabled: {

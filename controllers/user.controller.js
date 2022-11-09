@@ -361,7 +361,7 @@ exports.deleteRelation = async (req, res) => {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      res.status(200).send({ message: "Group Message has been deleted.!" });
+      res.status(200).send({ message: "Record has been deleted.!" });
     }
   } catch (error) {
     res.status(500).send({
@@ -404,12 +404,12 @@ exports.addChildOrSibling = async (req, res) => {
 };
 
 //Update child sibling
-exports.addChildOrSibling = async (req, res) => {
+exports.updateChildOrSibling = async (req, res) => {
   try {
     const { Email, UserId, RelationType } = req.body;
 
     await req.body.child.map((item, index) => {
-      const newChildOrSibling = relationprimary.create(
+      const newChildOrSibling = relationprimary.update(
         {
           RelationType: RelationType,
           FirstName: item.FirstName,
@@ -488,6 +488,34 @@ exports.getChildorSibling = async (req, res) => {
       //   message: "Registration Link Sent",
       // });
       return res.status(200).send({ message: "Success", data: foundRecord });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+exports.deleteChildorSibling = async (req, res) => {
+  try {
+    const id = req.params.relationId;
+
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const isDeleted = await relationprimary.destroy({
+      where: { RelationId: id },
+    });
+
+    if (isDeleted) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      res.status(200).send({ message: "Record has been deleted.!" });
     }
   } catch (error) {
     res.status(500).send({
@@ -758,8 +786,6 @@ exports.getSchoolPlaceWork = async (req, res) => {
 
 exports.deleteSchoolPlaceWork = async (req, res) => {
   try {
-    const id = req.params.groupmessageId;
-
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
 
@@ -771,13 +797,7 @@ exports.deleteSchoolPlaceWork = async (req, res) => {
     const RelationType = req.params.relationType;
 
     const Id = req.params.Id;
-    // const token = req.cookies.accessToken;
-    // if (!token) return res.status(401).json("Not logged in!");
 
-    // jwt.verify(token, "secretkey", (err, userInfo) => {
-    //   if (err) return res.status(403).json("Token is not valid!");
-
-    // });
     let isDeleted = null;
     if (RelationType === "sch") {
       isDeleted = await school.destroy({
@@ -806,16 +826,18 @@ exports.deleteSchoolPlaceWork = async (req, res) => {
   }
 };
 
+//User
+
 // Retrieve all Users from the database.
-exports.findAll = (req, res) => {
+exports.findAllUser = (req, res) => {
   // const name = req.params.name;
   //var condition = name ? { FullName: { [Op.iLike]: `%${name}%` } } : null;{ where: condition }
 
   User.findAll({
     include: [
-      {
-        model: Company,
-      },
+      // {
+      //   model: Company,
+      // },
       {
         model: Role,
         attributes: ["Name"],
@@ -837,16 +859,13 @@ exports.findAll = (req, res) => {
     });
 };
 
-exports.findAllBySearch = (req, res) => {
+exports.findAllUserBySearch = (req, res) => {
   const name = req.params.name;
   var condition = name ? { FullName: { [Op.iLike]: `%${name}%` } } : null;
 
   User.findAll({
     where: condition,
     include: [
-      {
-        model: Company,
-      },
       {
         model: Role,
         attributes: ["Name"],
@@ -869,15 +888,12 @@ exports.findAllBySearch = (req, res) => {
 };
 
 // Find a single User with an id
-exports.findOne = (req, res) => {
+exports.findUser = (req, res) => {
   const id = req.params.userId;
 
   User.findOne({
     where: { UserId: id },
     include: [
-      {
-        model: Company,
-      },
       {
         model: Role,
         attributes: ["Name"],
@@ -900,7 +916,7 @@ exports.findOne = (req, res) => {
 };
 
 // Update a User by the id in the request
-exports.update = (req, res) => {
+exports.updateUser = (req, res) => {
   const id = req.body.UserId;
 
   const imagePath = req.file.filename;
@@ -1085,10 +1101,12 @@ exports.findAllUsersByDate = (req, res) => {
         [Op.between]: [new Date(Date(startDate)), new Date(Date(endDate))],
       },
     },
-    include: {
-      model: Company,
-      attributes: ["CompanyName"],
-    },
+    include: [
+      {
+        model: Role,
+        attributes: ["Name"],
+      },
+    ],
 
     order: [["createdAt", "DESC"]],
   })
@@ -1226,7 +1244,7 @@ exports.uploadCompanyDoc = async (req, res) => {
         DocUrl: `${dir}/${file.originalname}`,
       };
 
-      const newCompanyDoc = CompanyDoc.create(companyDoc);
+      //const newCompanyDoc = CompanyDoc.create(companyDoc);
     });
 
     //  const picName = req.file.fieldname + '-' + Date.now();
@@ -1238,409 +1256,4 @@ exports.uploadCompanyDoc = async (req, res) => {
   } catch (error) {
     console.log(`An error occurred during processing: ${error.message}`);
   }
-};
-
-exports.findCompany = (req, res) => {
-  const id = req.params.companyId;
-
-  Company.findOne({ where: { CompanyId: id } })
-
-    .then((data) => {
-      res.status(200).send({
-        message: "Success",
-        data: data,
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Error retrieving Company with CompanyId=" + id,
-      });
-    });
-};
-
-exports.findAllCompanys = (req, res) => {
-  const CompanyType = req.query.companyType;
-  var condition = CompanyType
-    ? { CompanyType: { [Op.iLike]: `%${CompanyType}%` } }
-    : null;
-
-  Company.findAll({ where: condition })
-
-    .then((data) => {
-      res.status(200).send({
-        message: "Success",
-        data: data,
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving Users.",
-      });
-    });
-};
-
-exports.findAllCompanysByDate = (req, res) => {
-  const startDate = req.params.startDate;
-  const endDate = req.params.endDate;
-
-  Company.findAll({
-    where: {
-      createdAt: {
-        [Op.between]: [new Date(Date(startDate)), new Date(Date(endDate))],
-      },
-    },
-    order: [["createdAt", "ASC"]],
-  })
-
-    .then((data) => {
-      res.status(200).send({
-        message: "Success",
-        data: data,
-      });
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving Users.",
-      });
-    });
-};
-
-exports.deleteCompany = (req, res) => {
-  const id = req.params.companyId;
-
-  Company.destroy({
-    where: { CompanyId: id },
-  })
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          message: "Company was deleted successfully!",
-        });
-      } else {
-        res.send({
-          message: `Cannot delete Company with id=${id}. Maybe Company was not found!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete Company with id=" + id,
-      });
-    });
-};
-
-exports.subscribe = (req, res) => {
-  // Add user to Subscription
-
-  const UserId = req.body.UserId;
-
-  const IsSubscribed = UserSubscription.findAll({
-    where: { UserId: UserId, Active: true },
-  });
-
-  if (IsSubscribed) {
-    return res
-      .status(409)
-      .send(
-        "User Already Subscribed. Do you want to upgrade your subscription?"
-      );
-  }
-
-  // Get the subscription package
-
-  Subscription.findOne({
-    where: { SubscribeId: req.body.SubscriptionId },
-  }).then((subscribeRes) => {
-    let startDate = new Date();
-
-    let endDate = new Date();
-    endDate.setDate(endDate.getDate() + parsInt(subscribeRes.Duration));
-
-    const subscribe = {
-      SubscriptionId: req.body.SubscriptionId,
-      SubscriptionName: req.body.SubscriptionName,
-      UserId: req.body.UserId,
-      Active: true,
-      StartDate: startDate,
-      EndDate: endDate,
-    };
-
-    UserSubscription.create(subscribe).then((UserSubscribed) => {
-      if (UserSubscribed) {
-        return res.status(201).send({
-          message: `User Subscribed to  ${subscribeRes.SubscriptionName} package.`,
-        });
-      }
-    });
-  });
-
-  const User = User.findOne({ where: { UserId: UserId } });
-
-  const transporter = nodemailer.createTransport({
-    service: process.env.MAIL_SERVICE,
-    auth: {
-      user: process.env.EMAIL_USERNAME,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  });
-
-  transporter.sendMail({
-    to: email,
-    subject: "Tnanks for your subscription",
-    html: `Dear ${User.FullName}<p> You subscribed to package ${SubscriptionName} from ${StartDate} to ${EndDate}</p>kindly Click <a href = '${url}'>here</a> to your dashboard to begin.`,
-  });
-  return res.status(201).send({
-    message: `Sent a verification email to ${email}`,
-  });
-
-  // };
-};
-
-exports.upgradeUserSubscription = (req, res) => {
-  const id = req.body.UserSubscriptionId;
-
-  const UserId = req.body.UserId;
-
-  UserSubscription.findAll({ where: { UserId: UserId, Active: true } })
-
-    .then((IsSubscribed) => {
-      if (IsSubscribed) {
-        UserSubscription.update(
-          { Active: false },
-          {
-            where: {
-              UserId: UserId,
-            },
-          }
-        );
-      }
-
-      // Get the subscription package
-      // console.log('req.body.SubscriptionId', req.body.SubscriptionId);
-      Subscription.findOne({
-        where: { SubscribeId: req.body.SubscriptionId },
-      }).then((subscribeRes) => {
-        console.log("subscribeRes", subscribeRes);
-        let startDate = new Date();
-
-        let endDate = new Date();
-        endDate.setDate(endDate.getDate() + parseInt(subscribeRes.Duration));
-
-        const subscribe = {
-          SubscribeId: req.body.SubscriptionId,
-          SubscriptionName: subscribeRes.SubscriptionName,
-          UserId: req.body.UserId,
-          Active: true,
-          StartDate: startDate,
-          EndDate: endDate,
-        };
-
-        UserSubscription.create(subscribe).then((UserSubscribed) => {
-          if (UserSubscribed) {
-            return res.status(201).send({
-              message: `User Subscribed to  ${subscribeRes.SubscriptionName} package.`,
-            });
-          }
-        });
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({ message: err.message });
-    });
-};
-
-exports.updateUserSubscription = (req, res) => {
-  const id = req.body.UserSubscriptionId;
-
-  UserSubscription.update(req.body, {
-    where: { UserSubscriptionId: id },
-  })
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          message: "User was updated successfully.",
-        });
-      } else {
-        res.send({
-          message: `Cannot update User Subscription with id=${id}. Maybe User was not found or req.body is empty!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Error updating User Subscription with id=" + id,
-      });
-    });
-};
-
-exports.findUserSubscription = (req, res) => {
-  const id = req.params.userId;
-
-  UserSubscription.findOne({
-    where: { UserId: id, Active: true },
-
-    include: {
-      model: User,
-      attributes: ["FullName", "Email", "PaymentMethod", "Currency"],
-    },
-  })
-
-    .then((data) => {
-      res.status(200).send({
-        message: "Success",
-        data: data,
-      });
-    })
-    .catch((err) => {
-      console.log(`error`, err);
-      res.status(500).send({
-        message: "Error retrieving User with UserId=" + id,
-      });
-    });
-};
-
-exports.findAllUserSubscriptions = (req, res) => {
-  const subscriptionId = req.param.subscriptionId;
-  var condition = subscriptionId ? { SubscribeId: subscriptionId } : null;
-
-  UserSubscription.findAll({
-    where: condition,
-    include: {
-      model: User,
-      attributes: ["FullName", "Email", "PaymentMethod", "Currency"],
-    },
-    order: [["createdAt", "DESC"]],
-  })
-
-    .then((data) => {
-      console.log(`data`, data);
-      res.status(200).send({
-        message: "Success",
-        data: data,
-      });
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving Users.",
-      });
-    });
-};
-
-exports.findAllUserSubscriptionsByDate = (req, res) => {
-  const startDate = req.params.startDate;
-  const endDate = req.params.endDate;
-
-  User.UserSubscription({
-    where: {
-      createdAt: {
-        [Op.between]: [new Date(Date(startDate)), new Date(Date(endDate))],
-      },
-    },
-    include: {
-      model: User,
-      attributes: ["FullName", "Email", "PaymentMethod", "Currency"],
-    },
-
-    order: [["createdAt", "DESC"]],
-  })
-
-    .then((data) => {
-      res.status(200).send({
-        message: "Success",
-        data: data,
-      });
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving Users.",
-      });
-    });
-};
-
-exports.findAllUserSubscriptionsByStartDate = (req, res) => {
-  const startDate = req.params.startDate;
-  const endDate = req.params.endDate;
-
-  User.UserSubscription({
-    where: {
-      StartDate: {
-        [Op.between]: [new Date(Date(startDate)), new Date(Date(endDate))],
-      },
-    },
-    include: {
-      model: User,
-      attributes: ["FullName", "Email", "PaymentMethod", "Currency"],
-    },
-    order: [["createdAt", "ASC"]],
-  })
-
-    .then((data) => {
-      res.status(200).send({
-        message: "Success",
-        data: data,
-      });
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving Users.",
-      });
-    });
-};
-
-exports.findAllUserSubscriptionsByEndDate = (req, res) => {
-  const startDate = req.params.startDate;
-  const endDate = req.params.endDate;
-
-  User.UserSubscription({
-    where: {
-      EndDate: {
-        [Op.between]: [new Date(Date(startDate)), new Date(Date(endDate))],
-      },
-    },
-    include: {
-      model: User,
-      attributes: ["FullName", "Email", "PaymentMethod", "Currency"],
-    },
-    order: [["createdAt", "DESC"]],
-  })
-
-    .then((data) => {
-      res.status(200).send({
-        message: "Success",
-        data: data,
-      });
-    })
-
-    .catch((err) => {
-      res.status(500).send({
-        message: err.message || "Some error occurred while retrieving Users.",
-      });
-    });
-};
-
-exports.deleteUserSubscription = (req, res) => {
-  const id = req.params.UserId;
-
-  UserSubscription.destroy({
-    where: { UserSubscriptionId: id },
-  })
-    .then((num) => {
-      if (num == 1) {
-        res.send({
-          message: "User was deleted successfully!",
-        });
-      } else {
-        res.send({
-          message: `Cannot delete User with id=${id}. Maybe User was not found!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Could not delete User with id=" + id,
-      });
-    });
 };
