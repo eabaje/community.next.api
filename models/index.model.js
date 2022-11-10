@@ -99,10 +99,10 @@ db.user.hasMany(db.school, { foreignKey: "UserId" });
 db.school.belongsTo(db.user, { foreignKey: "UserId" });
 
 db.userrelationship.hasMany(db.user, { foreignKey: "FollowedId" });
-db.user.belongsTo(db.userrelationship, { foreignKey: "UserId" });
+db.user.belongsTo(db.userrelationship, { foreignKey: "FollowedId" });
 
 db.userrelationship.hasMany(db.user, { foreignKey: "FollowerId" });
-db.user.belongsTo(db.userrelationship, { foreignKey: "UserId" });
+db.user.belongsTo(db.userrelationship, { foreignKey: "FollowerId" });
 
 db.user.hasMany(db.relationprimary, { foreignKey: "UserId" });
 db.relationprimary.belongsTo(db.user, { foreignKey: "UserId" });

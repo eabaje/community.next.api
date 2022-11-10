@@ -81,8 +81,6 @@ module.exports = function (app) {
     next();
   });
 
-  app.post("/api/user/create", controller.create);
-
   // Relation
   app.post("/api/user/addRelation", controller.addRelation);
 
@@ -143,9 +141,9 @@ module.exports = function (app) {
 
   //User
 
-  app.get("/api/user/findUser/:userId", controller.findOne);
+  app.get("/api/user/findAllUser/:userId", controller.findUser);
 
-  app.get("/api/user/findAllUser", controller.findAll);
+  app.get("/api/user/findAllUser", controller.findAllUser);
 
   app.get(
     "/api/user/findAllUserBySearch/:name",
@@ -157,7 +155,7 @@ module.exports = function (app) {
     controller.findAllUsersByDate
   );
 
-  app.put("/api/user/update/:userId", controller.update);
+  app.put("/api/user/updateUser/:userId", controller.updateUser);
 
   app.post(
     "/api/user/updateFile",
@@ -188,45 +186,6 @@ module.exports = function (app) {
     [authJwt.verifyToken],
     controller.deleteRole
   );
-
-  app.post("/api/user/subscribe", controller.subscribe);
-
-  app.post(
-    "/api/user/upgradeUserSubscription",
-    controller.upgradeUserSubscription
-  );
-
-  app.put(
-    "/api/user/updateUserSubscription/:userSubscriptionId",
-    controller.updateUserSubscription
-  );
-
-  app.get(
-    "/api/user/findUserSubscription/:userId",
-    controller.findUserSubscription
-  );
-
-  app.get(
-    "/api/user/findAllUserSubscriptions/:subscriptionId",
-    controller.findAllUserSubscriptions
-  );
-
-  app.get(
-    "/api/user/findAllUserSubscriptionsByDate/:startDate/:toDate",
-    controller.findAllUserSubscriptionsByDate
-  );
-
-  app.get(
-    "/api/user/findAllUserSubscriptionsByStartDate/:startDate/:toDate",
-    controller.findAllUserSubscriptionsByStartDate
-  );
-
-  app.get(
-    "/api/user/findAllUserSubscriptionsByEndDate/:startDate/:toDate",
-    controller.findAllUserSubscriptionsByEndDate
-  );
-
-  app.post("/api/user/delete", controller.delete);
 
   // app.post("/api/user/createCompany", controller.createCompany);
 
