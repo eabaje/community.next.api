@@ -155,8 +155,10 @@ io.on("connection", (socket) => {
     }
   });
 });
+const PORT = process.env.PORT || 8800;
+
 server.listen(process.env.PORT, () =>
-  console.log(`Server started on ${process.env.PORT}`)
+  console.log(`Server started on ${PORT}`)
 );
 function initial() {
   const { v1: uuidv1, v4: uuidv4 } = require("uuid");
