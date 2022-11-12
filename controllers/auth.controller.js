@@ -67,6 +67,8 @@ exports.signup = async (req, res) => {
       ? req.body.FullName
       : req.body.FirstName + " " + req.body.LastName;
 
+    const roleType = req.body.RoleType ? req.body.RoleType : "user";
+
     const user = await User.create({
       FirstName: req.body.FirstName,
       LastName: req.body.LastName,
@@ -81,15 +83,15 @@ exports.signup = async (req, res) => {
       // Currency: req.body.Currency,
       // IsActivated: false,
       // IsConfirmed: false,
-      Password: encryptedPassword,
+      PasswordHash: encryptedPassword,
     });
 
-    if (!req.body.RoleType) {
-      return res
-        .status(404)
-        .send({ message: "An error occurred with Role Type Provision" });
-    }
-    const role = await Role.findOne({ where: { Name: req.body.RoleType } });
+    // if (!req.body.RoleType) {
+    //   return res
+    //     .status(404)
+    //     .send({ message: "An error occurred with Role Type Provision" });
+    // }
+    const role = await Role.findOne({ where: { Name: roleType } });
 
     if (!role) {
       return res
@@ -276,7 +278,7 @@ exports.signin = async (req, res) => {
       const role = await Role.findOne({ where: { RoleId: userRole.RoleId } });
 
       if (role) {
-        res.status(200).send({
+        return res.status(200).send({
           message: "Success",
           token: token,
 
