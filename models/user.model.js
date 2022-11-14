@@ -32,6 +32,9 @@ module.exports = (sequelize, Sequelize) => {
     Age: {
       type: Sequelize.STRING,
     },
+    DOB: {
+      type: Sequelize.DATEONLY,
+    },
     BloodGroup: {
       type: Sequelize.STRING,
     },

@@ -306,7 +306,7 @@ exports.getAllRelation = async (req, res) => {
 };
 exports.getRelation = async (req, res) => {
   try {
-    const id = req.params.RelationId;
+    const id = req.params.relationId;
     const relationType = req.params.relationType;
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
