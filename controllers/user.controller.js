@@ -105,8 +105,8 @@ exports.addRelation = async (req, res) => {
 
     if (spouse) {
       return res
-        .status(404)
-        .send({ message: "An error occurred with Role Type Provision" });
+        .status(200)
+        .send({ message: "A record already exists with the information" });
     }
 
     const newRelation = await relationprimary.create({

@@ -7,9 +7,9 @@
     "dialect": "mysql"
   },
   "production": {
-    "username": "pezentics.myareauser",
+    "username": "pezentic_myareauser",
     "password": "Myarea@2022",
-    "database": "pezentics.myareadb",
+    "database": "pezentic_myareadb",
     "host": "localhost",
     "dialect": "mysql"
   }
