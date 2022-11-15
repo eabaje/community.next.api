@@ -127,42 +127,6 @@ exports.signup = async (req, res) => {
     user.Token = token;
     await user.save();
 
-    // const subscribePrk = 1;
-    // const subscribeRes = await Subscribe.findOne({ where: { SubscribeId: subscribePrk } });
-
-    // if (!subscribeRes) {
-    //   return res.status(404).send({ message: 'An error occurred with subscription' });
-    // }
-    // // Add user free subscription
-    // const startDate = new Date();
-
-    // const endDate = new Date();
-    // endDate.setDate(endDate.getDate() + subscribeRes.Duration);
-
-    // const userSubscription = await UserSubscription.create({
-    //   // UserSubscriptionId: 2,
-    //   SubscribeId: subscribeRes.SubscribeId,
-    //   SubscriptionName: subscribeRes.SubscriptionName,
-    //   UserId: user.UserId,
-    //   Active: subscribeRes.Active,
-    //   StartDate: startDate,
-    //   EndDate: endDate,
-    // });
-
-    // const subscribeObj = {
-    //   SubscribeId: subscribeRes.SubscribeId,
-    //   SubscriptionName: subscribeRes.SubscriptionName,
-    //   UserId: user.UserId,
-    //   Active: subscribeRes.Active,
-    //   StartDate: startDate,
-    //   EndDate: endDate,
-    // };
-    // console.log('subscribeObj', subscribeObj);
-
-    // if (!userSubscription) {
-    //   return res.status(404).send({ message: 'An error occurred with user subscription' });
-    // }
-
     const url = `${process.env.BASE_URL}` + `auth/verify/${token}`;
     await mailFunc.sendEmail({
       template: "email2",
@@ -283,14 +247,22 @@ exports.signin = async (req, res) => {
 
       const role = await Role.findOne({ where: { RoleId: userRole.RoleId } });
 
-      const friendNum= await userfriend.findAll({ where: { TargetId: foundUser.UserId } }).count();
-      const followNum= await userfollower.findAll({ where: { TargetId: foundUser.UserId } }).count();
-      const postlikesNum= await userpost.findAll({ where: { SenderId: foundUser.UserId }, 
-            attributes: ['UserPostId', [sequelize.fn('sum', sequelize.col('Likes')), 'TotalLikes']],
-           group : ['user_post.UserPostId'],
-           raw: true,
-          order: sequelize.literal('TotalLikes DESC')
-           });
+      const friendNum = await userfriend
+        .findAll({ where: { TargetId: foundUser.UserId } })
+        .count();
+      const followNum = await userfollower
+        .findAll({ where: { TargetId: foundUser.UserId } })
+        .count();
+      const postlikesNum = await userpost.findAll({
+        where: { SenderId: foundUser.UserId },
+        attributes: [
+          "UserPostId",
+          [sequelize.fn("sum", sequelize.col("Likes")), "TotalLikes"],
+        ],
+        group: ["user_post.UserPostId"],
+        raw: true,
+        order: sequelize.literal("TotalLikes DESC"),
+      });
 
       if (role) {
         return res.status(200).send({
@@ -301,10 +273,8 @@ exports.signin = async (req, res) => {
             UserId: foundUser.UserId,
             FullName: foundUser.FirstName + " " + foundUser.LastName,
             Email: foundUser.Email,
-            Likes:postlikesNum,
+            Likes: postlikesNum,
             roles: role.Name,
-            // isActivated: foundUser.IsActivated,
-            // subExpired: subExpired,
             CoverPicture: foundUser.CoverPicture,
             ProfilePicture: foundUser.ProfilePicture,
           },
