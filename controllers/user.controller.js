@@ -203,12 +203,6 @@ exports.updateRelation = async (req, res) => {
         UserId: UserId,
         updatedBy: UserId,
         updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-        // UserName: req.body.Email.toLowerCase(),
-        // AcceptTerms: req.body.AcceptTerms,
-        // PaymentMethod: req.body.PaymentMethod,
-        // Currency: req.body.Currency,
-        // IsActivated: false,
-        // IsConfirmed: false,
       },
       {
         where: { RealtionId: RelationId },
@@ -242,13 +236,6 @@ exports.updateRelation = async (req, res) => {
           RelationId: newRelation.RelationId,
           updatedBy: UserId,
           updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-
-          // UserName: req.body.Email.toLowerCase(),
-          // AcceptTerms: req.body.AcceptTerms,
-          // PaymentMethod: req.body.PaymentMethod,
-          // Currency: req.body.Currency,
-          // IsActivated: false,
-          // IsConfirmed: false,
         },
         {
           where: { RealtionDetailId: newRelation.RelationId },
@@ -256,9 +243,7 @@ exports.updateRelation = async (req, res) => {
       );
 
       if (newRelationDetail) {
-        res
-          .status(200)
-          .send({ message: "Updated Spousal information successfully!" });
+        res.status(200).send({ message: "Updated information successfully!" });
       }
       // return res.status(200).json({
       //   message: "Registration Link Sent",
@@ -676,10 +661,12 @@ exports.getAllSchoolPlaceWork = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const RelationType = req.params.relationType;
+    const id = req.params.userId;
+    const relationType = req.params.relationType;
     let foundRecord = null;
-    if (RelationType === "sch") {
+    if (relationType === "sch") {
       foundRecord = await school.findAll({
+        where: { UserId: id },
         include: [
           {
             model: User,
@@ -688,8 +675,9 @@ exports.getAllSchoolPlaceWork = async (req, res) => {
 
         order: [["createdAt", "DESC"]],
       });
-    } else if (RelationType === "wk") {
+    } else if (relationType === "wk") {
       foundRecord = await employer.findAll({
+        where: { UserId: id },
         include: [
           {
             model: User,
@@ -700,6 +688,7 @@ exports.getAllSchoolPlaceWork = async (req, res) => {
       });
     } else {
       foundRecord = await place.findAll({
+        where: { UserId: id },
         include: [
           {
             model: User,
