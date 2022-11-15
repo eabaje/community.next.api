@@ -898,6 +898,8 @@ exports.findUser = (req, res) => {
         model: Role,
         attributes: ["Name"],
       },
+
+     
     ],
     order: [["createdAt", "DESC"]],
   })

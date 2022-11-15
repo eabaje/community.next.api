@@ -16,11 +16,17 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const { mailFunc } = require("../middleware");
 const db = require("../models/index.model");
 const { exit } = require("process");
+const { userfriend, userpost } = require("../models/index.model");
 const User = db.user;
 const Role = db.role;
 const UserRole = db.userrole;
 const Company = db.company;
 const Subscribe = db.subscribe;
+const userfollower = db.userfollower;
+const userfriend = db.userfriend;
+const groupfollower = db.groupfollower;
+const userpost = db.userpost;
+const groupmember = db.groupmember;
 const UserSubscription = db.usersubscription;
 const Op = db.Sequelize.Op;
 
@@ -277,6 +283,15 @@ exports.signin = async (req, res) => {
 
       const role = await Role.findOne({ where: { RoleId: userRole.RoleId } });
 
+      const friendNum= await userfriend.findAll({ where: { TargetId: foundUser.UserId } }).count();
+      const followNum= await userfollower.findAll({ where: { TargetId: foundUser.UserId } }).count();
+      const postlikesNum= await userpost.findAll({ where: { SenderId: foundUser.UserId }, 
+            attributes: ['UserPostId', [sequelize.fn('sum', sequelize.col('Likes')), 'TotalLikes']],
+           group : ['user_post.UserPostId'],
+           raw: true,
+          order: sequelize.literal('TotalLikes DESC')
+           });
+
       if (role) {
         return res.status(200).send({
           message: "Success",
@@ -286,10 +301,11 @@ exports.signin = async (req, res) => {
             UserId: foundUser.UserId,
             FullName: foundUser.FirstName + " " + foundUser.LastName,
             Email: foundUser.Email,
-
+            Likes:postlikesNum,
             roles: role.Name,
             // isActivated: foundUser.IsActivated,
             // subExpired: subExpired,
+            CoverPicture: foundUser.CoverPicture,
             ProfilePicture: foundUser.ProfilePicture,
           },
         });
