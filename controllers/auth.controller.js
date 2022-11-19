@@ -16,7 +16,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const { mailFunc } = require("../middleware");
 const db = require("../models/index.model");
 const { exit } = require("process");
-const { userfriend, userpost } = require("../models/index.model");
+const { userrelationship } = require("../models/index.model");
 const User = db.user;
 const Role = db.role;
 const UserRole = db.userrole;
@@ -247,21 +247,21 @@ exports.signin = async (req, res) => {
 
       const role = await Role.findOne({ where: { RoleId: userRole.RoleId } });
 
-      const friendNum = await userfriend
-        .findAll({ where: { TargetId: foundUser.UserId } })
-        .count();
-      const followNum = await userfollower
-        .findAll({ where: { TargetId: foundUser.UserId } })
-        .count();
+      const friendNum = await userrelationship.findAll({
+        where: { TargetId: foundUser.UserId, Type: "friend" },
+      });
+      const followedNum = await userrelationship.findAll({
+        where: { TargetId: foundUser.UserId, Type: "follower" },
+      });
       const postlikesNum = await userpost.findAll({
         where: { SenderId: foundUser.UserId },
         attributes: [
           "UserPostId",
-          [sequelize.fn("sum", sequelize.col("Likes")), "TotalLikes"],
+          [db.Sequelize.fn("sum", db.Sequelize.col("Likes")), "TotalLikes"],
         ],
         group: ["user_post.UserPostId"],
         raw: true,
-        order: sequelize.literal("TotalLikes DESC"),
+        order: db.Sequelize.literal("TotalLikes DESC"),
       });
 
       if (role) {
@@ -274,6 +274,8 @@ exports.signin = async (req, res) => {
             FullName: foundUser.FirstName + " " + foundUser.LastName,
             Email: foundUser.Email,
             Likes: postlikesNum,
+            Friends: friendNum.length,
+            Followed: followedNum.length,
             roles: role.Name,
             CoverPicture: foundUser.CoverPicture,
             ProfilePicture: foundUser.ProfilePicture,

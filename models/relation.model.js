@@ -7,8 +7,17 @@ module.exports = (sequelize, Sequelize) => {
     },
 
     RelationType: {
-      type: Sequelize.ENUM("sp", "ch", "sib", "p", "wf", "gp", "ggp"),
-      defaultValue: "",
+      type: Sequelize.ENUM(
+        "sp",
+        "ch",
+        "sib",
+        "p",
+        "wf",
+        "gp",
+        "ggp",
+        "gch",
+        "ggch"
+      ),
     },
     FirstName: {
       type: Sequelize.STRING,

@@ -40,12 +40,15 @@ const UserRole = db.userrole;
 //     console.log("Failed to sync db: " + err.message);
 //   });
 
-// db.sequelize.sync({ alter: true }).then(() => {
-//   console.log("Drop and Resync Database with { force: true }");
-//   initial();
-// }).catch((err) => {
-//    console.log("Failed to sync db: " + err.message);
-//  });
+// db.sequelize
+//   .sync({ alter: true })
+//   .then(() => {
+//     console.log("Drop and Resync Database with { force: true }");
+//     initial();
+//   })
+//   .catch((err) => {
+//     console.log("Failed to sync db: " + err.message);
+//   });
 
 // app.use(
 //   session({
@@ -72,10 +75,10 @@ app.use("/docs", express.static("docs"));
 require("./routes/auth.routes")(app);
 require("./routes/user.routes")(app);
 require("./routes/group.routes")(app);
-//require("./routes/employer.routes")(app);
-// require("./routes/vehicle.routes")(app);
-// require("./routes/shipment.routes")(app);
-// require("./routes/trip.routes")(app);
+require("./routes/event.routes")(app);
+require("./routes/message.routes")(app);
+require("./routes/relationship.routes")(app);
+require("./routes/advert.routes")(app);
 // require("./routes/order.routes")(app);
 // require("./routes/payment.routes")(app);
 // require("./routes/subscription.routes")(app);
@@ -157,9 +160,7 @@ io.on("connection", (socket) => {
 });
 const PORT = process.env.PORT || 8800;
 
-server.listen(process.env.PORT, () =>
-  console.log(`Server started on ${PORT}`)
-);
+server.listen(process.env.PORT, () => console.log(`Server started on ${PORT}`));
 function initial() {
   const { v1: uuidv1, v4: uuidv4 } = require("uuid");
   encryptedPassword = bcrypt.hashSync("Web@2022", 8);

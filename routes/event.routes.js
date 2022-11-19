@@ -10,7 +10,7 @@ module.exports = function (app) {
     next();
   });
   //[verifySignUp.checkDuplicateUsernameOrEmail,verifySignUp.checkRolesExisted],
-  app.post("/api/message/addMessage", controller.addMessage);
+  app.post("/api/event/addMessage", controller.addMessage);
 
   app.put("/api/message/updateMessage", controller.updateMessage);
 

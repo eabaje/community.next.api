@@ -1,7 +1,7 @@
 module.exports = (sequelize, Sequelize) => {
   const UserEvent = sequelize.define("user_event", {
     UserEventId: {
-      type: DataTypes.INTEGER,
+      type: Sequelize.INTEGER,
       autoIncrement: true,
       primaryKey: true,
     },

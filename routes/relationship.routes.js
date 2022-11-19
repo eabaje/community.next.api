@@ -12,8 +12,6 @@ module.exports = function (app) {
   //[verifySignUp.checkDuplicateUsernameOrEmail,verifySignUp.checkRolesExisted],
   app.post("/api/relationship/addRelationship", controller.addRelationship);
 
-  app.post("/api/auth/signin", controller.signin);
-
   app.put(
     "/api/relationship/updateRelationship",
     controller.updateRelationship
