@@ -60,6 +60,7 @@ exports.addAdvert = async (req, res) => {
     const newAdvert = await advert.create({
       // req.body.,
       AdvertName: req.body.AdvertName,
+      AdvertImgUrl: req.body.AdvertImgUrl,
       AdvertType: req.body.AdvertType,
       AdvertCaption: req.body.AdvertCaption,
       AdvertPage: req.body.AdvertPage,

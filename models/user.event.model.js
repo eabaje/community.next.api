@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const UserMessage = sequelize.define("user_message", {
-    UserMessageId: {
+  const UserEvent = sequelize.define("user_event", {
+    UserEventId: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
@@ -11,9 +11,13 @@ module.exports = (sequelize, Sequelize) => {
     TargetId: {
       type: Sequelize.STRING,
     },
-    Message: {
+    Type: {
       type: Sequelize.STRING,
     },
+    Comment: {
+      type: Sequelize.STRING,
+    },
+
     createdBy: {
       type: Sequelize.STRING,
     },
@@ -28,5 +32,5 @@ module.exports = (sequelize, Sequelize) => {
     },
   });
 
-  return UserMessage;
+  return UserEvent;
 };

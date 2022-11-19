@@ -14,6 +14,15 @@ module.exports = (sequelize, Sequelize) => {
     LastName: {
       type: Sequelize.STRING,
     },
+    FullName: {
+      type: Sequelize.VIRTUAL,
+      get() {
+        return `${this.FirstName} ${this.LastName}`;
+      },
+      set(value) {
+        throw new Error("Do not try to set the `fullName` value!");
+      },
+    },
     MaidenName: {
       type: Sequelize.STRING,
     },

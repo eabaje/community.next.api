@@ -8,12 +8,15 @@ const jwt = require("jsonwebtoken");
 const db = require("../models/index.model");
 const moment = require("moment/moment");
 
-const User = db.user;
+const user = db.user;
 const userfollower = db.userfollower;
-const Friend = db.Friend;
+const Message = db.Message;
 const userfriend = db.userfriend;
 
 const relationship = db.userrelationship;
+
+const usermessage = db.usermessage;
+const usernotification = db.usernotification;
 
 const userpostlike = db.userpostlike;
 const userpostcomment = db.userpostcomment;
@@ -45,9 +48,9 @@ const Role = db.role;
 const UserRole = db.userrole;
 const Op = db.Sequelize.Op;
 
-//User Friend
+//User Message
 
-exports.addFriend = async (req, res) => {
+exports.addMessage = async (req, res) => {
   try {
     const { UserId } = req.body;
 
@@ -59,10 +62,12 @@ exports.addFriend = async (req, res) => {
 
     // });
 
-    const newFriend = await relationship.create({
+    const newMessage = await usermessage.create({
       // req.body.,
       SourceId: UserId,
-      TargetId: req.body.FriendId,
+      TargetId: req.body.TargetId,
+      Message: req.body.Message,
+
       Type: req.body.Type,
 
       createdBy: UserId,
@@ -71,11 +76,11 @@ exports.addFriend = async (req, res) => {
       UserId: UserId,
     });
 
-    if (newFriend) {
+    if (newMessage) {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      res.status(200).send({ message: "New Friend has been created.!" });
+      res.status(200).send({ message: "New Message has been created.!" });
     }
   } catch (error) {
     res.status(500).send({
@@ -84,9 +89,9 @@ exports.addFriend = async (req, res) => {
   }
 };
 
-exports.updateFriend = async (req, res) => {
+exports.updateMessage = async (req, res) => {
   try {
-    const { UserId, FriendId } = req.body;
+    const { UserId, MessageId } = req.body;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -95,10 +100,12 @@ exports.updateFriend = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const newFriend = await relationship.update(
+    const newMessage = await relationship.update(
       {
         SourceId: UserId,
-        TargetId: req.body.FriendId,
+        TargetId: req.body.TargetId,
+        Message: req.body.Message,
+
         Type: req.body.Type,
 
         updatedBy: UserId,
@@ -107,15 +114,15 @@ exports.updateFriend = async (req, res) => {
         UserId: UserId,
       },
       {
-        where: { FriendId: req.body.FriendId },
+        where: { MessageId: req.body.MessageId },
       }
     );
 
-    if (newFriend) {
+    if (newMessage) {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      res.status(200).send({ message: "Friend has been updated.!" });
+      res.status(200).send({ message: "Message has been updated.!" });
     }
   } catch (error) {
     res.status(500).send({
@@ -124,7 +131,7 @@ exports.updateFriend = async (req, res) => {
   }
 };
 
-exports.deleteFriend = async (req, res) => {
+exports.deleteMessage = async (req, res) => {
   try {
     const id = req.params.Id;
 
@@ -135,15 +142,15 @@ exports.deleteFriend = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const deletedFriend = await relationship.destroy({
-      where: { FriendId: id },
+    const deletedMessage = await relationship.destroy({
+      where: { MessageId: id },
     });
 
-    if (deletedFriend) {
+    if (deletedMessage) {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      res.status(200).send({ message: "Friend has been deleted.!" });
+      res.status(200).send({ message: "Message has been deleted.!" });
     }
   } catch (error) {
     res.status(500).send({
@@ -151,8 +158,8 @@ exports.deleteFriend = async (req, res) => {
     });
   }
 };
-//get all Friend
-exports.getAllFriend = async (req, res) => {
+//get all Message
+exports.getAllMessage = async (req, res) => {
   try {
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -161,12 +168,13 @@ exports.getAllFriend = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const result = await relationship.findAll({
+    const result = await usermessage.findAll({
       include: [
         {
           model: user,
         },
       ],
+
       order: [["createdAt", "DESC"]],
     });
 
@@ -182,10 +190,10 @@ exports.getAllFriend = async (req, res) => {
     });
   }
 };
-//Get one Friend
-exports.getFriend = async (req, res) => {
+//Get one Message
+exports.getMessage = async (req, res) => {
   try {
-    const id = req.params.UserId;
+    const id = req.params.UserMessageId;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -194,7 +202,7 @@ exports.getFriend = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const result = await relationship.findOne({
+    const result = await usermessage.findOne({
       where: { SourceId: id },
       include: [
         {

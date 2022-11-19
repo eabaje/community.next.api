@@ -57,9 +57,15 @@ db.userpostcomment = require("./user.post.comment.model.js")(
   sequelize,
   Sequelize
 );
+db.usermessage = require("./user.message.model.js")(sequelize, Sequelize);
 db.userfollower = require("./user.follower.model.js")(sequelize, Sequelize);
 db.userfriend = require("./user.friend.model.js")(sequelize, Sequelize);
 db.userrelationship = require("./user.relationship.model.js")(
+  sequelize,
+  Sequelize
+);
+db.userevent = require("./user.event.model.js")(sequelize, Sequelize);
+db.usernotification = require("./user.notification.model.js")(
   sequelize,
   Sequelize
 );
@@ -106,6 +112,15 @@ db.userpost.belongsTo(db.user, { foreignKey: "UserId" });
 
 db.user.hasMany(db.userpostlike, { foreignKey: "UserId" });
 db.userpostlike.belongsTo(db.user, { foreignKey: "UserId" });
+
+db.user.hasMany(db.usermessage, { foreignKey: "UserId" });
+db.usermessage.belongsTo(db.user, { foreignKey: "UserId" });
+
+db.userevent.hasOne(db.usernotification, { foreignKey: "UserEventId" });
+db.usernotification.belongsTo(db.userevent, { foreignKey: "UserEventId" });
+
+db.user.hasMany(db.usernotification, { foreignKey: "UserId" });
+db.usernotification.belongsTo(db.user, { foreignKey: "UserId" });
 
 db.user.hasMany(db.userpostcomment, { foreignKey: "UserId" });
 db.userpostcomment.belongsTo(db.user, { foreignKey: "UserId" });

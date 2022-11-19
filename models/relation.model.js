@@ -8,7 +8,7 @@ module.exports = (sequelize, Sequelize) => {
 
     RelationType: {
       type: Sequelize.ENUM("sp", "ch", "sib", "p", "wf", "gp", "ggp"),
-      defaultValue: "sp",
+      defaultValue: "",
     },
     FirstName: {
       type: Sequelize.STRING,

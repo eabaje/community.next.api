@@ -1,6 +1,6 @@
 module.exports = (sequelize, Sequelize) => {
-  const UserMessage = sequelize.define("user_message", {
-    UserMessageId: {
+  const UserNotification = sequelize.define("user_notification", {
+    UserNotificationId: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
@@ -11,9 +11,10 @@ module.exports = (sequelize, Sequelize) => {
     TargetId: {
       type: Sequelize.STRING,
     },
-    Message: {
+    Type: {
       type: Sequelize.STRING,
     },
+
     createdBy: {
       type: Sequelize.STRING,
     },
@@ -28,5 +29,5 @@ module.exports = (sequelize, Sequelize) => {
     },
   });
 
-  return UserMessage;
+  return UserNotification;
 };

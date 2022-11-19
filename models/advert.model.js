@@ -8,6 +8,9 @@ module.exports = (sequelize, Sequelize) => {
     AdvertName: {
       type: Sequelize.STRING,
     },
+    AdvertImgUrl: {
+      type: Sequelize.STRING,
+    },
     AdvertType: {
       type: Sequelize.STRING,
     },
