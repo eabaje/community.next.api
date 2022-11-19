@@ -145,6 +145,8 @@ module.exports = function (app) {
 
   app.get("/api/user/findAllUser", controller.findAllUser);
 
+  app.get("/api/user/findUser/:userId", controller.findUser);
+
   app.get(
     "/api/user/findAllUserBySearch/:name",
     controller.findAllUserBySearch

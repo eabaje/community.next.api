@@ -253,6 +253,9 @@ exports.signin = async (req, res) => {
       const followedNum = await userrelationship.findAll({
         where: { TargetId: foundUser.UserId, Type: "follower" },
       });
+      const followingNum = await userrelationship.findAll({
+        where: { SourceId: foundUser.UserId, Type: "follower" },
+      });
       const postlikesNum = await userpost.findAll({
         where: { SenderId: foundUser.UserId },
         attributes: [
@@ -275,6 +278,7 @@ exports.signin = async (req, res) => {
             Email: foundUser.Email,
             Likes: postlikesNum,
             Friends: friendNum.length,
+            Following: followingNum.length,
             Followed: followedNum.length,
             roles: role.Name,
             CoverPicture: foundUser.CoverPicture,
