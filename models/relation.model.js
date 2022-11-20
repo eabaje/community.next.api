@@ -1,8 +1,8 @@
 module.exports = (sequelize, Sequelize) => {
   const Relation = sequelize.define("Relation", {
     RelationId: {
-      type: Sequelize.UUID,
-      defaultValue: Sequelize.UUIDV4,
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
 
@@ -30,6 +30,22 @@ module.exports = (sequelize, Sequelize) => {
     },
     Nickname: {
       type: Sequelize.STRING,
+    },
+    Level: {
+      type: Sequelize.STRING,
+    },
+    Parent: {
+      type: Sequelize.JSON,
+    },
+
+    Partner: {
+      type: Sequelize.JSON,
+    },
+    Children: {
+      type: Sequelize.JSON,
+    },
+    Sibling: {
+      type: Sequelize.JSON,
     },
 
     createdBy: {

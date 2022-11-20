@@ -1,8 +1,8 @@
 module.exports = (sequelize, Sequelize) => {
   const RelationDetail = sequelize.define("Relation_Detail", {
     RelationDetailId: {
-      type: Sequelize.UUID,
-      defaultValue: Sequelize.UUIDV4,
+      type: Sequelize.INTEGER,
+      autoIncrement: true,
       primaryKey: true,
     },
     Mobile: {
