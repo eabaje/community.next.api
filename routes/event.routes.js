@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const controller = require("../controllers/message.controller");
+const controller = require("../controllers/event.controller");
 
 module.exports = function (app) {
   app.use(function (req, res, next) {
@@ -10,17 +10,17 @@ module.exports = function (app) {
     next();
   });
   //[verifySignUp.checkDuplicateUsernameOrEmail,verifySignUp.checkRolesExisted],
-  app.post("/api/event/addMessage", controller.addMessage);
+  app.post("/api/event/addEvent", controller.addEvent);
 
-  app.put("/api/message/updateMessage", controller.updateMessage);
+  app.put("/api/Event/updateEvent", controller.updateEvent);
 
-  app.get("/api/message/getAllMessage/:userId?", controller.getAllMessage);
+  app.get("/api/Event/getAllEvent/:userId?", controller.getAllEvent);
+  app.get("/api/event/getAllEventSent/:targetId", controller.getAllEventSent);
   app.get(
-    "/api/message/getAllMessageSent/:targetId",
-    controller.getAllMessageSent
+    "/api/event/getAllNotificationSent/:targetId?",
+    controller.getAllEventSent
   );
+  app.get("/api/event/getEvent/:UserEventId", controller.getEvent);
 
-  app.get("/api/message/getMessage/:UserMessageId", controller.getMessage);
-
-  app.delete("/api/message/deleteMessage/:Id", controller.deleteMessage);
+  app.delete("/api/event/deleteEvent/:Id", controller.deleteEvent);
 };

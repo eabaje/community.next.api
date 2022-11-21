@@ -10,10 +10,8 @@ const moment = require("moment/moment");
 
 const user = db.user;
 const userfollower = db.userfollower;
-const Message = db.Message;
+const Event = db.Event;
 const userfriend = db.userfriend;
-
-const relationship = db.userrelationship;
 
 const usermessage = db.usermessage;
 const userevent = db.userevent;
@@ -49,7 +47,7 @@ const Role = db.role;
 const UserRole = db.userrole;
 const Op = db.Sequelize.Op;
 
-//User Message
+//User Event
 
 exports.addEvent = async (req, res) => {
   try {
@@ -110,7 +108,7 @@ exports.addEvent = async (req, res) => {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      res.status(200).send({ message: "New Message has been created.!" });
+      res.status(200).send({ message: "New Event has been created.!" });
     }
   } catch (error) {
     res.status(500).send({
@@ -119,9 +117,9 @@ exports.addEvent = async (req, res) => {
   }
 };
 
-exports.updateMessage = async (req, res) => {
+exports.updateEvent = async (req, res) => {
   try {
-    const { UserId, MessageId } = req.body;
+    const { UserId, UserEventId } = req.body;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -130,29 +128,28 @@ exports.updateMessage = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const newMessage = await relationship.update(
+    const newEvent = await userevent.update(
       {
         SourceId: UserId,
         TargetId: req.body.TargetId,
-        Message: req.body.Message,
-
+        TargetType: req.body.TargetType,
+        Comment: req.body.Comment,
         Type: req.body.Type,
-
         updatedBy: UserId,
         updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
 
         UserId: UserId,
       },
       {
-        where: { MessageId: req.body.MessageId },
+        where: { EventId: req.body.EventId },
       }
     );
 
-    if (newMessage) {
+    if (newEvent) {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      res.status(200).send({ message: "Message has been updated.!" });
+      res.status(200).send({ message: "Event has been updated.!" });
     }
   } catch (error) {
     res.status(500).send({
@@ -161,7 +158,7 @@ exports.updateMessage = async (req, res) => {
   }
 };
 
-exports.deleteMessage = async (req, res) => {
+exports.deleteEvent = async (req, res) => {
   try {
     const id = req.params.Id;
 
@@ -172,15 +169,15 @@ exports.deleteMessage = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const deletedMessage = await relationship.destroy({
-      where: { MessageId: id },
+    const deletedEvent = await userevent.destroy({
+      where: { UserEventId: id },
     });
 
-    if (deletedMessage) {
+    if (deletedEvent) {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      res.status(200).send({ message: "Message has been deleted.!" });
+      res.status(200).send({ message: "Event has been deleted.!" });
     }
   } catch (error) {
     res.status(500).send({
@@ -188,8 +185,8 @@ exports.deleteMessage = async (req, res) => {
     });
   }
 };
-//get all Message
-exports.getAllMessage = async (req, res) => {
+//get all Event
+exports.getAllEvent = async (req, res) => {
   try {
     const id = req.params.userId;
     var condition = id ? { UserId: { [Op.iLike]: `%${id}%` } } : null;
@@ -225,7 +222,7 @@ exports.getAllMessage = async (req, res) => {
   }
 };
 
-exports.getAllMessageSent = async (req, res) => {
+exports.getAllEventSent = async (req, res) => {
   try {
     const id = req.params.targetId;
     var condition = id ? { TargetId: { [Op.iLike]: `%${id}%` } } : null;
@@ -260,10 +257,10 @@ exports.getAllMessageSent = async (req, res) => {
     });
   }
 };
-//Get one Message
-exports.getMessage = async (req, res) => {
+//Get one Event
+exports.getEvent = async (req, res) => {
   try {
-    const id = req.params.UserMessageId;
+    const id = req.params.UserEventId;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -272,7 +269,80 @@ exports.getMessage = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const result = await usermessage.findOne({
+    const result = await userevent.findOne({
+      where: { SourceId: id },
+      include: [
+        {
+          model: user,
+        },
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (result) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: result });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+//Notification
+
+exports.getAllNotificationSent = async (req, res) => {
+  try {
+    const id = req.params.targetId;
+    var condition = id ? { TargetId: { [Op.iLike]: `%${id}%` } } : null;
+
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const result = await usernotification.findAll({
+      where: condition,
+      include: [
+        {
+          model: user,
+        },
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (result) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: result });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+//Get one Event
+exports.getEvent = async (req, res) => {
+  try {
+    const id = req.params.UserEventId;
+
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const result = await userevent.findOne({
       where: { SourceId: id },
       include: [
         {

@@ -887,8 +887,6 @@ exports.findUser = (req, res) => {
         model: Role,
         attributes: ["Name"],
       },
-
-     
     ],
     order: [["createdAt", "DESC"]],
   })
@@ -910,7 +908,7 @@ exports.findUser = (req, res) => {
 exports.updateUser = (req, res) => {
   const id = req.body.UserId;
 
-  const imagePath = req.file.filename;
+  // const imagePath = req.file.filename;
 
   User.update(req.body, {
     where: { UserId: id },

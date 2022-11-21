@@ -16,7 +16,7 @@ module.exports = function (app) {
 
   app.get("/api/message/getAllMessage/:userId?", controller.getAllMessage);
   app.get(
-    "/api/message/getAllMessageSent/:targetId",
+    "/api/message/getAllMessageSent/:targetId?",
     controller.getAllMessageSent
   );
 

@@ -11,6 +11,9 @@ module.exports = (sequelize, Sequelize) => {
     TargetId: {
       type: Sequelize.STRING,
     },
+    TargetType: {
+      type: Sequelize.STRING,
+    },
     Type: {
       type: Sequelize.STRING,
     },
