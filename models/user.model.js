@@ -50,7 +50,7 @@ module.exports = (sequelize, Sequelize) => {
     MaritalStatus: {
       type: Sequelize.STRING,
     },
-    Languages: {
+    Language: {
       type: Sequelize.STRING,
     },
     Occupation: {
@@ -80,6 +80,9 @@ module.exports = (sequelize, Sequelize) => {
     Desc: {
       type: Sequelize.STRING,
       max: 50,
+    },
+    Address: {
+      type: Sequelize.STRING,
     },
     City: {
       type: Sequelize.STRING,
