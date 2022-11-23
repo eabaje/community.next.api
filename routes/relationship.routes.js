@@ -22,7 +22,7 @@ module.exports = function (app) {
     controller.getAllRelationship
   );
   app.get(
-    "/api/relationship/getAllRelationship/:type",
+    "/api/relationship/getAllRelationship/:type?",
     controller.getAllRelationship
   );
   app.get(

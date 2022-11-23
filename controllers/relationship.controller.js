@@ -154,14 +154,11 @@ exports.deleteRelationship = async (req, res) => {
 //get all Relationship
 exports.getAllRelationship = async (req, res) => {
   try {
-    // const token = req.cookies.accessToken;
-    // if (!token) return res.status(401).json("Not logged in!");
+    const type = req.params.type;
+    var condition = type ? { Type: { [Op.iLike]: `%${type}%` } } : null;
 
-    // jwt.verify(token, "secretkey", (err, userInfo) => {
-    //   if (err) return res.status(403).json("Token is not valid!");
-
-    // });
     const result = await relationship.findAll({
+      where: condition,
       include: [
         {
           model: user,
@@ -233,7 +230,6 @@ exports.deleteRelation = async (req, res) => {
     });
 
     if (isDeleted) {
-      
       res.status(200).send({ message: "Record has been deleted.!" });
     }
   } catch (error) {

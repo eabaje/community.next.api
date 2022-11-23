@@ -25,8 +25,21 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.STRING,
       max: 50,
     },
+    MaritalStatus: {
+      type: Sequelize.STRING,
+    },
+
+    Occupation: {
+      type: Sequelize.STRING,
+    },
+    EmploymentStatus: {
+      type: Sequelize.STRING,
+    },
     Age: {
       type: Sequelize.STRING,
+    },
+    DOB: {
+      type: Sequelize.DATEONLY,
     },
     Sex: {
       type: Sequelize.STRING,

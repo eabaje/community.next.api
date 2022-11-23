@@ -267,13 +267,7 @@ exports.getAllRelation = async (req, res) => {
   try {
     const id = req.params.userId;
     const relationType = req.params.relationType;
-    // const token = req.cookies.accessToken;
-    // if (!token) return res.status(401).json("Not logged in!");
-
-    // jwt.verify(token, "secretkey", (err, userInfo) => {
-    //   if (err) return res.status(403).json("Token is not valid!");
-
-    // });
+   
     const foundResult = await relationprimary.findAll({
       where: { UserId: id, RelationType: relationType },
       include: [
