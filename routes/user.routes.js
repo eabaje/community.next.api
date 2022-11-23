@@ -87,12 +87,12 @@ module.exports = function (app) {
   app.put("/api/user/updateRelation", controller.updateRelation);
 
   app.get(
-    "/api/user/getRelation/:relationType/:relationId",
+    "/api/user/getRelation/:relationId/:relationType",
     controller.getRelation
   );
 
   app.get(
-    "/api/user/getAllRelation/:relationType/:userId",
+    "/api/user/getAllRelation/:userId/:relationType",
     controller.getAllRelation
   );
 
@@ -125,12 +125,12 @@ module.exports = function (app) {
   app.post("/api/user/updateSchoolPlaceWork", controller.updateSchoolPlaceWork);
 
   app.get(
-    "/api/user/getSchoolPlaceWork/:relationType/:Id",
+    "/api/user/getSchoolPlaceWork/:Id/:relationType",
     controller.getSchoolPlaceWork
   );
 
   app.get(
-    "/api/user/getAllSchoolPlaceWork/:relationType/",
+    "/api/user/getAllSchoolPlaceWork/:userId/:relationType",
     controller.getAllSchoolPlaceWork
   );
 

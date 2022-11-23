@@ -6,6 +6,7 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("../models/index.model");
+const moment = require("moment/moment");
 
 const User = db.user;
 const userfollower = db.userfollower;
@@ -101,6 +102,12 @@ exports.addRelation = async (req, res) => {
 
     const spouse = await relationprimary.findOne({
       where: { [Op.and]: [{ RelationType: RelationType }, { UserId: UserId }] },
+      include: [
+        {
+          model: relationsecondary,
+          where: { Email: Email },
+        },
+      ],
     });
 
     if (spouse) {
@@ -172,6 +179,7 @@ exports.addRelation = async (req, res) => {
       // });
     }
   } catch (error) {
+    console.log("error", error);
     res.status(500).send({
       message: error.message || "Some error occurred .",
     });
@@ -915,7 +923,7 @@ exports.updateUser = (req, res) => {
   })
     .then((num) => {
       if (num == 1) {
-        res.send({
+        res.status(200).send({
           message: "User was updated successfully.",
         });
       } else {
