@@ -267,7 +267,7 @@ exports.getAllRelation = async (req, res) => {
   try {
     const id = req.params.userId;
     const relationType = req.params.relationType;
-   
+
     const foundResult = await relationprimary.findAll({
       where: { UserId: id, RelationType: relationType },
       include: [
@@ -364,26 +364,29 @@ exports.addChildOrSibling = async (req, res) => {
     const { Email, UserId, RelationType } = req.body;
 
     await req.body.child.map((item, index) => {
-      const newChildOrSibling = relationprimary.create({
+      const ChildOrSibling = {
         RelationType: RelationType,
         FirstName: item.FirstName,
         MiddleName: item.MiddleName,
         LastName: item.LastName,
-        Nickname: item.Nickname,
-
+        NickName: item.NickName,
         UserId: UserId,
         createdBy: UserId,
         createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-        // PurchaseYear: vehicle.Veh
-      });
+        // PurchaseYear: vehicle.VehicleType,
+      };
 
-      if (newChildOrSibling)
-        return res.status(200).send({
-          message: "Added new information successfully!.",
-          data: newChildOrSibling,
-        });
+      console.log("ChildOrSibling", ChildOrSibling);
+
+      const newSChildOrSibling = relationprimary.create(ChildOrSibling);
+    });
+
+    return res.status(200).send({
+      message: "Added new information successfully!.",
+      // data: newChildOrSibling,
     });
   } catch (error) {
+    console.log("error", error);
     res.status(500).send({
       message: error.message || "Some error occurred .",
     });
