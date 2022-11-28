@@ -105,10 +105,69 @@ exports.addRelation = async (req, res) => {
       const found = await relationprimary.findOne({
         where: { RelationId: req.body.RelationId },
       });
+
+      const newRelation = await relationprimary.update({
+        // req.body,
+        RelationId: req.body.RelationId,
+        RelationType: RelationType,
+        FirstName: req.body.FirstName,
+        LastName: req.body.LastName,
+        MiddleName: req.body.MiddleName,
+        NickName: req.body.NickName,
+        UserId: UserId,
+        updatedBy: UserId,
+        updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+        // UserName: req.body.Email.toLowerCase(),
+        // AcceptTerms: req.body.AcceptTerms,
+        // PaymentMethod: req.body.PaymentMethod,
+        // Currency: req.body.Currency,
+        // IsActivated: false,
+        // IsConfirmed: false,
+      });
+
+      const found2 = await relationsecondary.findOne({
+        where: { RelationId: req.body.RelationId },
+      });
+      const newRelationDetail = await relationsecondary.update({
+        // req.body,
+
+        RealtionDetailId:found2.RealtionDetailId,
+        Email: req.body.Email.toLowerCase(),
+        Age: req.body.Age,
+        Sex: req.body.Sex,
+        Tribe: req.body.Tribe,
+        FamilyName: req.body.FamilyName,
+        Language: req.body.Language,
+        Kindred: req.body.Kindred,
+        Clan: req.body.Clan,
+        Mobile: req.body.Mobile,
+        Address: req.body.Address,
+        City: req.body.City,
+        HomeTown: req.body.HomeTown,
+        LGA: req.body.LGA,
+        State: req.body.State,
+        Country: req.body.Country,
+        ProfilePicture: req.body.ProfilePicture,
+        CoverPicture: req.body.CoverPicture,
+        Desc: req.body.Desc,
+        UserId: UserId,
+        RelationId: newRelation.RelationId,
+        updatedBy: UserId,
+        updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+
+        // UserName: req.body.Email.toLowerCase(),
+        // AcceptTerms: req.body.AcceptTerms,
+        // PaymentMethod: req.body.PaymentMethod,
+        // Currency: req.body.Currency,
+        // IsActivated: false,
+        // IsConfirmed: false,
+      });
+
+
     } else {
       //create new relation data
 
-      const spouse = await relationprimary.findOne({
+      const found = await relationprimary.findOne({
         where: {
           [Op.and]: [{ RelationType: RelationType }, { UserId: UserId }],
         },
@@ -120,7 +179,7 @@ exports.addRelation = async (req, res) => {
         ],
       });
 
-      if (spouse) {
+      if (found) {
         return res
           .status(200)
           .send({ message: "A record already exists with the information" });
