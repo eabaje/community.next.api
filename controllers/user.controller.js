@@ -100,67 +100,42 @@ exports.addRelation = async (req, res) => {
   try {
     const { Email, UserId, RelationType } = req.body;
 
-    const spouse = await relationprimary.findOne({
-      where: { [Op.and]: [{ RelationType: RelationType }, { UserId: UserId }] },
-      include: [
-        {
-          model: relationsecondary,
-          where: { Email: Email },
+    if (parseInt(req.body.RelationId) > 0) {
+      //update relation
+      const found = await relationprimary.findOne({
+        where: { RelationId: req.body.RelationId },
+      });
+    } else {
+      //create new relation data
+
+      const spouse = await relationprimary.findOne({
+        where: {
+          [Op.and]: [{ RelationType: RelationType }, { UserId: UserId }],
         },
-      ],
-    });
+        include: [
+          {
+            model: relationsecondary,
+            where: { Email: Email },
+          },
+        ],
+      });
 
-    if (spouse) {
-      return res
-        .status(200)
-        .send({ message: "A record already exists with the information" });
-    }
+      if (spouse) {
+        return res
+          .status(200)
+          .send({ message: "A record already exists with the information" });
+      }
 
-    const newRelation = await relationprimary.create({
-      // req.body,
-      RelationType: RelationType,
-      FirstName: req.body.FirstName,
-      LastName: req.body.LastName,
-      MiddleName: req.body.MiddleName,
-      NickName: req.body.NickName,
-      UserId: UserId,
-      createdBy: UserId,
-      createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-      // UserName: req.body.Email.toLowerCase(),
-      // AcceptTerms: req.body.AcceptTerms,
-      // PaymentMethod: req.body.PaymentMethod,
-      // Currency: req.body.Currency,
-      // IsActivated: false,
-      // IsConfirmed: false,
-    });
-
-    if (newRelation) {
-      const newRelationDetail = await relationsecondary.create({
+      const newRelation = await relationprimary.create({
         // req.body,
-
-        Email: req.body.Email.toLowerCase(),
-        Age: req.body.Age,
-        Sex: req.body.Sex,
-        Tribe: req.body.Tribe,
-        FamilyName: req.body.FamilyName,
-        Language: req.body.Language,
-        Kindred: req.body.Kindred,
-        Clan: req.body.Clan,
-        Mobile: req.body.Mobile,
-        Address: req.body.Address,
-        City: req.body.City,
-        HomeTown: req.body.HomeTown,
-        LGA: req.body.LGA,
-        State: req.body.State,
-        Country: req.body.Country,
-        ProfilePicture: req.body.ProfilePicture,
-        CoverPicture: req.body.CoverPicture,
-        Desc: req.body.Desc,
+        RelationType: RelationType,
+        FirstName: req.body.FirstName,
+        LastName: req.body.LastName,
+        MiddleName: req.body.MiddleName,
+        NickName: req.body.NickName,
         UserId: UserId,
-        RelationId: newRelation.RelationId,
         createdBy: UserId,
         createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-
         // UserName: req.body.Email.toLowerCase(),
         // AcceptTerms: req.body.AcceptTerms,
         // PaymentMethod: req.body.PaymentMethod,
@@ -169,14 +144,50 @@ exports.addRelation = async (req, res) => {
         // IsConfirmed: false,
       });
 
-      if (newRelationDetail) {
-        res
-          .status(200)
-          .send({ message: "Added Relation information successfully!" });
+      if (newRelation) {
+        const newRelationDetail = await relationsecondary.create({
+          // req.body,
+
+          Email: req.body.Email.toLowerCase(),
+          Age: req.body.Age,
+          Sex: req.body.Sex,
+          Tribe: req.body.Tribe,
+          FamilyName: req.body.FamilyName,
+          Language: req.body.Language,
+          Kindred: req.body.Kindred,
+          Clan: req.body.Clan,
+          Mobile: req.body.Mobile,
+          Address: req.body.Address,
+          City: req.body.City,
+          HomeTown: req.body.HomeTown,
+          LGA: req.body.LGA,
+          State: req.body.State,
+          Country: req.body.Country,
+          ProfilePicture: req.body.ProfilePicture,
+          CoverPicture: req.body.CoverPicture,
+          Desc: req.body.Desc,
+          UserId: UserId,
+          RelationId: newRelation.RelationId,
+          createdBy: UserId,
+          createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+
+          // UserName: req.body.Email.toLowerCase(),
+          // AcceptTerms: req.body.AcceptTerms,
+          // PaymentMethod: req.body.PaymentMethod,
+          // Currency: req.body.Currency,
+          // IsActivated: false,
+          // IsConfirmed: false,
+        });
+
+        if (newRelationDetail) {
+          res
+            .status(200)
+            .send({ message: "Added Relation information successfully!" });
+        }
+        // return res.status(200).json({
+        //   message: "Registration Link Sent",
+        // });
       }
-      // return res.status(200).json({
-      //   message: "Registration Link Sent",
-      // });
     }
   } catch (error) {
     console.log("error", error);
@@ -362,6 +373,7 @@ exports.deleteRelation = async (req, res) => {
 exports.addChildOrSibling = async (req, res) => {
   try {
     const { Email, UserId, RelationType } = req.body;
+    let updateSChildOrSibling = null;
 
     await req.body.child.map((item, index) => {
       const ChildOrSibling = {
@@ -376,13 +388,31 @@ exports.addChildOrSibling = async (req, res) => {
         // PurchaseYear: vehicle.VehicleType,
       };
 
-      console.log("ChildOrSibling", ChildOrSibling);
+      const uChildOrSibling = {
+        RelationType: RelationType,
+        RelationId: item.RelationId,
+        FirstName: item.FirstName,
+        MiddleName: item.MiddleName,
+        LastName: item.LastName,
+        NickName: item.NickName,
+        UserId: UserId,
+        createdBy: UserId,
+        createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+        // PurchaseYear: vehicle.VehicleType,
+      };
 
-      const newSChildOrSibling = relationprimary.create(ChildOrSibling);
+      console.log("ChildOrSibling", ChildOrSibling);
+      if (parseInt(item.RelationId) > 0) {
+        updateSChildOrSibling = relationprimary.update(uChildOrSibling);
+      } else {
+        const newSChildOrSibling = relationprimary.create(ChildOrSibling);
+      }
     });
 
     return res.status(200).send({
-      message: "Added new information successfully!.",
+      message: updateSChildOrSibling
+        ? "Updated information successfully!."
+        : "Added information successfully!",
       // data: newChildOrSibling,
     });
   } catch (error) {
