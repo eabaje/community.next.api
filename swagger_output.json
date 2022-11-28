@@ -5,9 +5,11 @@
     "title": "REST API",
     "description": ""
   },
-  "host": "localhost:8800",
+  "host": "localhost:3000",
   "basePath": "/",
-  "schemes": ["http"],
+  "schemes": [
+    "http"
+  ],
   "paths": {
     "/api/auth/signup": {
       "post": {
@@ -171,6 +173,9 @@
             "schema": {
               "type": "object",
               "properties": {
+                "RelationId": {
+                  "example": "any"
+                },
                 "FirstName": {
                   "example": "any"
                 },
@@ -250,9 +255,6 @@
         "responses": {
           "200": {
             "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
           },
           "500": {
             "description": "Internal Server Error"
@@ -1128,6 +1130,9 @@
                 "AdvertName": {
                   "example": "any"
                 },
+                "AdvertImgUrl": {
+                  "example": "any"
+                },
                 "AdvertType": {
                   "example": "any"
                 },
@@ -1297,6 +1302,237 @@
         "parameters": [
           {
             "name": "advertId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/updateRelation": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "FirstName": {
+                  "example": "any"
+                },
+                "LastName": {
+                  "example": "any"
+                },
+                "MiddleName": {
+                  "example": "any"
+                },
+                "NickName": {
+                  "example": "any"
+                },
+                "Email": {
+                  "example": "any"
+                },
+                "Age": {
+                  "example": "any"
+                },
+                "Sex": {
+                  "example": "any"
+                },
+                "Tribe": {
+                  "example": "any"
+                },
+                "FamilyName": {
+                  "example": "any"
+                },
+                "Language": {
+                  "example": "any"
+                },
+                "Kindred": {
+                  "example": "any"
+                },
+                "Clan": {
+                  "example": "any"
+                },
+                "Mobile": {
+                  "example": "any"
+                },
+                "Address": {
+                  "example": "any"
+                },
+                "City": {
+                  "example": "any"
+                },
+                "HomeTown": {
+                  "example": "any"
+                },
+                "LGA": {
+                  "example": "any"
+                },
+                "State": {
+                  "example": "any"
+                },
+                "Country": {
+                  "example": "any"
+                },
+                "ProfilePicture": {
+                  "example": "any"
+                },
+                "CoverPicture": {
+                  "example": "any"
+                },
+                "Desc": {
+                  "example": "any"
+                },
+                "UserId": {
+                  "example": "any"
+                },
+                "RelationId": {
+                  "example": "any"
+                },
+                "RelationType": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "404": {
+            "description": "Not Found"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/getRelation/{relationId}/{relationType}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "relationId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "relationType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/getAllRelation/{userId}/{relationType}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "relationType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/getSchoolPlaceWork/{Id}/{relationType}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "Id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "relationType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/getAllSchoolPlaceWork/{userId}/{relationType}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "relationType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/findUser/{userId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
             "in": "path",
             "required": true,
             "type": "string"
