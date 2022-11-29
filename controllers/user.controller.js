@@ -100,7 +100,7 @@ exports.addRelation = async (req, res) => {
   try {
     const { Email, UserId, RelationType } = req.body;
 
-    if (parseInt(req.body.RelationId) > 0) {
+    if (req.body.RelationId && parseInt(req.body.RelationId) > 0) {
       //update relation
       const found = await relationprimary.findOne({
         where: { RelationId: req.body.RelationId },
@@ -131,7 +131,7 @@ exports.addRelation = async (req, res) => {
       const newRelationDetail = await relationsecondary.update({
         // req.body,
 
-        RealtionDetailId:found2.RealtionDetailId,
+        RealtionDetailId: found2.RealtionDetailId,
         Email: req.body.Email.toLowerCase(),
         Age: req.body.Age,
         Sex: req.body.Sex,
@@ -162,8 +162,6 @@ exports.addRelation = async (req, res) => {
         // IsActivated: false,
         // IsConfirmed: false,
       });
-
-
     } else {
       //create new relation data
 
@@ -184,24 +182,20 @@ exports.addRelation = async (req, res) => {
           .status(200)
           .send({ message: "A record already exists with the information" });
       }
-
-      const newRelation = await relationprimary.create({
-        // req.body,
+      const unewRelation = {
         RelationType: RelationType,
+
         FirstName: req.body.FirstName,
-        LastName: req.body.LastName,
         MiddleName: req.body.MiddleName,
+        LastName: req.body.LastName,
         NickName: req.body.NickName,
         UserId: UserId,
         createdBy: UserId,
         createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-        // UserName: req.body.Email.toLowerCase(),
-        // AcceptTerms: req.body.AcceptTerms,
-        // PaymentMethod: req.body.PaymentMethod,
-        // Currency: req.body.Currency,
-        // IsActivated: false,
-        // IsConfirmed: false,
-      });
+        // PurchaseYear: vehicle.VehicleType,
+      };
+      console.log("unewRelation", unewRelation);
+      const newRelation = await relationprimary.create(unewRelation);
 
       if (newRelation) {
         const newRelationDetail = await relationsecondary.create({
@@ -225,7 +219,7 @@ exports.addRelation = async (req, res) => {
           ProfilePicture: req.body.ProfilePicture,
           CoverPicture: req.body.CoverPicture,
           Desc: req.body.Desc,
-          UserId: UserId,
+
           RelationId: newRelation.RelationId,
           createdBy: UserId,
           createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
@@ -976,12 +970,12 @@ exports.findUser = (req, res) => {
 
   User.findOne({
     where: { UserId: id },
-    include: [
-      {
-        model: Role,
-        attributes: ["Name"],
-      },
-    ],
+    // include: [
+    //   {
+    //     model: Role,
+    //     attributes: ["Name"],
+    //   },
+    // ],
     order: [["createdAt", "DESC"]],
   })
     .then((data) => {
@@ -993,7 +987,7 @@ exports.findUser = (req, res) => {
     .catch((err) => {
       console.log("err", err);
       res.status(500).send({
-        message: "Error retrieving User with UserId=" + id,
+        message: err.message || "Error retrieving User with UserId=" + id,
       });
     });
 };
