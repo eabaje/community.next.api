@@ -397,17 +397,17 @@ exports.reset = (req, res) => {
             });
 
             res.send({
-              message: "User was updated successfully.",
+              message: "Your password has been reset.Kindly check your email.",
             });
           } else {
             res.send({
-              message: `Cannot update User with id=${id}. Maybe User was not found or req.body is empty!`,
+              message: `operation failed! contact your administrator`,
             });
           }
         })
         .catch((err) => {
           res.status(500).send({
-            message: "Error updating User with id=" + id,
+            message: `operation failed! contact your administrator`,
           });
         });
     })
