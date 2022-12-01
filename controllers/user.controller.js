@@ -867,6 +867,84 @@ exports.getSchoolPlaceWork = async (req, res) => {
   }
 };
 
+exports.getNeighbourhoodByUserId = async (req, res) => {
+  try {
+    const RelationType = req.params.relationType;
+
+    const userId = req.params.userId;
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+
+
+
+    let foundRecord = null;
+
+    foundRecord = await place.findOne({
+      where: { UserId: userId },
+      include: [
+        {
+          model: User,
+        },
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (RelationType === "sch") {
+      foundRecord = await school.findOne({
+        where: { SchoolId: Id },
+        include: [
+          {
+            model: User,
+          },
+        ],
+
+        order: [["createdAt", "DESC"]],
+      });
+    } else if (RelationType === "wk") {
+      foundRecord = await employer.findOne({
+        where: { Employer: Id },
+        include: [
+          {
+            model: User,
+          },
+        ],
+
+        order: [["createdAt", "DESC"]],
+      });
+    } else {
+      foundRecord = await place.findOne({
+        where: { PlaceLived: Id },
+        include: [
+          {
+            model: User,
+          },
+        ],
+
+        order: [["createdAt", "DESC"]],
+      });
+    }
+
+    if (foundRecord) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: foundRecord });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+
+
 exports.deleteSchoolPlaceWork = async (req, res) => {
   try {
     // const token = req.cookies.accessToken;
@@ -908,6 +986,8 @@ exports.deleteSchoolPlaceWork = async (req, res) => {
     });
   }
 };
+
+//Search neighbourhood
 
 //User
 
