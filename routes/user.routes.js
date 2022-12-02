@@ -138,7 +138,12 @@ module.exports = function (app) {
     "/api/user/deleteChildorSibling/:relationType/:Id",
     controller.deleteSchoolPlaceWork
   );
-
+  //
+  app.get(
+    "/api/user/getNeighbourhoodByUserId/:userId",
+    controller.getNeighbourhoodByUserId
+  );
+  getNeighbourhoodByUserId;
   //User
 
   app.get("/api/user/findAllUser/:userId", controller.findUser);

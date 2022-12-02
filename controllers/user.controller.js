@@ -869,8 +869,6 @@ exports.getSchoolPlaceWork = async (req, res) => {
 
 exports.getNeighbourhoodByUserId = async (req, res) => {
   try {
-    const RelationType = req.params.relationType;
-
     const userId = req.params.userId;
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -880,61 +878,62 @@ exports.getNeighbourhoodByUserId = async (req, res) => {
 
     // });
 
-
-
-    let foundRecord = null;
-
-    foundRecord = await place.findOne({
+    let dt = null;
+    const arrCountry = [];
+    const arrState = [];
+    const arrCity = [];
+    const arrAddress = [];
+    dt = await place.findAll({
       where: { UserId: userId },
-      include: [
-        {
-          model: User,
-        },
-      ],
-
+      attributes: ["PlaceLivedId", "Country", "State", "City", "Address"],
       order: [["createdAt", "DESC"]],
     });
 
-    if (RelationType === "sch") {
-      foundRecord = await school.findOne({
-        where: { SchoolId: Id },
-        include: [
-          {
-            model: User,
-          },
-        ],
+    dt?.map((objItem) => {
+      arrCountry.append(objItem.Country);
+      arrState.append(objItem.State);
+      arrCity.append(objItem.City);
+      arrAddress.append(objItem.Address);
+    });
 
-        order: [["createdAt", "DESC"]],
-      });
-    } else if (RelationType === "wk") {
-      foundRecord = await employer.findOne({
-        where: { Employer: Id },
-        include: [
-          {
-            model: User,
-          },
-        ],
+    const dtPlace = await place.findAll({
+      where: {
+        Country: {
+          [Op.contains]: arrCountry, //<- array of Country
+        },
+        State: {
+          [Op.contains]: arrState, //<- array of State
+        },
+        City: {
+          [Op.contains]: arrCity, //<- array of City
+        },
+        Address: {
+          [Op.contains]: arrAddress, //<- array of Address
+        },
+      },
+      attributes: [
+        "PlaceLivedId",
+        "Country",
+        "State",
+        "City",
+        "Address",
+        "YearFrom",
+        "YearTo",
+      ],
+      include: [
+        {
+          model: User,
+          attributes: ["UserId", "FirstName", "LastName", "MiddleName"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
 
-        order: [["createdAt", "DESC"]],
-      });
-    } else {
-      foundRecord = await place.findOne({
-        where: { PlaceLived: Id },
-        include: [
-          {
-            model: User,
-          },
-        ],
-
-        order: [["createdAt", "DESC"]],
-      });
-    }
-
-    if (foundRecord) {
+    if (dtPlace) {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      return res.status(200).send({ message: "Success", data: foundRecord });
+      return res.status(200).send({ message: "Success", data: dtPlace });
     }
   } catch (error) {
     res.status(500).send({
@@ -942,8 +941,6 @@ exports.getNeighbourhoodByUserId = async (req, res) => {
     });
   }
 };
-
-
 
 exports.deleteSchoolPlaceWork = async (req, res) => {
   try {
