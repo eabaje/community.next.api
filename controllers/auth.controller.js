@@ -16,7 +16,8 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const { mailFunc } = require("../middleware");
 const db = require("../models/index.model");
 const { exit } = require("process");
-const { userrelationship } = require("../models/index.model");
+
+const userrelationship = db.userrelationship;
 const User = db.user;
 const Role = db.role;
 const UserRole = db.userrole;

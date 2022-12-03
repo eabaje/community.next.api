@@ -8,13 +8,13 @@ const jwt = require("jsonwebtoken");
 const db = require("../models/index.model");
 const moment = require("moment/moment");
 
-const User = db.user;
+const user = db.user;
 const userfollower = db.userfollower;
 const Friend = db.Friend;
 const userfriend = db.userfriend;
 
 const relationship = db.userrelationship;
-
+const userrelationship = db.userrelationship;
 const userpostlike = db.userpostlike;
 const userpostcomment = db.userpostcomment;
 const userrole = db.userrole;
@@ -154,6 +154,7 @@ exports.deleteFriend = async (req, res) => {
 //get all Friend
 exports.getAllFriend = async (req, res) => {
   try {
+    const id = req.params.UserId;
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
 
@@ -162,6 +163,7 @@ exports.getAllFriend = async (req, res) => {
 
     // });
     const result = await relationship.findAll({
+      where:{SourceId:id},
       include: [
         {
           model: user,
@@ -171,6 +173,26 @@ exports.getAllFriend = async (req, res) => {
     });
 
     if (result) {
+
+      const friendNum = await userrelationship.findAll({
+        where: { TargetId: id, Type: "friend" },
+      });
+      const followedNum = await userrelationship.findAll({
+        where: { TargetId: id, Type: "follower" },
+      });
+      const followingNum = await userrelationship.findAll({
+        where: { SourceId: id, Type: "follower" },
+      });
+      const postlikesNum = await userpost.findAll({
+        where: { SenderId: foundUser.UserId },
+        attributes: [
+          "UserPostId",
+          [db.Sequelize.fn("sum", db.Sequelize.col("Likes")), "TotalLikes"],
+        ],
+        group: ["user_post.UserPostId"],
+        raw: true,
+        order: db.Sequelize.literal("TotalLikes DESC"),
+      });
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
