@@ -179,6 +179,36 @@ exports.getAllRelationship = async (req, res) => {
     });
   }
 };
+
+exports.getAllRelationshipByLevel = async (req, res) => {
+  try {
+    const id = req.params.userId;
+    const level = req.params.level;
+    const type = req.params.relationType;
+
+    const result = await relationship.findAll({
+      where: { UserId: id, Level: level, Type: type },
+      include: [
+        {
+          model: user,
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (result) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: result });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
 //Get one Relationship
 exports.getRelationship = async (req, res) => {
   try {

@@ -26,6 +26,11 @@ module.exports = function (app) {
     controller.getAllRelationship
   );
   app.get(
+    "/api/relationship/getAllRelationshipByLevel/:userId/:level/:type?",
+    controller.getAllRelationshipByLevel
+  );
+
+  app.get(
     "/api/relationship/getRelationship/:userRelationId",
     controller.getRelationship
   );

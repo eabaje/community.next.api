@@ -40,175 +40,113 @@ const Role = db.role;
 const UserRole = db.userrole;
 const Op = db.Sequelize.Op;
 
-// Create and Save a new User
-
-exports.addSpouse = async (req, res) => {
-  try {
-    const { Email, UserId } = req.body;
-
-    const spouse = await relationprimary.findOne({
-      where: { [Op.and]: [{ RelationType: "sp" }, { UserId: UserId }] },
-    });
-
-    if (spouse) {
-      return res
-        .status(404)
-        .send({ message: "An error occurred with Role Type Provision" });
-    }
-
-    const newSpouse = await relationprimary.create({
-      // req.body,
-      FirstName: req.body.FirstName,
-      LastName: req.body.LastName,
-      MiddleName: req.body.MiddleName,
-      Email: req.body.Email.toLowerCase(),
-      Age: req.body.Age,
-      Sex: req.body.Sex,
-      Mobile: req.body.Mobile,
-      Address: req.body.Address,
-      City: req.body.City,
-      State: req.body.State,
-      Country: req.body.Country,
-      UserId: UserId,
-
-      // UserName: req.body.Email.toLowerCase(),
-      // AcceptTerms: req.body.AcceptTerms,
-      // PaymentMethod: req.body.PaymentMethod,
-      // Currency: req.body.Currency,
-      // IsActivated: false,
-      // IsConfirmed: false,
-    });
-
-    if (newSpouse) {
-      // return res.status(200).json({
-      //   message: "Registration Link Sent",
-      // });
-      res
-        .status(200)
-        .send({ message: "Added Spousal information successfully!" });
-    }
-  } catch (error) {
-    res.status(500).send({
-      message: error.message || "Some error occurred .",
-    });
-  }
-};
-
 // Spouse or parent or Grandparent etc
 
 exports.addRelation = async (req, res) => {
   try {
-    const { Email, UserId, RelationType } = req.body;
-
-    await req.body.objItem.map((item, index) => {
-      if (req.body.RelationId && parseInt(req.body.RelationId) > 0) {
+    const { Email, UserId, Level } = req.body;
+    let cnt = 0;
+    req.body.objItem.map(async (item, index) => {
+      const isRecord = await relationprimary.findOne({
+        where: { RelationId: item?.RelationId ? item?.RelationId : null },
+      });
+      //&& item?.RelationId && parseInt(item?.RelationId) > 0
+      console.log("isRecord", isRecord);
+      if (isRecord) {
         //update relation
-        const found = relationprimary.findOne({
-          where: { RelationId: req.body.RelationId },
-        });
 
-        const newRelation = relationprimary.update({
-          // req.body,
-          RelationId: item.RelationId,
-          RelationType: RelationType,
-          FirstName: item.FirstName,
-          LastName: item.LastName,
-          MiddleName: item.MiddleName,
-          NickName: item.NickName,
-          UserId: UserId,
-          updatedBy: UserId,
-          updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-          // UserName: req.body.Email.toLowerCase(),
-          // AcceptTerms: req.body.AcceptTerms,
-          // PaymentMethod: req.body.PaymentMethod,
-          // Currency: req.body.Currency,
-          // IsActivated: false,
-          // IsConfirmed: false,
-        });
+        const newRelation = await relationprimary.update(
+          {
+            // req.body,
+            RelationId: item.RelationId,
+            RelationType: item.RelationType,
+            RelationCategory: item.RelationCategory,
+            FirstName: item.FirstName,
+            LastName: item.LastName,
+            MiddleName: item.MiddleName,
+            NickName: item.NickName,
+            Level: Level,
+            UserId: UserId,
+            updatedBy: UserId,
+            updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+          },
+          {
+            where: { RelationId: item.RelationId },
+          }
+        );
 
-        const found2 = relationsecondary.findOne({
+        const found2 = await relationsecondary.findOne({
           where: { RelationId: item.RelationId },
         });
-        const newRelationDetail = relationsecondary.update({
-          // req.body,
+        const newRelationDetail = await relationsecondary.update(
+          {
+            // req.body,
 
-          RealtionDetailId: found2.RealtionDetailId,
-          Email: item.Email.toLowerCase(),
-          Age: item.Age,
-          Sex: item.Sex,
-          Tribe: item.Tribe,
-          FamilyName: item.FamilyName,
-          Language: item.Language,
-          Kindred: item.Kindred,
-          Clan: item.Clan,
-          Mobile: item.Mobile,
-          Address: item.Address,
-          City: item.City,
-          HomeTown: item.HomeTown,
-          LGA: item.LGA,
-          State: item.State,
-          Country: item.Country,
-          ProfilePicture: item.ProfilePicture,
-          CoverPicture: item.CoverPicture,
-          Desc: item.Desc,
-          UserId: UserId,
-          RelationId: newRelation.RelationId,
-          updatedBy: UserId,
-          updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+            RelationDetailId: found2.RelationDetailId,
+            Email: item.Email.toLowerCase(),
+            Age: item.Age,
+            DOB: item.DOB,
+            Sex: item.Sex,
+            Tribe: item.Tribe,
+            FamilyName: item.FamilyName,
+            Language: item.Language,
+            Kindred: item.Kindred,
+            Clan: item.Clan,
+            Mobile: item.Mobile,
+            Address: item.Address,
+            City: item.City,
+            HomeTown: item.HomeTown,
+            LGA: item.LGA,
+            State: item.State,
+            Country: item.Country,
+            ProfilePicture: item.ProfilePicture,
+            CoverPicture: item.CoverPicture,
+            Desc: item.Desc,
+            UserId: UserId,
+            RelationId: newRelation.RelationId,
+            updatedBy: UserId,
+            updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+          },
+          {
+            where: { RelationDetailId: found2.RelationDetailId },
+          }
+        );
 
-          // UserName: req.body.Email.toLowerCase(),
-          // AcceptTerms: req.body.AcceptTerms,
-          // PaymentMethod: req.body.PaymentMethod,
-          // Currency: req.body.Currency,
-          // IsActivated: false,
-          // IsConfirmed: false,
-        });
+        if (newRelation) cnt++;
 
-        return res
-          .status(200)
-          .send({ message: "Updated Relation information successfully!" });
+        if (cnt === req.body.objItem.length)
+          return res
+            .status(200)
+            .send({
+              message: "Updated Family/Relation information successfully!",
+            });
       } else {
         //create new relation data
 
-        const found = relationprimary.findOne({
-          where: {
-            [Op.and]: [{ RelationType: RelationType }, { UserId: UserId }],
-          },
-          include: [
-            {
-              model: relationsecondary,
-              where: { Email: Email },
-            },
-          ],
-        });
-
-        if (found) {
-          return res
-            .status(200)
-            .send({ message: "A record already exists with the information" });
-        }
         const unewRelation = {
-          RelationType: RelationType,
-
+          RelationType: item.RelationType,
+          RelationCategory: item.RelationCategory,
           FirstName: item.FirstName,
           LastName: item.LastName,
           MiddleName: item.MiddleName,
           NickName: item.NickName,
+          Level: Level,
+          Type: item.RelationType,
           UserId: UserId,
           createdBy: UserId,
           createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-          // PurchaseYear: vehicle.VehicleType,
         };
         console.log("unewRelation", unewRelation);
-        const newRelation = relationprimary.create(unewRelation);
+        const newRelation = await relationprimary.create(unewRelation);
 
         if (newRelation) {
-          const newRelationDetail = relationsecondary.create({
+          const newRelationDetail = await relationsecondary.create({
             // req.body,
 
             Email: item.Email.toLowerCase(),
             Age: item.Age,
             Sex: item.Sex,
+            DOB: item.DOB,
             Tribe: item.Tribe,
             FamilyName: item.FamilyName,
             Language: item.Language,
@@ -228,23 +166,16 @@ exports.addRelation = async (req, res) => {
             RelationId: newRelation.RelationId,
             createdBy: UserId,
             createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-
-            // UserName: req.body.Email.toLowerCase(),
-            // AcceptTerms: req.body.AcceptTerms,
-            // PaymentMethod: req.body.PaymentMethod,
-            // Currency: req.body.Currency,
-            // IsActivated: false,
-            // IsConfirmed: false,
           });
 
-          if (newRelationDetail) {
-            res
+          if (newRelation) cnt++;
+
+          if (cnt === req.body.objItem.length)
+            return res
               .status(200)
-              .send({ message: "Added Relation information successfully!" });
-          }
-          // return res.status(200).json({
-          //   message: "Registration Link Sent",
-          // });
+              .send({
+                message: "Added Family/Relation information successfully!",
+              });
         }
       }
     });
@@ -258,7 +189,8 @@ exports.addRelation = async (req, res) => {
 
 exports.updateRelation = async (req, res) => {
   try {
-    const { Email, UserId, RelationId, RelationType } = req.body;
+    const { Email, UserId, RelationId, RelationType, RelationCategory } =
+      req.body;
 
     const spouse = await relationprimary.findOne({
       where: { [Op.and]: [{ RelationType: RelationType }, { UserId: UserId }] },
@@ -274,16 +206,18 @@ exports.updateRelation = async (req, res) => {
       {
         // req.body,
         RelationType: RelationType,
+        RelationCategory: RelationCategory,
         FirstName: req.body.FirstName,
         LastName: req.body.LastName,
         MiddleName: req.body.MiddleName,
         NickName: req.body.NickName,
+
         UserId: UserId,
         updatedBy: UserId,
         updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
       },
       {
-        where: { RealtionId: RelationId },
+        where: { RelationId: RelationId },
       }
     );
 
@@ -295,6 +229,7 @@ exports.updateRelation = async (req, res) => {
           Email: req.body.Email.toLowerCase(),
           Age: req.body.Age,
           Sex: req.body.Sex,
+          DOB: item.DOB,
           Tribe: req.body.Tribe,
           FamilyName: req.body.FamilyName,
           Language: req.body.Language,
@@ -340,6 +275,35 @@ exports.getAllRelation = async (req, res) => {
 
     const foundResult = await relationprimary.findAll({
       where: { UserId: id, RelationType: relationType },
+      include: [
+        {
+          model: relationsecondary,
+        },
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (foundResult) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: foundResult });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+exports.getAllRelationByCategory = async (req, res) => {
+  try {
+    const id = req.params.userId;
+    const relationCategory = req.params.relationCategory;
+
+    const foundResult = await relationprimary.findAll({
+      where: { UserId: id, RelationCategory: relationCategory },
       include: [
         {
           model: relationsecondary,
@@ -465,6 +429,12 @@ exports.addChildOrSibling = async (req, res) => {
         updateSChildOrSibling = relationprimary.update(uChildOrSibling);
       } else {
         const newSChildOrSibling = relationprimary.create(ChildOrSibling);
+
+        //update parent database
+        updateSChildOrSibling = relationprimary.update(
+          { Children: newSChildOrSibling.RelationId },
+          { where: { userId: UserId, Level: "0" } }
+        );
       }
     });
 
@@ -1076,30 +1046,167 @@ exports.findUser = (req, res) => {
 };
 
 // Update a User by the id in the request
-exports.updateUser = (req, res) => {
+exports.updateUser = async (req, res) => {
   const id = req.body.UserId;
 
   // const imagePath = req.file.filename;
-
-  User.update(req.body, {
-    where: { UserId: id },
-  })
-    .then((num) => {
-      if (num == 1) {
-        res.status(200).send({
-          message: "User was updated successfully.",
-        });
-      } else {
-        res.send({
-          message: `Cannot update User with id=${id}. Maybe User was not found or req.body is empty!`,
-        });
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: "Error updating User with id=" + id,
-      });
+  try {
+    const num = await User.update(req.body, {
+      where: { UserId: id },
     });
+
+    if (num == 1) {
+      const foundResult = await relationprimary.findOne({
+        attributes: ["RelationId"],
+        where: { UserId: id, Level: "0" },
+        include: [
+          {
+            model: relationsecondary,
+            attributes: ["Sex"],
+            where: { Sex: req.body.Sex },
+          },
+        ],
+      });
+
+      if (foundResult === null) {
+        console.log("foundResult", foundResult);
+        const unewRelation = {
+          RelationType: req.body.RelationType,
+          RelationCategory: req.body.RelationCategory,
+          FirstName: req.body.FirstName,
+          LastName: req.body.LastName,
+          MiddleName: req.body.MiddleName,
+          NickName: req.body.NickName,
+          Level: req.body.Level,
+          Type: req.body.RelationType,
+          UserId: id,
+          createdBy: id,
+          createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+          // PurchaseYear: vehicle.VehicleType,
+        };
+
+        const newRelation = await relationprimary.create(unewRelation);
+
+        if (newRelation) {
+          const newRelationDetail = await relationsecondary.create({
+            // req.body,
+
+            Email: req.body.Email.toLowerCase(),
+            Age: req.body.Age,
+            Sex: req.body.Sex,
+            DOB: item.DOB,
+            MaritalStatus: req.body.MaritalStatus,
+            EmploymentStatus: req.body.EmploymentStatus,
+            Tribe: req.body.Tribe,
+            FamilyName: req.body.FamilyName,
+            Language: req.body.Language,
+            Kindred: req.body.Kindred,
+            Clan: req.body.Clan,
+            Mobile: req.body.Mobile,
+            Address: req.body.Address,
+            City: req.body.City,
+            HomeTown: req.body.HomeTown,
+            LGA: req.body.LGA,
+            State: req.body.State,
+            Country: req.body.Country,
+            ProfilePicture: req.body.ProfilePicture,
+            CoverPicture: req.body.CoverPicture,
+            Desc: req.body.Desc,
+
+            Occupation: req.body.Occupation,
+            RelationId: newRelation.RelationId,
+            createdBy: req.body.UserId,
+            createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+
+            // UserName: req.body.Email.toLowerCase(),
+            // AcceptTerms: req.body.AcceptTerms,
+            // PaymentMethod: req.body.PaymentMethod,
+            // Currency: req.body.Currency,
+            // IsActivated: false,
+            // IsConfirmed: false,
+          });
+        }
+      } else {
+        const newRelation = await relationprimary.update(
+          {
+            // req.body,
+            RelationType: req.body.RelationType,
+            RelationCategory: req.body.RelationCategory,
+            FirstName: req.body.FirstName,
+            LastName: req.body.LastName,
+            MiddleName: req.body.MiddleName,
+            NickName: req.body.NickName,
+            Level: req.body.Level,
+            Type: req.body.RelationType,
+            updatedBy: req.body.UserId,
+            updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+          },
+          {
+            where: { RelationId: foundResult.RelationId },
+          }
+        );
+
+        if (newRelation) {
+          const found2 = await relationsecondary.findOne({
+            attributes: ["RelationDetailId"],
+            where: { RelationId: foundResult.RelationId },
+          });
+          console.log("found2", found2);
+          const newRelationDetail = await relationsecondary.update(
+            {
+              // req.body,
+              RelationDetailId: found2.RelationDetailId,
+              Email: req.body.Email.toLowerCase(),
+              Age: req.body.Age,
+              Sex: req.body.Sex,
+              DOB: item.DOB,
+              Tribe: req.body.Tribe,
+              FamilyName: req.body.FamilyName,
+              Language: req.body.Language,
+              Kindred: req.body.Kindred,
+              Clan: req.body.Clan,
+              Mobile: req.body.Mobile,
+              Address: req.body.Address,
+              City: req.body.City,
+              HomeTown: req.body.HomeTown,
+              LGA: req.body.LGA,
+              State: req.body.State,
+              Country: req.body.Country,
+              ProfilePicture: req.body.ProfilePicture,
+              CoverPicture: req.body.CoverPicture,
+              Desc: req.body.Desc,
+              MaritalStatus: req.body.MaritalStatus,
+              EmploymentStatus: req.body.EmploymentStatus,
+              Occupation: req.body.Occupation,
+              RelationId: newRelation.RelationId,
+              updatedBy: req.body.UserId,
+              updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+            },
+            {
+              where: { RelationDetailId: found2.RelationDetailId },
+            }
+          );
+
+          if (newRelationDetail) {
+            res
+              .status(200)
+              .send({ message: "Updated information successfully!" });
+          }
+          // return res.status(200).json({
+          //   message: "Registration Link Sent",
+          // });
+        }
+      }
+    } else {
+      res.send({
+        message: `Cannot update User with id=${id}. Maybe User was not found or req.body is empty!`,
+      });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: "Error updating User with id=" + id,
+    });
+  }
 };
 
 exports.updateUserRole = (req, res) => {

@@ -5,20 +5,27 @@ module.exports = (sequelize, Sequelize) => {
       autoIncrement: true,
       primaryKey: true,
     },
-
-    RelationType: {
-      type: Sequelize.ENUM(
-        "sp",
-        "ch",
-        "sib",
-        "p",
-        "wf",
-        "gp",
-        "ggp",
-        "gch",
-        "ggch"
-      ),
+    RelationCategory: {
+      type: Sequelize.STRING,
     },
+
+    // RelationType: {
+    //   type: Sequelize.ENUM(
+    //     "sp",
+    //     "ch",
+    //     "sib",
+    //     "p",
+    //     "wf",
+    //     "gp",
+    //     "ggp",
+    //     "gch",
+    //     "ggch"
+    //   ),
+    // },
+    RelationType: {
+      type: Sequelize.STRING,
+    },
+
     FirstName: {
       type: Sequelize.STRING,
     },

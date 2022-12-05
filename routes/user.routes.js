@@ -92,8 +92,13 @@ module.exports = function (app) {
   );
 
   app.get(
-    "/api/user/getAllRelation/:userId/:relationType",
+    "/api/user/getAllRelation/:userId/:relationType?",
     controller.getAllRelation
+  );
+
+  app.get(
+    "/api/user/getAllRelationByCategory/:userId/:relationCategory?",
+    controller.getAllRelationByCategory
   );
 
   app.delete("/api/user/deleteRelation/:relationId", controller.deleteRelation);
@@ -143,7 +148,7 @@ module.exports = function (app) {
     "/api/user/getNeighbourhoodByUserId/:userId",
     controller.getNeighbourhoodByUserId
   );
-  getNeighbourhoodByUserId;
+
   //User
 
   app.get("/api/user/findAllUser/:userId", controller.findUser);
