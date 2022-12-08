@@ -84,8 +84,6 @@ module.exports = function (app) {
   // Relation
   app.post("/api/user/addRelation", controller.addRelation);
 
-  app.put("/api/user/updateRelation", controller.updateRelation);
-
   app.get(
     "/api/user/getRelation/:relationId/:relationType",
     controller.getRelation
@@ -99,6 +97,11 @@ module.exports = function (app) {
   app.get(
     "/api/user/getAllRelationByCategory/:userId/:relationCategory?",
     controller.getAllRelationByCategory
+  );
+
+  app.get(
+    "/api/user/getAllRelationByLevel/:userId/:level/:relationType?",
+    controller.getAllRelationByLevel
   );
 
   app.delete("/api/user/deleteRelation/:relationId", controller.deleteRelation);

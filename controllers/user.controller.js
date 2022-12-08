@@ -7,6 +7,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const db = require("../models/index.model");
 const moment = require("moment/moment");
+const { LevelMap } = require("../enum");
 
 const User = db.user;
 const userfollower = db.userfollower;
@@ -44,7 +45,7 @@ const Op = db.Sequelize.Op;
 
 exports.addRelation = async (req, res) => {
   try {
-    const { Email, UserId, Level } = req.body;
+    const { Email, UserId, Level, RelationId } = req.body;
     let cnt = 0;
     req.body.objItem.map(async (item, index) => {
       const isRecord = await relationprimary.findOne({
@@ -54,26 +55,27 @@ exports.addRelation = async (req, res) => {
       console.log("isRecord", isRecord);
       if (isRecord) {
         //update relation
+        const spt =
+          item.RelationType.indexOf(",") > 0 && item.RelationType.split(",");
 
-        const newRelation = await relationprimary.update(
-          {
-            // req.body,
-            RelationId: item.RelationId,
-            RelationType: item.RelationType,
-            RelationCategory: item.RelationCategory,
-            FirstName: item.FirstName,
-            LastName: item.LastName,
-            MiddleName: item.MiddleName,
-            NickName: item.NickName,
-            Level: Level,
-            UserId: UserId,
-            updatedBy: UserId,
-            updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-          },
-          {
-            where: { RelationId: item.RelationId },
-          }
-        );
+        const objStr = {
+          RelationType:
+            item.RelationType.indexOf(",") < 1 ? item.RelationType : spt[1],
+          RelationCategory: item.RelationCategory,
+          FirstName: item.FirstName,
+          LastName: item.LastName,
+          MiddleName: item.MiddleName,
+          NickName: item.NickName,
+          Level: item?.Level ? item?.Level : spt[0],
+          UserId: UserId,
+          updatedBy: UserId,
+          updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+        };
+        console.log("objStr", objStr);
+
+        const newRelation = await relationprimary.update(objStr, {
+          where: { RelationId: item.RelationId },
+        });
 
         const found2 = await relationsecondary.findOne({
           where: { RelationId: item.RelationId },
@@ -83,15 +85,20 @@ exports.addRelation = async (req, res) => {
             // req.body,
 
             RelationDetailId: found2.RelationDetailId,
-            Email: item.Email.toLowerCase(),
-            Age: item.Age,
-            DOB: item.DOB,
-            Sex: item.Sex,
-            Tribe: item.Tribe,
+            Email: item?.Email?.toLowerCase(),
+            Age: item?.Age,
+            DOB: item?.DOB,
+            Sex: item?.Sex,
+            Title: item?.Title,
+            Tribe: item?.Tribe,
             FamilyName: item.FamilyName,
             Language: item.Language,
             Kindred: item.Kindred,
             Clan: item.Clan,
+            Occupation: item.Occupation,
+            EmploymentStatus: item.EmploymentStatus,
+            MaritalStatus: item.MaritalStatus,
+            BloodGroup: item.BloodGroup,
             Mobile: item.Mobile,
             Address: item.Address,
             City: item.City,
@@ -112,26 +119,82 @@ exports.addRelation = async (req, res) => {
           }
         );
 
+        //update reference user with relation type
+        console.log("newRelation", newRelation);
+        let rLevel = 0;
+        spt[1] === "child"
+          ? (rLevel = parseInt(spt[0]) + 1)
+          : spt[1] === "sibling"
+          ? (rLevel = parseInt(spt[0]))
+          : spt[1] === "spouse"
+          ? (rLevel = parseInt(spt[0]))
+          : spt[1] === "parent"
+          ? (rLevel = parseInt(spt[0]) - 1)
+          : (rLevel = parseInt(spt[0]) - 1);
+
+        console.log("rLevel", rLevel);
+        const foundRef = await relationprimary.findOne({
+          where: {
+            UserId: UserId,
+            Level: rLevel,
+            RelationId: item?.RefId,
+          },
+        });
+        console.log("spt[1]", spt[1]);
+        switch (spt[1]) {
+          case "parent":
+            foundRef.Parent = foundRef.Parent
+              ? foundRef.Parent + "," + item?.RelationId
+              : item?.RelationId;
+
+            foundRef.save();
+            console.log(
+              "Parent",
+              foundRef.Parent
+                ? foundRef.Parent + "," + item?.RelationId
+                : item?.RelationId
+            );
+            return;
+          case "spouse":
+            foundRef.Partner = item?.RelationId;
+            foundRef.save();
+            console.log("Spouse", "here");
+            return;
+          case "sibling":
+            foundRef.Sibling = item?.RelationId;
+            foundRef.save();
+            console.log("Sibling", "here");
+            return;
+          case "child":
+            foundRef.Child = item?.RelationId;
+            foundRef.save();
+            console.log("Child", "here");
+            return;
+          default:
+            foundRef.Child = item?.RelationId;
+            foundRef.save();
+            console.log("Default", "here");
+        }
+
         if (newRelation) cnt++;
 
         if (cnt === req.body.objItem.length)
-          return res
-            .status(200)
-            .send({
-              message: "Updated Family/Relation information successfully!",
-            });
+          return res.status(200).send({
+            message: "Updated Family/Relation information successfully!",
+          });
       } else {
         //create new relation data
 
+        const spt =
+          item.RelationType.indexOf(",") > 0 && item.RelationType.split(",");
         const unewRelation = {
-          RelationType: item.RelationType,
+          RelationType: item.RelationType ? item.RelationType : spt[1],
           RelationCategory: item.RelationCategory,
           FirstName: item.FirstName,
           LastName: item.LastName,
           MiddleName: item.MiddleName,
           NickName: item.NickName,
-          Level: Level,
-          Type: item.RelationType,
+          Level: item?.Level ? item?.Level : spt[0],
           UserId: UserId,
           createdBy: UserId,
           createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
@@ -143,15 +206,20 @@ exports.addRelation = async (req, res) => {
           const newRelationDetail = await relationsecondary.create({
             // req.body,
 
-            Email: item.Email.toLowerCase(),
+            Email: item?.Email?.toLowerCase(),
             Age: item.Age,
             Sex: item.Sex,
             DOB: item.DOB,
+            Title: item.Title,
             Tribe: item.Tribe,
             FamilyName: item.FamilyName,
             Language: item.Language,
             Kindred: item.Kindred,
             Clan: item.Clan,
+            Occupation: item.Occupation,
+            EmploymentStatus: item.EmploymentStatus,
+            MaritalStatus: item.MaritalStatus,
+            BloodGroup: item.BloodGroup,
             Mobile: item.Mobile,
             Address: item.Address,
             City: item.City,
@@ -168,106 +236,60 @@ exports.addRelation = async (req, res) => {
             createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
           });
 
+          //update reference user with relation type
+
+          const foundRef = await relationprimary.findOne({
+            where: { UserId: UserId, Level: parseInt(newRelation.Level) - 1 },
+          });
+
+          switch (newRelation.RelationType) {
+            case "parent":
+              foundRef.Parent = foundRef.Parent
+                ? foundRef.Parent + "," + newRelation.RelationId
+                : newRelation.RelationId;
+              foundRef.save();
+            case "spouse":
+              foundRef.Partner = newRelation.RelationId;
+              foundRef.save();
+            case "sibling":
+              foundRef.Sibling = newRelation.RelationId;
+              foundRef.save();
+            case "child":
+              foundRef.Child = newRelation.RelationId;
+              foundRef.save();
+
+            default:
+              foundRef.Child = newRelation.RelationId;
+              foundRef.save();
+          }
+          // const refCol = LevelMap.find(
+          //   (e) => e.text === newRelation.relationType
+          // ).value;
+
+          // var updateStm = { refCol: newRelation.RelationId };
+
+          // const newRef = await relationprimary.update(updateStm, {
+          //   where: { UserId: UserId, Level: parseInt(newRelation.Level) - 1 },
+          // });
+
           if (newRelation) cnt++;
 
           if (cnt === req.body.objItem.length)
-            return res
-              .status(200)
-              .send({
-                message: "Added Family/Relation information successfully!",
-              });
+            return res.status(200).send({
+              message: "Added Family/Relation information successfully!",
+            });
         }
       }
     });
   } catch (error) {
     console.log("error", error);
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
 
-exports.updateRelation = async (req, res) => {
-  try {
-    const { Email, UserId, RelationId, RelationType, RelationCategory } =
-      req.body;
-
-    const spouse = await relationprimary.findOne({
-      where: { [Op.and]: [{ RelationType: RelationType }, { UserId: UserId }] },
-    });
-
-    if (spouse) {
-      return res
-        .status(404)
-        .send({ message: "An error occurred with Role Type Provision" });
-    }
-
-    const newRelation = await relationprimary.update(
-      {
-        // req.body,
-        RelationType: RelationType,
-        RelationCategory: RelationCategory,
-        FirstName: req.body.FirstName,
-        LastName: req.body.LastName,
-        MiddleName: req.body.MiddleName,
-        NickName: req.body.NickName,
-
-        UserId: UserId,
-        updatedBy: UserId,
-        updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-      },
-      {
-        where: { RelationId: RelationId },
-      }
-    );
-
-    if (newRelation) {
-      const newRelationDetail = await relationsecondary.update(
-        {
-          // req.body,
-
-          Email: req.body.Email.toLowerCase(),
-          Age: req.body.Age,
-          Sex: req.body.Sex,
-          DOB: item.DOB,
-          Tribe: req.body.Tribe,
-          FamilyName: req.body.FamilyName,
-          Language: req.body.Language,
-          Kindred: req.body.Kindred,
-          Clan: req.body.Clan,
-          Mobile: req.body.Mobile,
-          Address: req.body.Address,
-          City: req.body.City,
-          HomeTown: req.body.HomeTown,
-          LGA: req.body.LGA,
-          State: req.body.State,
-          Country: req.body.Country,
-          ProfilePicture: req.body.ProfilePicture,
-          CoverPicture: req.body.CoverPicture,
-          Desc: req.body.Desc,
-          UserId: UserId,
-          RelationId: newRelation.RelationId,
-          updatedBy: UserId,
-          updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
-        },
-        {
-          where: { RealtionDetailId: newRelation.RelationId },
-        }
-      );
-
-      if (newRelationDetail) {
-        res.status(200).send({ message: "Updated information successfully!" });
-      }
-      // return res.status(200).json({
-      //   message: "Registration Link Sent",
-      // });
-    }
-  } catch (error) {
-    res.status(500).send({
-      message: error.message || "Some error occurred .",
-    });
-  }
-};
 exports.getAllRelation = async (req, res) => {
   try {
     const id = req.params.userId;
@@ -292,7 +314,8 @@ exports.getAllRelation = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -321,7 +344,69 @@ exports.getAllRelationByCategory = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
+    });
+  }
+};
+
+exports.getAllRelationByLevel = async (req, res) => {
+  try {
+    const id = req.params.userId;
+    const relationType = req.params.relationType;
+    const level = req.params.level;
+    //RelationType: relationType,
+    const foundResult = await relationprimary.findAll({
+      where: { UserId: id, Level: level },
+      include: [
+        {
+          model: relationsecondary,
+        },
+      ],
+
+      order: [["createdAt", "ASC"]],
+    });
+
+    if (foundResult) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: foundResult });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
+    });
+  }
+};
+
+exports.getRelationByCategory = async (req, res) => {
+  try {
+    const id = req.params.userId;
+    const relationCategory = req.params.relationCategory;
+
+    const foundResult = await relationprimary.findOne({
+      where: { UserId: id, RelationCategory: relationCategory },
+      include: [
+        {
+          model: relationsecondary,
+        },
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (foundResult) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: foundResult });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -355,7 +440,8 @@ exports.getRelation = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -386,7 +472,8 @@ exports.deleteRelation = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -447,7 +534,8 @@ exports.addChildOrSibling = async (req, res) => {
   } catch (error) {
     console.log("error", error);
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -482,7 +570,8 @@ exports.updateChildOrSibling = async (req, res) => {
     });
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -511,7 +600,8 @@ exports.getAllChildorSibling = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -540,7 +630,8 @@ exports.getChildorSibling = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -568,7 +659,8 @@ exports.deleteChildorSibling = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -579,64 +671,167 @@ exports.addSchoolPlaceWork = async (req, res) => {
   try {
     const { Email, UserId, RelationType } = req.body;
 
-    await req.body.child.map((item, index) => {
-      if (RelationType === "sch") {
-        const newSchool = school.create({
-          SchoolName: item.SchoolName,
-          Address: item.Address,
-          City: item.City,
-          State: item.State,
-          Country: item.Country,
-          YearFrom: item.YearFrom,
-          YearTo: item.YearTo,
-          UserId: UserId,
-          // PurchaseYear: vehicle.Veh
+    let cnt = 0;
+    req.body.objItem.map(async (item, index) => {
+      if (RelationType === "school") {
+        // get school Id with userId
+
+        const foundRecord = await school.findOne({
+          where: { SchoolId: item?.SchoolId },
         });
 
-        if (newSchool)
-          return res.status(200).send({
-            message: "Added School information successfully!.",
-            data: newSchool,
+        if (foundRecord) {
+          const schoolRecord = await school.update(
+            {
+              SchoolName: item.SchoolName,
+              Address: item.Address,
+              City: item.City,
+              HomeTown: item.HomeTown,
+              State: item.State,
+              Country: item.Country,
+              YearFrom: item.YearFrom,
+              YearTo: item.YearTo,
+              UserId: UserId,
+              // PurchaseYear: vehicle.Veh
+            },
+            { where: { SchoolId: item?.SchoolId } }
+          );
+
+          schoolRecord && cnt++;
+
+          if (cnt === req.body.objItem.length)
+            return res.status(200).send({
+              message: "Updated School information successfully!.",
+              data: schoolRecord,
+            });
+        } else {
+          const newSchool = await school.create({
+            SchoolName: item.SchoolName,
+            Address: item.Address,
+            City: item.City,
+            HomeTown: item.HomeTown,
+            State: item.State,
+            Country: item.Country,
+            YearFrom: item.YearFrom,
+            YearTo: item.YearTo,
+            UserId: UserId,
+            // PurchaseYear: vehicle.Veh
           });
-      } else if (RelationType === "wk") {
-        const newEmployer = employer.create({
-          CompanyName: item.CompanyName,
-          Address: item.Address,
-          City: item.City,
-          State: item.State,
-          Country: item.Country,
-          YearFrom: item.YearFrom,
-          YearTo: item.YearTo,
-          UserId: UserId,
-          // PurchaseYear: vehicle.Veh
+
+          newSchool && cnt++;
+          if (cnt === req.body.objItem.length)
+            return res.status(200).send({
+              message: "Added School information successfully!.",
+              data: newSchool,
+            });
+        }
+      } else if (RelationType === "work") {
+        const foundRecord = await employer.findOne({
+          where: { EmployerId: item?.EmployerId },
         });
-        if (newEmployer)
-          return res.status(200).send({
-            message: "Added work information successfully!.",
-            data: newEmployer,
+
+        if (foundRecord) {
+          const employerRecord = await employer.update(
+            {
+              CompanyName: item.CompanyName,
+              Address: item.Address,
+              City: item.City,
+              HomeTown: item.HomeTown,
+              State: item.State,
+              Country: item.Country,
+              YearFrom: item.YearFrom,
+              YearTo: item.YearTo,
+              UserId: UserId,
+              // PurchaseYear: vehicle.Veh
+            },
+            { where: { EmployerId: item?.EmployerId } }
+          );
+
+          employerRecord && cnt++;
+
+          if (cnt === req.body.objItem.length)
+            return res.status(200).send({
+              message: "Updated Work information successfully!.",
+              data: employerRecord,
+            });
+        } else {
+          const newEmployer = await employer.create({
+            CompanyName: item.CompanyName,
+            Address: item.Address,
+            City: item.City,
+            HomeTown: item.HomeTown,
+            State: item.State,
+            Country: item.Country,
+            YearFrom: item.YearFrom,
+            YearTo: item.YearTo,
+            UserId: UserId,
+            // PurchaseYear: vehicle.Veh
           });
+
+          newEmployer && cnt++;
+
+          if (cnt === req.body.objItem.length)
+            return res.status(200).send({
+              message: "Added Work information successfully!.",
+              data: newEmployer,
+            });
+        }
       } else {
-        const newPlace = place.create({
-          NeighbourhoodName: item.NeighbourhoodName,
-          Address: item.Address,
-          City: item.City,
-          State: item.State,
-          Country: item.Country,
-          YearFrom: item.YearFrom,
-          YearTo: item.YearTo,
-          UserId: UserId,
-          // PurchaseYear: vehicle.Veh
+        const foundRecord = await place.findOne({
+          where: { PlaceLivedId: item?.PlaceLivedId },
         });
-        if (newPlace)
-          return res.status(200).send({
-            message: "Added place(s) of residence history successfully!.",
-            data: newPlace,
+
+        if (foundRecord) {
+          const placeRecord = await place.update(
+            {
+              NeighborhoodName: item.NeighborhoodName,
+              Address: item.Address,
+              City: item.City,
+              HomeTown: item.HomeTown,
+              State: item.State,
+              Country: item.Country,
+              YearFrom: item.YearFrom,
+              YearTo: item.YearTo,
+              UserId: UserId,
+              // PurchaseYear: vehicle.Veh
+            },
+            { where: { PlaceLivedId: item?.PlaceLivedId } }
+          );
+
+          placeRecord && cnt++;
+
+          if (cnt === req.body.objItem.length)
+            return res.status(200).send({
+              message: "Updated your neighbourhood information successfully!.",
+              data: placeRecord,
+            });
+        } else {
+          const newPlace = await place.create({
+            NeighborhoodName: item.NeighborhoodName,
+            Address: item.Address,
+            City: item.City,
+            State: item.State,
+            Country: item.Country,
+            YearFrom: item.YearFrom,
+            YearTo: item.YearTo,
+            UserId: UserId,
+            // PurchaseYear: vehicle.Veh
           });
+
+          newPlace && cnt++;
+
+          if (cnt === req.body.objItem.length)
+            return res.status(200).send({
+              message: "Added neighbourhood information successfully!.",
+              data: newPlace,
+            });
+        }
       }
     });
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -711,7 +906,8 @@ exports.updateSchoolPlaceWork = async (req, res) => {
     });
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -728,7 +924,7 @@ exports.getAllSchoolPlaceWork = async (req, res) => {
     const id = req.params.userId;
     const relationType = req.params.relationType;
     let foundRecord = null;
-    if (relationType === "sch") {
+    if (relationType === "school") {
       foundRecord = await school.findAll({
         where: { UserId: id },
         include: [
@@ -739,7 +935,7 @@ exports.getAllSchoolPlaceWork = async (req, res) => {
 
         order: [["createdAt", "DESC"]],
       });
-    } else if (relationType === "wk") {
+    } else if (relationType === "work") {
       foundRecord = await employer.findAll({
         where: { UserId: id },
         include: [
@@ -771,7 +967,8 @@ exports.getAllSchoolPlaceWork = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -832,7 +1029,8 @@ exports.getSchoolPlaceWork = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -907,7 +1105,8 @@ exports.getNeighbourhoodByUserId = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };
@@ -949,7 +1148,8 @@ exports.deleteSchoolPlaceWork = async (req, res) => {
     }
   } catch (error) {
     res.status(500).send({
-      message: error.message || "Some error occurred .",
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
     });
   }
 };

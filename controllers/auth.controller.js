@@ -235,6 +235,7 @@ exports.signin = async (req, res) => {
         }
       );
       foundUser.Token = refreshToken;
+      foundUser.LastLogin = moment(Date.now()).format("YYYY-MM-DD HH:mm:ss");
       foundUser.save();
 
       var authorities = [];

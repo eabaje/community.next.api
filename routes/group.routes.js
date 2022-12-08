@@ -84,8 +84,6 @@ module.exports = function (app) {
   // Relation
   app.post("/api/user/addRelation", controller.addRelation);
 
-  app.put("/api/user/updateRelation/:relationId", controller.updateRelation);
-
   app.get(
     "/api/user/getRelation/:relationType/:relationId",
     controller.getRelation
