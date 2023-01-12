@@ -41,10 +41,13 @@ module.exports = function (app) {
   // Relation
   app.post("/api/advert/addadvert", controller.addAdvert);
 
+  app.post("/api/advert/searchAdvert", controller.searchAdvert);
+
   app.put("/api/advert/updateAdvert/:advertId", controller.updateAdvert);
 
   app.get("/api/advert/getAdvert/:advertId", controller.getAdvert);
 
+ 
   app.get("/api/advert/getAllAdvert", controller.getAllAdvert);
 
   app.delete("/api/advert/deleteAdvert/:advertId", controller.deleteAdvert);

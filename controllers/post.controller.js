@@ -14,6 +14,7 @@ const userfriend = db.userfriend;
 const userpost = db.userpost;
 const userpostlike = db.userpostlike;
 const userpostcomment = db.userpostcomment;
+const usercomment = db.usercomment;
 const userrole = db.userrole;
 const chat = db.chat;
 const employer = db.employer;
@@ -58,6 +59,7 @@ exports.addPost = async (req, res) => {
     const newPost = await userpost.create({
       // req.body,
       Message: req.body.Message,
+      ImgUrl: req.body.ImgUrl,
       SenderId: req.body.UserId,
       createdBy: UserId,
       createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
@@ -80,7 +82,7 @@ exports.addPost = async (req, res) => {
 
 exports.updatePost = async (req, res) => {
   try {
-    const { UserId, PostId } = req.body;
+    // const { UserId, PostId } = req.body;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -89,25 +91,58 @@ exports.updatePost = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const newPost = await userpost.update(
-      {
-        Message: req.body.Message,
-        SenderId: req.body.UserId,
-        updatedBy: UserId,
-        updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+    let newPost = null;
+    console.log("item", req.body.objItem);
+    await req.body.objItem.map((item, index) => {
+      if (item.IsActive) {
+        newPost = userpost.update(
+          {
+            IsActive: item.IsActive,
+            updatedBy: item.UserId,
+            updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+            UserId: item.UserId,
+          },
+          {
+            where: { UserPostId: item.UserPostId },
+          }
+        );
+      } else if (item.IsPublic) {
+        newPost = userpost.update(
+          {
+            IsPublic: item.IsPublic,
+            updatedBy: item.UserId,
+            updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+            UserId: item.UserId,
+          },
+          {
+            where: { UserPostId: item.UserPostId },
+          }
+        );
+      } else {
+        newPost = userpost.update(
+          {
+            Message: item.Message,
+            SenderId: item.UserId,
+            ImgUrl: req.body.ImgUrl,
+            IsActive: item.IsActive,
+            IsPublic: item.IsPublic,
+            updatedBy: item.UserId,
+            updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
 
-        UserId: UserId,
-      },
-      {
-        where: { UserId: id, PostId: req.body.PostId },
+            UserId: item.UserId,
+          },
+          {
+            where: { UserPostId: item.UserPostId },
+          }
+        );
       }
-    );
+    });
 
     if (newPost) {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      res.status(200).send({ message: "Post has been created.!" });
+      res.status(200).send({ message: "Post has been updated.!" });
     }
   } catch (error) {
     res.status(500).send({
@@ -118,7 +153,7 @@ exports.updatePost = async (req, res) => {
 
 exports.deletePost = async (req, res) => {
   try {
-    const id = req.params.PostId;
+    const id = req.params.postId;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -146,6 +181,7 @@ exports.deletePost = async (req, res) => {
 //get all Post
 exports.getAllPost = async (req, res) => {
   try {
+    const id = req.params.userId;
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
 
@@ -154,7 +190,12 @@ exports.getAllPost = async (req, res) => {
 
     // });
     const allPost = await userpost.findAll({
+      where: { UserId: id },
       include: [
+        {
+          model: User,
+          attributes: ["FirstName", "LastName", "ProfilePicture"],
+        },
         {
           model: userpostlike,
         },
@@ -171,7 +212,7 @@ exports.getAllPost = async (req, res) => {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      return res.status(200).send({ message: "Success", data: allPost });
+      return res.status(200).send(allPost);
     }
   } catch (error) {
     res.status(500).send({
@@ -182,7 +223,7 @@ exports.getAllPost = async (req, res) => {
 //Get one post
 exports.getPost = async (req, res) => {
   try {
-    const id = req.params.PostId;
+    const id = req.params.postId;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -192,7 +233,7 @@ exports.getPost = async (req, res) => {
 
     // });
     const onePost = await userpost.findOne({
-      where: { PostId: id },
+      where: { UserPostId: id },
       include: [
         {
           model: userpostlike,
@@ -210,7 +251,7 @@ exports.getPost = async (req, res) => {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      return res.status(200).send({ message: "Success", data: onePost });
+      return res.status(200).send(onePost);
     }
   } catch (error) {
     res.status(500).send({
@@ -222,7 +263,7 @@ exports.getPost = async (req, res) => {
 //Post Comment
 exports.addPostComment = async (req, res) => {
   try {
-    const { UserId, PostId, Comment } = req.body;
+    const { UserId, UserPostId, PostId, Comment } = req.body;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -233,7 +274,8 @@ exports.addPostComment = async (req, res) => {
     // });
     const newPostComment = await userpostcomment.create({
       // req.body,
-      PostId: PostId,
+
+      UserPostId: UserPostId,
       Comment: Comment,
       SenderId: req.body.UserId,
       createdBy: UserId,
@@ -243,6 +285,13 @@ exports.addPostComment = async (req, res) => {
     });
 
     if (newPostComment) {
+      const newusercomment = await usercomment.create({
+        // req.body,
+
+        UserPostCommentId: newPostComment.UserPostCommentId,
+        UserId: UserId,
+        createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+      });
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
@@ -257,8 +306,6 @@ exports.addPostComment = async (req, res) => {
 
 exports.updatePostComment = async (req, res) => {
   try {
-    const { UserId, PostId, Comment } = req.body;
-
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
 
@@ -270,10 +317,10 @@ exports.updatePostComment = async (req, res) => {
       {
         Comment: req.body.Comment,
         SenderId: req.body.UserId,
-        updatedBy: UserId,
+        updatedBy: req.body.UserId,
         updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
 
-        UserId: UserId,
+        UserId: req.body.UserId,
       },
       {
         where: { UserPostCommentId: req.body.UserPostCommentId },
@@ -297,6 +344,7 @@ exports.updatePostComment = async (req, res) => {
 
 exports.getAllPostComment = async (req, res) => {
   try {
+    const id = req.query.postId;
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
 
@@ -305,13 +353,11 @@ exports.getAllPostComment = async (req, res) => {
 
     // });
     const allComment = await userpostcomment.findAll({
+      where: { UserPostId: id },
       include: [
         {
-          model: userpostlike,
-        },
-        {
-          model: userpostcomment,
-          //  attributes: ["Name"],
+          model: User,
+          attributes: ["FirstName", "LastName", "ProfilePicture"],
         },
       ],
 
@@ -322,9 +368,10 @@ exports.getAllPostComment = async (req, res) => {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      return res.status(200).send({ message: "Success", data: allComment });
+      return res.status(200).send(allComment);
     }
   } catch (error) {
+    console.log("error", error);
     res.status(500).send({
       message: error.message || "Some error occurred .",
     });
@@ -333,7 +380,7 @@ exports.getAllPostComment = async (req, res) => {
 
 exports.getPostComment = async (req, res) => {
   try {
-    const id = req.params.PostId;
+    const id = req.params.postId;
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
 
@@ -371,7 +418,7 @@ exports.getPostComment = async (req, res) => {
 
 exports.deletePostComment = async (req, res) => {
   try {
-    const id = req.params.UserPostCommentId;
+    const id = req.params.userPostCommentId;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -397,7 +444,7 @@ exports.deletePostComment = async (req, res) => {
   }
 };
 
-//Post Likes 
+//Post Likes
 
 exports.addPostLike = async (req, res) => {
   try {
@@ -515,7 +562,9 @@ exports.getAllPostLike = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const allPostLike = await userpostLike.findAll({
+    const id = req.params.postId;
+    const allPostLike = await userpostlike.findAll({
+      where: { PostId: id },
       // include: [
       //   {
       //     model: userpostlike,
@@ -582,7 +631,7 @@ exports.getPostLike = async (req, res) => {
 
 exports.deletePostLike = async (req, res) => {
   try {
-    const id = req.params.UserPostCommentId;
+    const id = req.params.userPostLikeId;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -591,15 +640,15 @@ exports.deletePostLike = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const deletedPostComment = await userpostcomment.destroy({
-      where: { UserPostCommentId: id },
+    const deletedPostLike = await userpostlike.destroy({
+      where: { UserPostLikeId: id },
     });
 
-    if (deletedPostComment) {
+    if (deletedPostLike) {
       // return res.status(200).json({
       //   message: "Registration Link Sent",
       // });
-      res.status(200).send({ message: "Post Comment has been deleted.!" });
+      res.status(200).send({ message: "Post Like has been removed.!" });
     }
   } catch (error) {
     res.status(500).send({
@@ -607,7 +656,6 @@ exports.deletePostLike = async (req, res) => {
     });
   }
 };
-
 
 // find all  Post by date
 exports.findAllPostByDate = async (req, res) => {
@@ -637,6 +685,40 @@ exports.findAllPostByDate = async (req, res) => {
         data: foundPost,
       });
     }
+  } catch (error) {
+    return res.status(500).send({
+      message: err.message || "Some error occurred while retrieving Users.",
+    });
+  }
+};
+
+// find tiemline  Post
+exports.getTimeline = async (req, res) => {
+  const userId = req.params.userId;
+
+  try {
+    const currentUser = await User.findById(req.params.userId);
+    const userPosts = await userpost.find({
+      where: { UserId: currentUser.UserId },
+      include: [
+        {
+          model: userpostcomment,
+        },
+        {
+          model: userpostlike,
+        },
+      ],
+    });
+
+    const following = await userrelationship.findAll({
+      where: { SourceId: userId, Type: "follower" },
+    });
+    const friendPosts = await Promise.all(
+      following.map((friend) => {
+        return Post.find({ userId: friend.UserId });
+      })
+    );
+    res.status(200).json(userPosts.concat(...friendPosts));
   } catch (error) {
     return res.status(500).send({
       message: err.message || "Some error occurred while retrieving Users.",

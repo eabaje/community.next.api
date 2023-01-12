@@ -40,12 +40,24 @@ const review = db.review;
 const Role = db.role;
 const UserRole = db.userrole;
 const Op = db.Sequelize.Op;
-
+const Sq = db.Sequelize;
 // Spouse or parent or Grandparent etc
+const checkDuplicateId = (sourceItem, TargetItem) => {
+  if (sourceItem.indexOf(",") < 1) return false;
+
+  const arr = sourceItem.indexOf(",") > 0 && sourceItem.split(",");
+
+  if (arr.includes(TargetItem)) return true;
+  else return false;
+};
+
+const checkNullId = (TargetItem) => {
+  if (TargetItem === null) return false;
+};
 
 exports.addRelation = async (req, res) => {
   try {
-    const { Email, UserId, Level, RelationId } = req.body;
+    const { Email, UserId, Level, RelationId, RefId } = req.body;
     let cnt = 0;
     req.body.objItem.map(async (item, index) => {
       const isRecord = await relationprimary.findOne({
@@ -60,7 +72,7 @@ exports.addRelation = async (req, res) => {
 
         const objStr = {
           RelationType:
-            item.RelationType.indexOf(",") < 1 ? item.RelationType : spt[1],
+            item.RelationType.indexOf(",") > 0 ? spt[1] : item.RelationType,
           RelationCategory: item.RelationCategory,
           FirstName: item.FirstName,
           LastName: item.LastName,
@@ -68,6 +80,7 @@ exports.addRelation = async (req, res) => {
           NickName: item.NickName,
           Level: item?.Level ? item?.Level : spt[0],
           UserId: UserId,
+          RefId: item?.RefId,
           updatedBy: UserId,
           updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
         };
@@ -120,6 +133,7 @@ exports.addRelation = async (req, res) => {
         );
 
         //update reference user with relation type
+
         console.log("newRelation", newRelation);
         let rLevel = 0;
         spt[1] === "child"
@@ -137,41 +151,59 @@ exports.addRelation = async (req, res) => {
           where: {
             UserId: UserId,
             Level: rLevel,
-            RelationId: item?.RefId,
+            RelationId: RefId ? RefId : item?.RefId,
           },
         });
         console.log("spt[1]", spt[1]);
+
         switch (spt[1]) {
           case "parent":
-            foundRef.Parent = foundRef.Parent
-              ? foundRef.Parent + "," + item?.RelationId
-              : item?.RelationId;
+            foundRef.Parent =
+              foundRef.Parent && foundRef.Parent.includes(item?.RelationId)
+                ? foundRef.Parent + "," + item?.RelationId
+                : item?.RelationId;
 
             foundRef.save();
             console.log(
               "Parent",
               foundRef.Parent
-                ? foundRef.Parent + "," + item?.RelationId
+                ? foundRef?.Parent + "," + item?.RelationId
                 : item?.RelationId
             );
-            return;
+            break;
           case "spouse":
-            foundRef.Partner = item?.RelationId;
+            foundRef.Partner =
+              foundRef.Partner !== null
+                ? !foundRef.Partner.includes(item?.RelationId)
+                  ? foundRef?.Partner + "," + item?.RelationId
+                  : foundRef?.Partner
+                : item?.RelationId;
             foundRef.save();
             console.log("Spouse", "here");
-            return;
+            // console.log("indexOf", foundRef.Partner.indexOf(item?.RelationId));
+
+            break;
           case "sibling":
-            foundRef.Sibling = item?.RelationId;
+            foundRef.Sibling =
+              foundRef.Sibling && foundRef.Sibling.indexOf(item?.RelationId) < 1
+                ? foundRef.Sibling + "," + item?.RelationId
+                : item?.RelationId;
             foundRef.save();
             console.log("Sibling", "here");
-            return;
+            break;
           case "child":
-            foundRef.Child = item?.RelationId;
+            foundRef.Child =
+              foundRef.Child && foundRef.Child.indexOf(item?.RelationId) < 1
+                ? foundRef.Child + "," + item?.RelationId
+                : item?.RelationId;
             foundRef.save();
             console.log("Child", "here");
-            return;
+            break;
           default:
-            foundRef.Child = item?.RelationId;
+            foundRef.Child =
+              foundRef.Child && foundRef.Child.indexOf(item?.RelationId) < 1
+                ? foundRef.Child + "," + item?.RelationId
+                : item?.RelationId;
             foundRef.save();
             console.log("Default", "here");
         }
@@ -183,18 +215,20 @@ exports.addRelation = async (req, res) => {
             message: "Updated Family/Relation information successfully!",
           });
       } else {
-        //create new relation data
+        //create new relation data  ? item?.Level : spt[0]
 
         const spt =
           item.RelationType.indexOf(",") > 0 && item.RelationType.split(",");
         const unewRelation = {
-          RelationType: item.RelationType ? item.RelationType : spt[1],
+          RelationType:
+            item.RelationType.indexOf(",") > 0 ? spt[1] : item.RelationType,
           RelationCategory: item.RelationCategory,
           FirstName: item.FirstName,
           LastName: item.LastName,
           MiddleName: item.MiddleName,
           NickName: item.NickName,
-          Level: item?.Level ? item?.Level : spt[0],
+          Level: spt[0],
+          RefId: RefId ? RefId : item.RefId,
           UserId: UserId,
           createdBy: UserId,
           createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
@@ -238,47 +272,164 @@ exports.addRelation = async (req, res) => {
 
           //update reference user with relation type
 
-          const foundRef = await relationprimary.findOne({
-            where: { UserId: UserId, Level: parseInt(newRelation.Level) - 1 },
+          let rLevel = 0;
+          spt[1] === "child"
+            ? (rLevel = parseInt(spt[0]) + 1)
+            : spt[1] === "sibling"
+            ? (rLevel = parseInt(spt[0]))
+            : spt[1] === "spouse"
+            ? (rLevel = parseInt(spt[0]))
+            : spt[1] === "parent"
+            ? (rLevel = parseInt(spt[0]) - 1)
+            : (rLevel = parseInt(spt[0]) - 1);
+
+          console.log("rLevel", rLevel);
+          const dtRelatedAs = await relationprimary.findOne({
+            where: {
+              UserId: UserId,
+              Level: rLevel,
+              RelationId: item?.RefId,
+            },
           });
 
-          switch (newRelation.RelationType) {
-            case "parent":
-              foundRef.Parent = foundRef.Parent
-                ? foundRef.Parent + "," + newRelation.RelationId
-                : newRelation.RelationId;
-              foundRef.save();
-            case "spouse":
-              foundRef.Partner = newRelation.RelationId;
-              foundRef.save();
-            case "sibling":
-              foundRef.Sibling = newRelation.RelationId;
-              foundRef.save();
+          const dtRelatedTo = await relationprimary.findOne({
+            where: {
+              Level: spt[0],
+              RelationId: newRelation?.RelationId,
+            },
+          });
+          console.log("spt[1]", spt[1]);
+
+          switch (item?.RelatedAs) {
             case "child":
-              foundRef.Child = newRelation.RelationId;
-              foundRef.save();
+              dtRelatedTo.Children =
+                dtRelatedTo.Children &&
+                dtRelatedTo.Children.indexOf(" ") > 0 &&
+                dtRelatedTo.Children.indexOf(item?.RefId) < 1
+                  ? item?.RefId
+                  : dtRelatedTo.Children &&
+                    dtRelatedTo.Children.indexOf(item?.RefId) < 1
+                  ? dtRelatedTo.Children + "," + item?.RefId
+                  : item?.RefId;
+
+              dtRelatedTo.save();
+              console.log(
+                "child",
+                dtRelatedTo.Children
+                  ? dtRelatedTo?.Children + "," + item?.RefId
+                  : item?.RefId
+              );
+              break;
+
+            case "spouse":
+              dtRelatedTo.Partner =
+                dtRelatedTo.Partner &&
+                dtRelatedTo.Partner.indexOf(" ") > 0 &&
+                dtRelatedTo.Partner.indexOf(item?.RefId) < 1
+                  ? item?.RefId
+                  : dtRelatedTo.Partner &&
+                    dtRelatedTo.Partner.indexOf(item?.RefId) < 1
+                  ? dtRelatedTo.Partner + "," + item?.RefId
+                  : item?.RefId;
+
+              dtRelatedTo.save();
+              console.log(
+                "Spouse",
+                dtRelatedTo.Partner
+                  ? dtRelatedTo?.Partner + "," + item?.RefId
+                  : item?.RefId
+              );
+              break;
+
+            case "parent":
+              dtRelatedTo.Parent =
+                dtRelatedTo.Parent &&
+                dtRelatedTo.Parent.indexOf(item?.RefId) < 1
+                  ? dtRelatedTo.Parent + "," + item?.RefId
+                  : item?.RefId;
+
+              dtRelatedTo.save();
+              console.log(
+                "Parent",
+                dtRelatedTo.Parent
+                  ? dtRelatedTo?.Parent + "," + item?.RefId
+                  : item?.RefId
+              );
+              break;
 
             default:
-              foundRef.Child = newRelation.RelationId;
-              foundRef.save();
+              console.log("Default", "here");
           }
-          // const refCol = LevelMap.find(
-          //   (e) => e.text === newRelation.relationType
-          // ).value;
 
-          // var updateStm = { refCol: newRelation.RelationId };
+          switch (spt[1]) {
+            case "parent":
+              dtRelatedAs.Parent =
+                dtRelatedAs.Parent &&
+                dtRelatedAs.Parent.indexOf(" ") > 0 &&
+                dtRelatedAs.Parent.indexOf(newRelation?.RelationId) < 1
+                  ? newRelation?.RelationId
+                  : dtRelatedAs.Parent &&
+                    dtRelatedAs.Parent.indexOf(newRelation?.RelationId) < 1
+                  ? dtRelatedAs.Parent + "," + newRelation?.RelationId
+                  : newRelation?.RelationId;
 
-          // const newRef = await relationprimary.update(updateStm, {
-          //   where: { UserId: UserId, Level: parseInt(newRelation.Level) - 1 },
-          // });
-
-          if (newRelation) cnt++;
-
-          if (cnt === req.body.objItem.length)
-            return res.status(200).send({
-              message: "Added Family/Relation information successfully!",
-            });
+              dtRelatedAs.save();
+              console.log(
+                "Parent",
+                dtRelatedAs.Parent
+                  ? dtRelatedAs?.Parent + "," + newRelation?.RelationId
+                  : newRelation?.RelationId
+              );
+              break;
+            case "spouse":
+              dtRelatedAs.Partner =
+                dtRelatedAs?.Partner &&
+                dtRelatedAs.Partner.indexOf(" ") > 0 &&
+                dtRelatedAs.Partner.indexOf(newRelation?.RelationId) < 1
+                  ? newRelation?.RelationId
+                  : dtRelatedAs.Partner &&
+                    dtRelatedAs.Partner.indexOf(newRelation?.RelationId) < 1
+                  ? dtRelatedAs?.Partner + "," + newRelation?.RelationId
+                  : newRelation?.RelationId;
+              dtRelatedAs.save();
+              console.log("Spouse", "here");
+              break;
+            case "sibling":
+              dtRelatedAs.Sibling =
+                dtRelatedAs.Sibling &&
+                dtRelatedAs.Sibling.indexOf(" ") > 0 &&
+                dtRelatedAs.Sibling.indexOf(newRelation?.RelationId) < 1
+                  ? newRelation?.RelationId
+                  : dtRelatedAs.Sibling &&
+                    dtRelatedAs.Sibling.indexOf(newRelation?.RelationId) < 1
+                  ? dtRelatedAs.Sibling + "," + newRelation?.RelationId
+                  : newRelation?.RelationId;
+              dtRelatedAs.save();
+              console.log("Sibling", "here");
+              break;
+            case "child":
+              dtRelatedAs.Child =
+                dtRelatedAs.Child &&
+                dtRelatedAs.Child.indexOf(" ") > 0 &&
+                dtRelatedAs.Child.indexOf(newRelation?.RelationId) < 1
+                  ? newRelation?.RelationId
+                  : dtRelatedAs.Child &&
+                    dtRelatedAs.Child.indexOf(newRelation?.RelationId) < 1
+                  ? dtRelatedAs.Child + "," + newRelation?.RelationId
+                  : newRelation?.RelationId;
+              dtRelatedAs.save();
+              console.log("Child", "here");
+              break;
+            default:
+              console.log("dtRelatedAs", "here");
+          }
         }
+        if (newRelation) cnt++;
+
+        if (cnt === req.body.objItem.length)
+          return res.status(200).send({
+            message: "Added Family/Relation information successfully!",
+          });
       }
     });
   } catch (error) {
@@ -290,7 +441,201 @@ exports.addRelation = async (req, res) => {
   }
 };
 
+exports.updateRelation = async (req, res) => {
+  try {
+    const { Email, UserId, RelationType } = req.body;
+
+    req.body.objItem.map(async (item, index) => {
+      const objStr = {
+        // RelationType:
+        //   item.RelationType.indexOf(",") > 0 ? spt[1] : item.RelationType,
+        // RelationCategory: item.RelationCategory,
+        FirstName: item.FirstName,
+        LastName: item.LastName,
+        MiddleName: item.MiddleName,
+        NickName: item.NickName,
+        //  Level: item?.Level ? item?.Level : spt[0],
+        UserId: UserId,
+        //  RefId: RefId ? RefId : item.RefId,
+        updatedBy: UserId,
+        updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+      };
+      console.log("objStr", objStr);
+
+      const newRelation = await relationprimary.update(objStr, {
+        where: { RelationId: item.RelationId },
+      });
+
+      const found2 = await relationsecondary.findOne({
+        where: { RelationId: item.RelationId },
+      });
+      const newRelationDetail = await relationsecondary.update(
+        {
+          // req.body,
+
+          Email: item?.Email?.toLowerCase(),
+          Age: item?.Age,
+          DOB: item?.DOB,
+          Sex: item?.Sex,
+          Title: item?.Title,
+          Tribe: item?.Tribe,
+          FamilyName: item.FamilyName,
+          Language: item.Language,
+          Kindred: item.Kindred,
+          Clan: item.Clan,
+          Occupation: item.Occupation,
+          EmploymentStatus: item.EmploymentStatus,
+          MaritalStatus: item.MaritalStatus,
+          BloodGroup: item.BloodGroup,
+          Mobile: item.Mobile,
+          Address: item.Address,
+          City: item.City,
+          HomeTown: item.HomeTown,
+          LGA: item.LGA,
+          State: item.State,
+          Country: item.Country,
+          ProfilePicture: item.ProfilePicture,
+          CoverPicture: item.CoverPicture,
+          Desc: item.Desc,
+          UserId: UserId,
+          RelationId: newRelation.RelationId,
+          updatedBy: UserId,
+          updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+        },
+        {
+          where: { RelationDetailId: item.RelationDetailId },
+        }
+      );
+
+      if (parseInt(req.body.objItem.length) - 1 === parseInt(index))
+        return res.status(200).send({
+          message: "Updated relations profile successfully!.",
+        });
+    });
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
+    });
+  }
+};
+
 exports.getAllRelation = async (req, res) => {
+  try {
+    const id = req.params.userId;
+
+    const foundResult = await relationprimary.findAll({
+      where: { UserId: id },
+      include: [
+        {
+          model: relationsecondary,
+        },
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (foundResult) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: foundResult });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
+    });
+  }
+};
+
+exports.getAllRelationByName = async (req, res) => {
+  try {
+    const foundResult = await relationprimary.findAll({
+      where: [
+        Sq.where(
+          Sq.fn("concat", Sq.col("FirstName"), " ", Sq.col("LastName")),
+          {
+            [Op.like]: `%${req.query.query}%`,
+          }
+        ),
+      ],
+      attributes: [
+        [
+          Sq.fn("concat", Sq.col("FirstName"), " ", Sq.col("LastName")),
+          "label",
+        ],
+        ["RelationId", "code"],
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (foundResult) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ foundResult });
+    }
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).send({
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
+    });
+  }
+};
+
+exports.getAllRelationByCriteria = async (req, res) => {
+  try {
+    const id = req.body.userId;
+    const LastName = req.body.LastName;
+    const FirstName = req.body.FirstName;
+    const NickName = req.body.NickName;
+    const FamilyName = req.body.FamilyName;
+    const Region = req.body.Region;
+    const HomeTown = req.body.HomeTown;
+
+    //  currentMonthEarnings = await db.sequelize.query('SELECT SUM("priceEstimate") FROM "Orders" WHERE "assignedCarId" IN(:ids) AND "createdAt" < (:createdDate)', {
+    //   replacements: {ids: carIds, createdDate: currentDateMonth},
+    //   model: db.Order,
+    //   mapToModel: true
+    // });
+
+    const foundResult = await relationprimary.findAll({
+      where: Sq.where(
+        Sq.and(
+          FirstName ? ["FirstName = ?", FirstName] : null,
+          LastName ? ["LastName = ?", LastName] : null,
+          NickName ? ["NickName = ?", NickName] : null
+        )
+      ),
+      include: [
+        {
+          model: relationsecondary,
+          where: FamilyName ? ["FamilyName = ?", FamilyName] : null,
+        },
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (foundResult) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ foundResult });
+    }
+  } catch (error) {
+    console.log("error", error);
+    res.status(500).send({
+      message:
+        error.message || "Something went wrong. Sorry we'll try to fix it.",
+    });
+  }
+};
+
+exports.getAllRelationByRelationType = async (req, res) => {
   try {
     const id = req.params.userId;
     const relationType = req.params.relationType;
@@ -383,11 +728,11 @@ exports.getAllRelationByLevel = async (req, res) => {
 
 exports.getRelationByCategory = async (req, res) => {
   try {
-    const id = req.params.userId;
+    const id = req.params.relationId;
     const relationCategory = req.params.relationCategory;
 
     const foundResult = await relationprimary.findOne({
-      where: { UserId: id, RelationCategory: relationCategory },
+      where: { RelationId: id, RelationCategory: relationCategory },
       include: [
         {
           model: relationsecondary,
@@ -1256,20 +1601,20 @@ exports.updateUser = async (req, res) => {
     });
 
     if (num == 1) {
-      const foundResult = await relationprimary.findOne({
+      const dtRelation = await relationprimary.findOne({
         attributes: ["RelationId"],
-        where: { UserId: id, Level: "0" },
-        include: [
-          {
-            model: relationsecondary,
-            attributes: ["Sex"],
-            where: { Sex: req.body.Sex },
-          },
-        ],
+        where: { UserId: id, Level: 0, RelationType: "reference" },
+        // include: [
+        //   {
+        //     model: relationsecondary,
+        //     attributes: ["Sex"],
+        //     where: { Sex: req.body.Sex },
+        //   },
+        // ],
       });
 
-      if (foundResult === null) {
-        console.log("foundResult", foundResult);
+      if (dtRelation === null) {
+        console.log("foundResult", dtRelation);
         const unewRelation = {
           RelationType: req.body.RelationType,
           RelationCategory: req.body.RelationCategory,
@@ -1286,15 +1631,13 @@ exports.updateUser = async (req, res) => {
         };
 
         const newRelation = await relationprimary.create(unewRelation);
-
+        console.log("newRelation", newRelation);
         if (newRelation) {
-          const newRelationDetail = await relationsecondary.create({
-            // req.body,
-
+          const objRelationDetail = {
             Email: req.body.Email.toLowerCase(),
             Age: req.body.Age,
             Sex: req.body.Sex,
-            DOB: item.DOB,
+            DOB: req.body.DOB,
             MaritalStatus: req.body.MaritalStatus,
             EmploymentStatus: req.body.EmploymentStatus,
             Tribe: req.body.Tribe,
@@ -1324,7 +1667,19 @@ exports.updateUser = async (req, res) => {
             // Currency: req.body.Currency,
             // IsActivated: false,
             // IsConfirmed: false,
-          });
+            // PurchaseYear: vehicle.VehicleType,
+          };
+
+          const newRelationDetail = await relationsecondary.create(
+            objRelationDetail
+          );
+
+          if (newRelationDetail) {
+            res.status(200).send({
+              message:
+                "Updated your profile successfully and created family tree reference node!",
+            });
+          }
         }
       } else {
         const newRelation = await relationprimary.update(
@@ -1342,24 +1697,28 @@ exports.updateUser = async (req, res) => {
             updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
           },
           {
-            where: { RelationId: foundResult.RelationId },
+            where: { RelationId: dtRelation.RelationId },
           }
         );
 
         if (newRelation) {
-          const found2 = await relationsecondary.findOne({
+          const dtRelationDetail = await relationsecondary.findOne({
             attributes: ["RelationDetailId"],
-            where: { RelationId: foundResult.RelationId },
+            where: { RelationId: dtRelation.RelationId },
           });
-          console.log("found2", found2);
+          console.log("dtRelationDetail", dtRelationDetail);
+          if (dtRelationDetail === null)
+            return res.status(200).send({
+              message: "Something went wrong. Sorry we'll try to fix it.",
+            });
           const newRelationDetail = await relationsecondary.update(
             {
               // req.body,
-              RelationDetailId: found2.RelationDetailId,
+              RelationDetailId: dtRelationDetail.RelationDetailId,
               Email: req.body.Email.toLowerCase(),
               Age: req.body.Age,
               Sex: req.body.Sex,
-              DOB: item.DOB,
+              DOB: req.body.DOB,
               Tribe: req.body.Tribe,
               FamilyName: req.body.FamilyName,
               Language: req.body.Language,
@@ -1383,7 +1742,7 @@ exports.updateUser = async (req, res) => {
               updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
             },
             {
-              where: { RelationDetailId: found2.RelationDetailId },
+              where: { RelationDetailId: dtRelationDetail.RelationDetailId },
             }
           );
 
@@ -1398,13 +1757,14 @@ exports.updateUser = async (req, res) => {
         }
       }
     } else {
-      res.send({
+      res.status(200).send({
         message: `Cannot update User with id=${id}. Maybe User was not found or req.body is empty!`,
       });
     }
   } catch (error) {
+    console.log("error", error);
     res.status(500).send({
-      message: "Error updating User with id=" + id,
+      message: "Error updating User with id=" + error.message,
     });
   }
 };

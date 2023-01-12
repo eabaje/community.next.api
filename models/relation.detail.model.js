@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-  const RelationDetail = sequelize.define("Relation_Detail", {
+  const RelationDetail = sequelize.define("relation_detail", {
     RelationDetailId: {
       type: Sequelize.INTEGER,
       autoIncrement: true,

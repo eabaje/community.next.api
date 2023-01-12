@@ -84,14 +84,29 @@ module.exports = function (app) {
   // Relation
   app.post("/api/user/addRelation", controller.addRelation);
 
+  app.post("/api/user/updateRelation", controller.updateRelation);
+
+  app.post(
+    "/api/user/getAllRelationByCriteria",
+    controller.getAllRelationByCriteria
+  );
+
   app.get(
     "/api/user/getRelation/:relationId/:relationType",
     controller.getRelation
   );
+  app.get("/api/user/getAllRelation/:userId", controller.getAllRelation);
 
   app.get(
-    "/api/user/getAllRelation/:userId/:relationType?",
-    controller.getAllRelation
+    "/api/user/getRelationByCategory/:relationId/:relationCategory?",
+    controller.getRelationByCategory
+  );
+
+  app.get("/api/user/getAllRelationByName", controller.getAllRelationByName);
+
+  app.get(
+    "/api/user/getAllRelationByRelationType/:userId/:relationType?",
+    controller.getAllRelationByRelationType
   );
 
   app.get(
@@ -143,7 +158,7 @@ module.exports = function (app) {
   );
 
   app.delete(
-    "/api/user/deleteChildorSibling/:relationType/:Id",
+    "/api/user/deleteSchoolPlaceWork/:relationType/:Id",
     controller.deleteSchoolPlaceWork
   );
   //

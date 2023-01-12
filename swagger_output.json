@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "version": "1.0.0",
-    "title": "REST API",
+    "title": "myArea REST API",
     "description": ""
   },
   "host": "api.pezentics.com",
@@ -38,6 +38,9 @@
                   "example": "any"
                 },
                 "RoleType": {
+                  "example": "any"
+                },
+                "Mobile": {
                   "example": "any"
                 }
               }
@@ -161,6 +164,947 @@
         }
       }
     },
+    "/api/group/addGroup": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Title": {
+                  "example": "any"
+                },
+                "MetaTitle": {
+                  "example": "any"
+                },
+                "Slug": {
+                  "example": "any"
+                },
+                "Summary": {
+                  "example": "any"
+                },
+                "Status": {
+                  "example": "any"
+                },
+                "Profile": {
+                  "example": "any"
+                },
+                "Content": {
+                  "example": "any"
+                },
+                "UserId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/group/addGroupMember": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Status": {
+                  "example": "any"
+                },
+                "UserId": {
+                  "example": "any"
+                },
+                "Comment": {
+                  "example": "any"
+                },
+                "MemberType": {
+                  "example": "any"
+                },
+                "GroupId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/group/updateGroup": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Title": {
+                  "example": "any"
+                },
+                "MetaTitle": {
+                  "example": "any"
+                },
+                "Slug": {
+                  "example": "any"
+                },
+                "Summary": {
+                  "example": "any"
+                },
+                "Status": {
+                  "example": "any"
+                },
+                "Profile": {
+                  "example": "any"
+                },
+                "Content": {
+                  "example": "any"
+                },
+                "UserId": {
+                  "example": "any"
+                },
+                "GroupId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/group/getAllGroup": {
+      "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/group/getGroup/{groupId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/group/getAllGroupMember": {
+      "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/group/getGroupMember/{groupMemberId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "groupMemberId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/group/findAllGroupByDate/{startDate}/{endDate}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "endDate",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/group/findAllGroupMemberByDate/{startDate}/{endDate}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "startDate",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "endDate",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/group/deleteGroup/{groupId}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "groupId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/group/deleteGroupMember/{groupMemberId}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "groupMemberId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/addpost": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Message": {
+                  "example": "any"
+                },
+                "ImgUrl": {
+                  "example": "any"
+                },
+                "UserId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/addpostcomment": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "UserId": {
+                  "example": "any"
+                },
+                "UserPostId": {
+                  "example": "any"
+                },
+                "PostId": {
+                  "example": "any"
+                },
+                "Comment": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/addpostlike": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "UserPostId": {
+                  "example": "any"
+                },
+                "UserId": {
+                  "example": "any"
+                },
+                "PostId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/updatepost": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "objItem": {
+                  "example": "any"
+                },
+                "ImgUrl": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/updatepostlike": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "UserPostId": {
+                  "example": "any"
+                },
+                "UserId": {
+                  "example": "any"
+                },
+                "UserPostLikeId": {
+                  "example": "any"
+                },
+                "PostId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/updatepostcomment": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "Comment": {
+                  "example": "any"
+                },
+                "UserId": {
+                  "example": "any"
+                },
+                "UserPostCommentId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/getallpost/{userId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/getpost/{postId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/getallpostcomment": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "query",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/getpostcomment/{postId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/getTimeline/{userId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/deletepost/{postId}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "postId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/deletepostcomment/{userPostCommentId}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userPostCommentId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/post/deletepostlike/{userPostLikeId}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userPostLikeId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/advert/addadvert": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "AdvertName": {
+                  "example": "any"
+                },
+                "AdvertImgUrl": {
+                  "example": "any"
+                },
+                "AdvertType": {
+                  "example": "any"
+                },
+                "AdvertCaption": {
+                  "example": "any"
+                },
+                "AdvertPage": {
+                  "example": "any"
+                },
+                "AdvertSection": {
+                  "example": "any"
+                },
+                "AdvertRegion": {
+                  "example": "any"
+                },
+                "Country": {
+                  "example": "any"
+                },
+                "IPAddress": {
+                  "example": "any"
+                },
+                "AdvertCost": {
+                  "example": "any"
+                },
+                "Currency": {
+                  "example": "any"
+                },
+                "IsEnabled": {
+                  "example": "any"
+                },
+                "PublishedDateFrom": {
+                  "example": "any"
+                },
+                "PublishedDateFromTo": {
+                  "example": "any"
+                },
+                "UserId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/advert/searchAdvert": {
+      "post": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "AdvertName": {
+                  "example": "any"
+                },
+                "AdvertType": {
+                  "example": "any"
+                },
+                "AdvertCaption": {
+                  "example": "any"
+                },
+                "AdvertPage": {
+                  "example": "any"
+                },
+                "AdvertSection": {
+                  "example": "any"
+                },
+                "AdvertRegion": {
+                  "example": "any"
+                },
+                "Country": {
+                  "example": "any"
+                },
+                "IPAddress": {
+                  "example": "any"
+                },
+                "AdvertCost": {
+                  "example": "any"
+                },
+                "Currency": {
+                  "example": "any"
+                },
+                "IsEnabled": {
+                  "example": "any"
+                },
+                "PublishedDateFrom": {
+                  "example": "any"
+                },
+                "PublishedDateFromTo": {
+                  "example": "any"
+                },
+                "AdvertId": {
+                  "example": "any"
+                },
+                "UserId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/advert/updateAdvert/{advertId}": {
+      "put": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "advertId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "body",
+            "in": "body",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "AdvertName": {
+                  "example": "any"
+                },
+                "AdvertType": {
+                  "example": "any"
+                },
+                "AdvertCaption": {
+                  "example": "any"
+                },
+                "AdvertPage": {
+                  "example": "any"
+                },
+                "AdvertSection": {
+                  "example": "any"
+                },
+                "AdvertRegion": {
+                  "example": "any"
+                },
+                "Country": {
+                  "example": "any"
+                },
+                "IPAddress": {
+                  "example": "any"
+                },
+                "AdvertCost": {
+                  "example": "any"
+                },
+                "Currency": {
+                  "example": "any"
+                },
+                "IsEnabled": {
+                  "example": "any"
+                },
+                "PublishedDateFrom": {
+                  "example": "any"
+                },
+                "PublishedDateFromTo": {
+                  "example": "any"
+                },
+                "AdvertId": {
+                  "example": "any"
+                },
+                "UserId": {
+                  "example": "any"
+                }
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/advert/getAdvert/{advertId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "advertId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/advert/getAllAdvert": {
+      "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/advert/deleteAdvert/{advertId}": {
+      "delete": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "advertId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
     "/api/user/addRelation": {
       "post": {
         "description": "",
@@ -171,79 +1115,22 @@
             "schema": {
               "type": "object",
               "properties": {
-                "RelationId": {
-                  "example": "any"
-                },
-                "FirstName": {
-                  "example": "any"
-                },
-                "LastName": {
-                  "example": "any"
-                },
-                "MiddleName": {
-                  "example": "any"
-                },
-                "NickName": {
+                "objItem": {
                   "example": "any"
                 },
                 "Email": {
                   "example": "any"
                 },
-                "Age": {
-                  "example": "any"
-                },
-                "Sex": {
-                  "example": "any"
-                },
-                "Tribe": {
-                  "example": "any"
-                },
-                "FamilyName": {
-                  "example": "any"
-                },
-                "Language": {
-                  "example": "any"
-                },
-                "Kindred": {
-                  "example": "any"
-                },
-                "Clan": {
-                  "example": "any"
-                },
-                "Mobile": {
-                  "example": "any"
-                },
-                "Address": {
-                  "example": "any"
-                },
-                "City": {
-                  "example": "any"
-                },
-                "HomeTown": {
-                  "example": "any"
-                },
-                "LGA": {
-                  "example": "any"
-                },
-                "State": {
-                  "example": "any"
-                },
-                "Country": {
-                  "example": "any"
-                },
-                "ProfilePicture": {
-                  "example": "any"
-                },
-                "CoverPicture": {
-                  "example": "any"
-                },
-                "Desc": {
-                  "example": "any"
-                },
                 "UserId": {
                   "example": "any"
                 },
-                "RelationType": {
+                "Level": {
+                  "example": "any"
+                },
+                "RelationId": {
+                  "example": "any"
+                },
+                "RefId": {
                   "example": "any"
                 }
               }
@@ -260,95 +1147,35 @@
         }
       }
     },
-    "/api/user/updateRelation/{relationId}": {
-      "put": {
+    "/api/user/getAllRelationByCriteria": {
+      "post": {
         "description": "",
         "parameters": [
-          {
-            "name": "relationId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
           {
             "name": "body",
             "in": "body",
             "schema": {
               "type": "object",
               "properties": {
-                "FirstName": {
+                "userId": {
                   "example": "any"
                 },
                 "LastName": {
                   "example": "any"
                 },
-                "MiddleName": {
+                "FirstName": {
                   "example": "any"
                 },
                 "NickName": {
                   "example": "any"
                 },
-                "Email": {
-                  "example": "any"
-                },
-                "Age": {
-                  "example": "any"
-                },
-                "Sex": {
-                  "example": "any"
-                },
-                "Tribe": {
-                  "example": "any"
-                },
                 "FamilyName": {
                   "example": "any"
                 },
-                "Language": {
-                  "example": "any"
-                },
-                "Kindred": {
-                  "example": "any"
-                },
-                "Clan": {
-                  "example": "any"
-                },
-                "Mobile": {
-                  "example": "any"
-                },
-                "Address": {
-                  "example": "any"
-                },
-                "City": {
+                "Region": {
                   "example": "any"
                 },
                 "HomeTown": {
-                  "example": "any"
-                },
-                "LGA": {
-                  "example": "any"
-                },
-                "State": {
-                  "example": "any"
-                },
-                "Country": {
-                  "example": "any"
-                },
-                "ProfilePicture": {
-                  "example": "any"
-                },
-                "CoverPicture": {
-                  "example": "any"
-                },
-                "Desc": {
-                  "example": "any"
-                },
-                "UserId": {
-                  "example": "any"
-                },
-                "RelationId": {
-                  "example": "any"
-                },
-                "RelationType": {
                   "example": "any"
                 }
               }
@@ -359,27 +1186,24 @@
           "200": {
             "description": "OK"
           },
-          "404": {
-            "description": "Not Found"
-          },
           "500": {
             "description": "Internal Server Error"
           }
         }
       }
     },
-    "/api/user/getRelation/{relationType}/{relationId}": {
+    "/api/user/getRelation/{relationId}/{relationType}": {
       "get": {
         "description": "",
         "parameters": [
           {
-            "name": "relationType",
+            "name": "relationId",
             "in": "path",
             "required": true,
             "type": "string"
           },
           {
-            "name": "relationId",
+            "name": "relationType",
             "in": "path",
             "required": true,
             "type": "string"
@@ -395,18 +1219,113 @@
         }
       }
     },
-    "/api/user/getAllRelation/{relationType}/{userId}": {
+    "/api/user/getAllRelation/{userId}": {
       "get": {
         "description": "",
         "parameters": [
           {
-            "name": "relationType",
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/getAllRelationByName": {
+      "get": {
+        "description": "",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/getAllRelationByRelationType/{userId}/{relationType?}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
             "in": "path",
             "required": true,
             "type": "string"
           },
           {
+            "name": "relationType?",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/getAllRelationByCategory/{userId}/{relationCategory?}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
             "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "relationCategory?",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/getAllRelationByLevel/{userId}/{level}/{relationType?}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "level",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "relationType?",
             "in": "path",
             "required": true,
             "type": "string"
@@ -453,7 +1372,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "child": {
+                "objItem": {
                   "example": "any"
                 },
                 "Email": {
@@ -588,7 +1507,7 @@
             "schema": {
               "type": "object",
               "properties": {
-                "child": {
+                "objItem": {
                   "example": "any"
                 },
                 "Email": {
@@ -650,37 +1569,16 @@
         }
       }
     },
-    "/api/user/getSchoolPlaceWork/{relationType}/{Id}": {
+    "/api/user/getSchoolPlaceWork/{Id}/{relationType}": {
       "get": {
         "description": "",
         "parameters": [
-          {
-            "name": "relationType",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
           {
             "name": "Id",
             "in": "path",
             "required": true,
             "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
           },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/user/getAllSchoolPlaceWork/{relationType}/": {
-      "get": {
-        "description": "",
-        "parameters": [
           {
             "name": "relationType",
             "in": "path",
@@ -698,7 +1596,34 @@
         }
       }
     },
-    "/api/user/deleteChildorSibling/{relationType}/{Id}": {
+    "/api/user/getAllSchoolPlaceWork/{userId}/{relationType}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "relationType",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/deleteSchoolPlaceWork/{relationType}/{Id}": {
       "delete": {
         "description": "",
         "parameters": [
@@ -710,6 +1635,27 @@
           },
           {
             "name": "Id",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/getNeighbourhoodByUserId/{userId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
             "in": "path",
             "required": true,
             "type": "string"
@@ -750,6 +1696,27 @@
       "get": {
         "description": "",
         "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK"
+          },
+          "500": {
+            "description": "Internal Server Error"
+          }
+        }
+      }
+    },
+    "/api/user/findUser/{userId}": {
+      "get": {
+        "description": "",
+        "parameters": [
+          {
+            "name": "userId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
         "responses": {
           "200": {
             "description": "OK"
@@ -825,6 +1792,93 @@
               "type": "object",
               "properties": {
                 "UserId": {
+                  "example": "any"
+                },
+                "RelationType": {
+                  "example": "any"
+                },
+                "RelationCategory": {
+                  "example": "any"
+                },
+                "FirstName": {
+                  "example": "any"
+                },
+                "LastName": {
+                  "example": "any"
+                },
+                "MiddleName": {
+                  "example": "any"
+                },
+                "NickName": {
+                  "example": "any"
+                },
+                "Level": {
+                  "example": "any"
+                },
+                "Email": {
+                  "example": "any"
+                },
+                "Age": {
+                  "example": "any"
+                },
+                "Sex": {
+                  "example": "any"
+                },
+                "DOB": {
+                  "example": "any"
+                },
+                "MaritalStatus": {
+                  "example": "any"
+                },
+                "EmploymentStatus": {
+                  "example": "any"
+                },
+                "Tribe": {
+                  "example": "any"
+                },
+                "FamilyName": {
+                  "example": "any"
+                },
+                "Language": {
+                  "example": "any"
+                },
+                "Kindred": {
+                  "example": "any"
+                },
+                "Clan": {
+                  "example": "any"
+                },
+                "Mobile": {
+                  "example": "any"
+                },
+                "Address": {
+                  "example": "any"
+                },
+                "City": {
+                  "example": "any"
+                },
+                "HomeTown": {
+                  "example": "any"
+                },
+                "LGA": {
+                  "example": "any"
+                },
+                "State": {
+                  "example": "any"
+                },
+                "Country": {
+                  "example": "any"
+                },
+                "ProfilePicture": {
+                  "example": "any"
+                },
+                "CoverPicture": {
+                  "example": "any"
+                },
+                "Desc": {
+                  "example": "any"
+                },
+                "Occupation": {
                   "example": "any"
                 }
               }
@@ -1082,463 +2136,6 @@
           },
           "403": {
             "description": "Forbidden"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/": {
-      "get": {
-        "description": "",
-        "parameters": [],
-        "responses": {}
-      },
-      "post": {
-        "description": "",
-        "parameters": [],
-        "responses": {}
-      }
-    },
-    "/{id}": {
-      "delete": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {}
-      }
-    },
-    "/api/advert/addadvert": {
-      "post": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "AdvertName": {
-                  "example": "any"
-                },
-                "AdvertImgUrl": {
-                  "example": "any"
-                },
-                "AdvertType": {
-                  "example": "any"
-                },
-                "AdvertCaption": {
-                  "example": "any"
-                },
-                "AdvertPage": {
-                  "example": "any"
-                },
-                "AdvertSection": {
-                  "example": "any"
-                },
-                "AdvertRegion": {
-                  "example": "any"
-                },
-                "Country": {
-                  "example": "any"
-                },
-                "IPAddress": {
-                  "example": "any"
-                },
-                "AdvertCost": {
-                  "example": "any"
-                },
-                "Currency": {
-                  "example": "any"
-                },
-                "IsEnabled": {
-                  "example": "any"
-                },
-                "PublishedDateFrom": {
-                  "example": "any"
-                },
-                "PublishedDateFromTo": {
-                  "example": "any"
-                },
-                "UserId": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/advert/updateAdvert/{advertId}": {
-      "put": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "advertId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "AdvertName": {
-                  "example": "any"
-                },
-                "AdvertType": {
-                  "example": "any"
-                },
-                "AdvertCaption": {
-                  "example": "any"
-                },
-                "AdvertPage": {
-                  "example": "any"
-                },
-                "AdvertSection": {
-                  "example": "any"
-                },
-                "AdvertRegion": {
-                  "example": "any"
-                },
-                "Country": {
-                  "example": "any"
-                },
-                "IPAddress": {
-                  "example": "any"
-                },
-                "AdvertCost": {
-                  "example": "any"
-                },
-                "Currency": {
-                  "example": "any"
-                },
-                "IsEnabled": {
-                  "example": "any"
-                },
-                "PublishedDateFrom": {
-                  "example": "any"
-                },
-                "PublishedDateFromTo": {
-                  "example": "any"
-                },
-                "AdvertId": {
-                  "example": "any"
-                },
-                "UserId": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/advert/getAdvert/{advertId}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "advertId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/advert/getAllAdvert": {
-      "get": {
-        "description": "",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/advert/deleteAdvert/{advertId}": {
-      "delete": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "advertId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/user/updateRelation": {
-      "put": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "body",
-            "in": "body",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "FirstName": {
-                  "example": "any"
-                },
-                "LastName": {
-                  "example": "any"
-                },
-                "MiddleName": {
-                  "example": "any"
-                },
-                "NickName": {
-                  "example": "any"
-                },
-                "Email": {
-                  "example": "any"
-                },
-                "Age": {
-                  "example": "any"
-                },
-                "Sex": {
-                  "example": "any"
-                },
-                "Tribe": {
-                  "example": "any"
-                },
-                "FamilyName": {
-                  "example": "any"
-                },
-                "Language": {
-                  "example": "any"
-                },
-                "Kindred": {
-                  "example": "any"
-                },
-                "Clan": {
-                  "example": "any"
-                },
-                "Mobile": {
-                  "example": "any"
-                },
-                "Address": {
-                  "example": "any"
-                },
-                "City": {
-                  "example": "any"
-                },
-                "HomeTown": {
-                  "example": "any"
-                },
-                "LGA": {
-                  "example": "any"
-                },
-                "State": {
-                  "example": "any"
-                },
-                "Country": {
-                  "example": "any"
-                },
-                "ProfilePicture": {
-                  "example": "any"
-                },
-                "CoverPicture": {
-                  "example": "any"
-                },
-                "Desc": {
-                  "example": "any"
-                },
-                "UserId": {
-                  "example": "any"
-                },
-                "RelationId": {
-                  "example": "any"
-                },
-                "RelationType": {
-                  "example": "any"
-                }
-              }
-            }
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "404": {
-            "description": "Not Found"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/user/getRelation/{relationId}/{relationType}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "relationId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "relationType",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/user/getAllRelation/{userId}/{relationType}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "relationType",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/user/getSchoolPlaceWork/{Id}/{relationType}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "Id",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "relationType",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/user/getAllSchoolPlaceWork/{userId}/{relationType}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          },
-          {
-            "name": "relationType",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
-          },
-          "500": {
-            "description": "Internal Server Error"
-          }
-        }
-      }
-    },
-    "/api/user/findUser/{userId}": {
-      "get": {
-        "description": "",
-        "parameters": [
-          {
-            "name": "userId",
-            "in": "path",
-            "required": true,
-            "type": "string"
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "OK"
           },
           "500": {
             "description": "Internal Server Error"

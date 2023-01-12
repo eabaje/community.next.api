@@ -15,8 +15,20 @@ module.exports = (sequelize, Sequelize) => {
     Message: {
       type: Sequelize.STRING,
     },
+    ImgUrl: {
+      type: Sequelize.STRING,
+    },
     Likes: {
       type: Sequelize.INTEGER,
+    },
+    Share: {
+      type: Sequelize.INTEGER,
+    },
+    IsActive: {
+      type: Sequelize.BOOLEAN,
+    },
+    IsPublic: {
+      type: Sequelize.BOOLEAN,
     },
     createdBy: {
       type: Sequelize.STRING,

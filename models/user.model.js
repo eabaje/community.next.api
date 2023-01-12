@@ -107,6 +107,13 @@ module.exports = (sequelize, Sequelize) => {
       type: Sequelize.BOOLEAN,
     },
 
+    RecoveryEmail: {
+      type: Sequelize.STRING,
+    },
+
+    RecoveryPhone: {
+      type: Sequelize.STRING,
+    },
     createdBy: {
       type: Sequelize.STRING,
     },

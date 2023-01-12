@@ -53,6 +53,7 @@ db.role = require("./role.model.js")(sequelize, Sequelize);
 db.userrole = require("./user.role.model.js")(sequelize, Sequelize);
 db.userpost = require("./user.post.model.js")(sequelize, Sequelize);
 db.userpostlike = require("./user.post.like.model.js")(sequelize, Sequelize);
+db.usercomment = require("./user.comment.model.js")(sequelize, Sequelize);
 db.userpostcomment = require("./user.post.comment.model.js")(
   sequelize,
   Sequelize
@@ -101,6 +102,18 @@ db.user.belongsToMany(db.role, {
   otherKey: "RoleId",
 });
 
+db.user.belongsToMany(db.userpostcomment, {
+  through: "user_comments",
+  foreignKey: "UserId",
+  otherKey: "UserPostCommentId",
+});
+
+db.userpostcomment.belongsToMany(db.user, {
+  through: "user_comments",
+  foreignKey: "UserPostCommentId",
+  otherKey: "UserId",
+});
+
 db.user.hasMany(db.employer, { foreignKey: "UserId" });
 db.employer.belongsTo(db.user, { foreignKey: "UserId" });
 
@@ -125,11 +138,11 @@ db.usernotification.belongsTo(db.user, { foreignKey: "UserId" });
 db.user.hasMany(db.userpostcomment, { foreignKey: "UserId" });
 db.userpostcomment.belongsTo(db.user, { foreignKey: "UserId" });
 
-db.userpost.hasMany(db.userpostcomment, { foreignKey: "PostId" });
-db.userpostcomment.belongsTo(db.userpost, { foreignKey: "PostId" });
+db.userpost.hasMany(db.userpostcomment, { foreignKey: "UserPostId" });
+db.userpostcomment.belongsTo(db.userpost, { foreignKey: "UserPostId" });
 
-db.userpost.hasMany(db.userpostlike, { foreignKey: "PostId" });
-db.userpostlike.belongsTo(db.userpost, { foreignKey: "PostId" });
+db.userpost.hasMany(db.userpostlike, { foreignKey: "UserPostId" });
+db.userpostlike.belongsTo(db.userpost, { foreignKey: "UserPostId" });
 
 db.user.hasMany(db.userfriend, { foreignKey: "UserId" });
 db.userfriend.belongsTo(db.user, { foreignKey: "UserId" });

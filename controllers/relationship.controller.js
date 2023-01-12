@@ -155,10 +155,11 @@ exports.deleteRelationship = async (req, res) => {
 exports.getAllRelationship = async (req, res) => {
   try {
     const type = req.params.type;
-    var condition = type ? { Type: { [Op.iLike]: `%${type}%` } } : null;
+    const userId = req.params.userId;
+    //  var condition = type && [Op.and]:[{ Type: type }] ; [Op.and]:[{ Type: type }]
 
     const result = await relationship.findAll({
-      where: condition,
+      where: { [Op.or]: [{ TargetId: userId }, { SourceId: userId }] },
       include: [
         {
           model: user,

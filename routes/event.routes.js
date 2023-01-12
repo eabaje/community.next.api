@@ -12,9 +12,9 @@ module.exports = function (app) {
   //[verifySignUp.checkDuplicateUsernameOrEmail,verifySignUp.checkRolesExisted],
   app.post("/api/event/addEvent", controller.addEvent);
 
-  app.put("/api/Event/updateEvent", controller.updateEvent);
+  app.put("/api/event/updateEvent", controller.updateEvent);
 
-  app.get("/api/Event/getAllEvent/:userId?", controller.getAllEvent);
+  app.get("/api/event/getAllEvent/:userId?", controller.getAllEvent);
   app.get("/api/event/getAllEventSent/:targetId", controller.getAllEventSent);
   app.get(
     "/api/event/getAllNotificationSent/:targetId?",

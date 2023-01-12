@@ -5,9 +5,7 @@ module.exports = (sequelize, Sequelize) => {
       autoIncrement: true,
       primaryKey: true,
     },
-    UserPostId: {
-      type: Sequelize.INTEGER,
-    },
+
     SenderId: {
       type: Sequelize.STRING,
     },

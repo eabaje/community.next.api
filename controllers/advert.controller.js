@@ -142,6 +142,55 @@ exports.updateAdvert = async (req, res) => {
   }
 };
 
+exports.searchAdvert = async (req, res) => {
+  try {
+    const { UserId, AdvertId } = req.body;
+
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const newAdvert = await advert.update(
+      {
+        AdvertName: req.body.AdvertName,
+        AdvertType: req.body.AdvertType,
+        AdvertCaption: req.body.AdvertCaption,
+        AdvertPage: req.body.AdvertPage,
+        AdvertSection: req.body.AdvertSection,
+        AdvertRegion: req.body.AdvertRegion,
+        AdvertCountry: req.body.Country,
+        IPAddress: req.body.IPAddress,
+        AdvertCost: req.body.AdvertCost,
+        Currency: req.body.Currency,
+        IsEnabled: req.body.IsEnabled,
+        PublishedDateFrom: req.body.PublishedDateFrom,
+        PublishedDateFromTo: req.body.PublishedDateFromTo,
+        updatedBy: UserId,
+        updatedAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
+
+        UserId: UserId,
+      },
+      {
+        where: { AdvertId: req.body.AdvertId },
+      }
+    );
+
+    if (newAdvert) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      res.status(200).send({ message: "Advert has been updated.!" });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
 exports.deleteAdvert = async (req, res) => {
   try {
     const id = req.params.advertId;

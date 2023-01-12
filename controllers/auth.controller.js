@@ -12,7 +12,7 @@ const sgMail = require("@sendgrid/mail");
 const hbs = require("nodemailer-express-handlebars");
 const path = require("path");
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-
+const moment = require("moment/moment");
 const { mailFunc } = require("../middleware");
 const db = require("../models/index.model");
 const { exit } = require("process");
@@ -27,6 +27,7 @@ const userfollower = db.userfollower;
 const userfriend = db.userfriend;
 const groupfollower = db.groupfollower;
 const userpost = db.userpost;
+const userpostlike = db.userpostlike;
 const groupmember = db.groupmember;
 const UserSubscription = db.usersubscription;
 const Op = db.Sequelize.Op;
@@ -80,7 +81,7 @@ exports.signup = async (req, res) => {
       FirstName: req.body.FirstName,
       LastName: req.body.LastName,
       Email: req.body.Email.toLowerCase(),
-      // Mobile: req.body.Mobile,
+      Mobile: req.body.Mobile,
       // Address: req.body.Address,
       // City: req.body.Region,
       // Country: req.body.Country,
@@ -152,7 +153,7 @@ exports.sendRegistrationLink = (req, res) => {
   const url = `${process.env.BASE_URL}` + `auth/verify/${token}`;
   mailFunc.sendEmailMailGun({
     template: "email2",
-    subject: "Welcome to Global Load Dispatch",
+    subject: "Welcome to MyArea Community",
     toEmail: Email,
     msg: {
       name: Name,
@@ -204,7 +205,11 @@ exports.signin = async (req, res) => {
   // where: { [Op.and]: [{ Email: req.body.Email }, { IsActivated: true }] },
 
   try {
-    const foundUser = await User.findOne({ where: { Email: req.body.Email } });
+    const foundUser = await User.findOne({
+      where: {
+        [Op.or]: [{ Email: req.body.Email }, { Mobile: req.body.Email }],
+      },
+    });
     if (!foundUser) {
       return res.status(404).send({ message: "User Not found" });
     } else {
@@ -258,16 +263,19 @@ exports.signin = async (req, res) => {
       const followingNum = await userrelationship.findAll({
         where: { SourceId: foundUser.UserId, Type: "follower" },
       });
-      const postlikesNum = await userpost.findAll({
-        where: { SenderId: foundUser.UserId },
-        attributes: [
-          "UserPostId",
-          [db.Sequelize.fn("sum", db.Sequelize.col("Likes")), "TotalLikes"],
-        ],
-        group: ["user_post.UserPostId"],
-        raw: true,
-        order: db.Sequelize.literal("TotalLikes DESC"),
+      const postlikesNum = await userpostlike.findAll({
+        where: { UserId: foundUser.UserId },
       });
+      // const postlikesNum = await userpost.findAll({
+      //   where: { SenderId: foundUser.UserId },
+      //   attributes: [
+      //     "UserPostId",
+      //     [db.Sequelize.fn("sum", db.Sequelize.col("Likes")), "TotalLikes"],
+      //   ],
+      //   group: ["user_post.UserPostId"],
+      //   raw: true,
+      //   order: db.Sequelize.literal("TotalLikes DESC"),
+      // });
 
       if (role) {
         return res.status(200).send({
@@ -278,7 +286,7 @@ exports.signin = async (req, res) => {
             UserId: foundUser.UserId,
             FullName: foundUser.FirstName + " " + foundUser.LastName,
             Email: foundUser.Email,
-            Likes: postlikesNum,
+            Likes: postlikesNum.length,
             Friends: friendNum.length,
             Following: followingNum.length,
             Followed: followedNum.length,

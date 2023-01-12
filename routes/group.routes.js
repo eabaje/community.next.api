@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const controller = require("../controllers/user.controller");
+const controller = require("../controllers/group.controller");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
@@ -81,107 +81,38 @@ module.exports = function (app) {
     next();
   });
 
-  // Relation
-  app.post("/api/user/addRelation", controller.addRelation);
+  app.post("/api/group/addGroup", controller.addGroup);
+
+  app.post("/api/group/addGroupMember", controller.addGroupMember);
+
+  app.post("/api/group/addGroupMember", controller.addGroupMember);
+
+  app.put("/api/group/updateGroup", controller.updateGroup);
+
+  app.get("/api/group/getAllGroup", controller.getAllGroup);
+
+  app.get("/api/group/getGroup/:groupId", controller.getGroup);
+
+  app.get("/api/group/getAllGroupMember", controller.getAllGroupMember);
 
   app.get(
-    "/api/user/getRelation/:relationType/:relationId",
-    controller.getRelation
+    "/api/group/getGroupMember/:groupMemberId",
+    controller.getGroupMember
   );
 
   app.get(
-    "/api/user/getAllRelation/:relationType/:userId",
-    controller.getAllRelation
-  );
-
-  app.delete("/api/user/deleteRelation/:relationId", controller.deleteRelation);
-
-  // ChildOrSibling
-
-  app.post("/api/user/addChildOrSibling", controller.addChildOrSibling);
-
-  app.post("/api/user/updateChildOrSibling", controller.updateChildOrSibling);
-  app.get(
-    "/api/user/getChildOrSibling/:relationId",
-    controller.getChildorSibling
+    "/api/group/findAllGroupByDate/:startDate/:endDate",
+    controller.findAllGroupByDate
   );
 
   app.get(
-    "/api/user/getAllChildorSibling/:relationType/",
-    controller.getAllChildorSibling
+    "/api/group/findAllGroupMemberByDate/:startDate/:endDate",
+    controller.findAllGroupMemberByDate
   );
 
+  app.delete("/api/group/deleteGroup/:groupId", controller.deleteGroup);
   app.delete(
-    "/api/user/deleteChildorSibling/:relationId",
-    controller.deleteChildorSibling
-  );
-
-  //SchoolworkPlace
-
-  app.post("/api/user/addSchoolplacework", controller.addSchoolPlaceWork);
-
-  app.post("/api/user/updateSchoolPlaceWork", controller.updateSchoolPlaceWork);
-
-  app.get(
-    "/api/user/getSchoolPlaceWork/:relationType/:Id",
-    controller.getSchoolPlaceWork
-  );
-
-  app.get(
-    "/api/user/getAllSchoolPlaceWork/:relationType/",
-    controller.getAllSchoolPlaceWork
-  );
-
-  app.delete(
-    "/api/user/deleteChildorSibling/:relationType/:Id",
-    controller.deleteSchoolPlaceWork
-  );
-
-  //User
-
-  app.get("/api/user/findAllUser/:userId", controller.findUser);
-
-  app.get("/api/user/findAllUser", controller.findAllUser);
-
-  app.get(
-    "/api/user/findAllUserBySearch/:name",
-    controller.findAllUserBySearch
-  );
-
-  app.get(
-    "/api/user/findAllUsersByDate/:startDate/:toDate",
-    controller.findAllUsersByDate
-  );
-
-  app.put("/api/user/updateUser/:userId", controller.updateUser);
-
-  app.post(
-    "/api/user/updateFile",
-
-    imageUploader.single("file"),
-    controller.updateFile
-  );
-  //docUploader.single('file'),
-  app.post(
-    "/api/user/uploadCompanyDoc",
-    docUploader.any(),
-    controller.uploadCompanyDoc
-  );
-  app.post("/api/user/delete", [authJwt.verifyToken], controller.delete);
-
-  app.post("/api/user/deleteAll", controller.deleteAll);
-
-  app.get("/api/user/findRoles", controller.findRoles);
-
-  app.get("/api/user/findUserRoles", controller.findUserRoles);
-
-  app.put("/api/user/updateRole/:roleId", controller.updateRole);
-
-  app.put("/api/user/updateUserRole/:userId", controller.updateUserRole);
-
-  app.delete(
-    "/api/user/deleteRole/:roleId",
-    [authJwt.verifyToken],
-    controller.deleteRole
+    "/api/group/deleteGroupMember/:groupMemberId",
+    controller.deleteGroupMember
   );
 };

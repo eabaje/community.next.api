@@ -43,8 +43,8 @@ const UserRole = db.userrole;
 // db.sequelize
 //   .sync({ alter: true })
 //   .then(() => {
-//     console.log("Drop and Resync Database with { force: true }");
-//     initial();
+//     console.log("Drop and Resync Database with { alter: true }");
+//     // initial();
 //   })
 //   .catch((err) => {
 //     console.log("Failed to sync db: " + err.message);
@@ -79,10 +79,10 @@ require("./routes/event.routes")(app);
 require("./routes/message.routes")(app);
 require("./routes/relationship.routes")(app);
 require("./routes/advert.routes")(app);
-// require("./routes/order.routes")(app);
-// require("./routes/payment.routes")(app);
-// require("./routes/subscription.routes")(app);
-//require('./routes/upload.routes')(app);
+require("./routes/order.routes")(app);
+require("./routes/payment.routes")(app);
+require("./routes/post.routes")(app);
+require("./routes/upload.routes")(app);
 
 app.use("/api/doc", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 

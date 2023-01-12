@@ -1,5 +1,5 @@
 const { authJwt } = require("../middleware");
-const controller = require("../controllers/auth.controller");
+const controller = require("../controllers/post.controller");
 // var passportFacebook = require('../middleware/facebook');
 // var passportGoogle = require('../middleware/google');
 
@@ -12,23 +12,39 @@ module.exports = function (app) {
     next();
   });
   //[verifySignUp.checkDuplicateUsernameOrEmail,verifySignUp.checkRolesExisted],
+  //Timeline
 
-  router.get("/", getPosts);
-  router.post("/", addPost);
-  router.delete("/:id", deletePost);
-  app.post("/api/auth/signup", controller.signup);
+  app.post("/api/post/addpost", controller.addPost);
 
-  app.post("/api/auth/signin", controller.signin);
+  app.post("/api/post/addpostcomment", controller.addPostComment);
 
-  app.put("/api/auth/reset", controller.reset);
+  app.post("/api/post/addpostlike", controller.addPostLike);
 
-  app.get("/api/auth/verify/:token", controller.verify);
+  app.post("/api/post/addpost", controller.addPost);
 
-  app.get("/api/auth/logout", controller.logout);
+  app.put("/api/post/updatepost", controller.updatePost);
 
-  //  app.get('/api/auth/facebook',passportFacebook.authenticate('facebook'));
+  app.put("/api/post/updatepostlike", controller.updatePostLike);
 
-  // app.get('/auth/facebook', passport.authenticate('facebook', { scope : 'email,user_photos' }));
+  app.put("/api/post/updatepostcomment", controller.updatePostComment);
 
-  // app.get('/api//facebook/callback',passport.authenticate('facebook', {successRedirect : '/profile',failureRedirect : '/'}));
+  app.get("/api/post/getallpost/:userId", controller.getAllPost);
+
+  app.get("/api/post/getpost/:postId", controller.getPost);
+
+  app.get("/api/post/getallpostcomment", controller.getAllPostComment);
+
+  app.get("/api/post/getpostcomment/:postId", controller.getPostComment);
+
+  app.get("/api/post/getTimeline/:userId", controller.getTimeline);
+
+  app.delete("/api/post/deletepost/:postId", controller.deletePost);
+  app.delete(
+    "/api/post/deletepostcomment/:userPostCommentId",
+    controller.deletePostComment
+  );
+  app.delete(
+    "/api/post/deletepostlike/:userPostLikeId",
+    controller.deletePostLike
+  );
 };

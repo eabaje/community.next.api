@@ -185,7 +185,7 @@ exports.deleteEvent = async (req, res) => {
     });
   }
 };
-//get all Event
+
 exports.getAllEvent = async (req, res) => {
   try {
     const id = req.params.userId;
@@ -200,6 +200,47 @@ exports.getAllEvent = async (req, res) => {
     // });
     const result = await usermessage.findAll({
       where: condition,
+      include: [
+        {
+          model: user,
+        },
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (result) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: result });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+exports.getAllEventByDate = async (req, res) => {
+  try {
+    const startDate = req.params.startDate;
+    const endDate = req.params.endDate;
+    const id = req.params.userId;
+    var condition = id ? { UserId: { [Op.iLike]: `%${id}%` } } : null;
+
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const result = await usermessage.findAll({
+      where: {
+        createdAt: {
+          [Op.between]: [new Date(Date(startDate)), new Date(Date(endDate))],
+        },
+      },
       include: [
         {
           model: user,
@@ -331,9 +372,9 @@ exports.getAllNotificationSent = async (req, res) => {
   }
 };
 //Get one Event
-exports.getEvent = async (req, res) => {
+exports.getNotification = async (req, res) => {
   try {
-    const id = req.params.UserEventId;
+    const id = req.params.userNotificationId;
 
     // const token = req.cookies.accessToken;
     // if (!token) return res.status(401).json("Not logged in!");
@@ -342,8 +383,45 @@ exports.getEvent = async (req, res) => {
     //   if (err) return res.status(403).json("Token is not valid!");
 
     // });
-    const result = await userevent.findOne({
-      where: { SourceId: id },
+    const result = await usernotification.findOne({
+      where: { UserNotificationId: id },
+      include: [
+        {
+          model: user,
+        },
+      ],
+
+      order: [["createdAt", "DESC"]],
+    });
+
+    if (result) {
+      // return res.status(200).json({
+      //   message: "Registration Link Sent",
+      // });
+      return res.status(200).send({ message: "Success", data: result });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: error.message || "Some error occurred .",
+    });
+  }
+};
+
+//get all Message
+exports.getAllMessage = async (req, res) => {
+  try {
+    const id = req.params.userId;
+    var condition = id ? { UserId: { [Op.iLike]: `%${id}%` } } : null;
+
+    // const token = req.cookies.accessToken;
+    // if (!token) return res.status(401).json("Not logged in!");
+
+    // jwt.verify(token, "secretkey", (err, userInfo) => {
+    //   if (err) return res.status(403).json("Token is not valid!");
+
+    // });
+    const result = await usermessage.findAll({
+      where: condition,
       include: [
         {
           model: user,
