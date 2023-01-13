@@ -378,9 +378,10 @@ exports.addRelation = async (req, res) => {
 
           switch (spt[1]) {
             case "parent":
-              strRef = dtRelatedAs.Parent.indexOf(",")
-                ? dtRelatedAs.Parent.split(",")
-                : dtRelatedAs.Parent.split("");
+              strRef =
+                dtRelatedAs.Parent.includes(",") === true
+                  ? dtRelatedAs.Parent.split(",")
+                  : dtRelatedAs.Parent.split("");
               dtRelatedAs.Parent =
                 dtRelatedAs.Parent &&
                 dtRelatedAs.Parent.indexOf(" ") > 0 &&
