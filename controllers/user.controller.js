@@ -299,9 +299,14 @@ exports.addRelation = async (req, res) => {
             },
           });
           console.log("spt[1]", spt[1]);
-
+          let strRef = "";
           switch (item?.RelatedAs) {
             case "child":
+              console.log("Children", dtRelatedTo.Children);
+              strRef =
+                dtRelatedTo.Children?.includes(",") === true
+                  ? dtRelatedTo.Children?.split(",")
+                  : dtRelatedTo.Children?.split("");
               dtRelatedTo.Children =
                 dtRelatedTo.Children &&
                 dtRelatedTo.Children.indexOf(" ") > 0 &&
@@ -309,7 +314,7 @@ exports.addRelation = async (req, res) => {
                   ? item?.RefId
                   : dtRelatedTo.Children &&
                     dtRelatedTo.Children.indexOf(item?.RefId) < 1
-                  ? dtRelatedTo.Children + "," + item?.RefId
+                  ? strRef.push(item?.RefId)
                   : item?.RefId;
 
               dtRelatedTo.save();
@@ -322,6 +327,9 @@ exports.addRelation = async (req, res) => {
               break;
 
             case "spouse":
+              strRef = dtRelatedTo.Partner.indexOf(",")
+                ? dtRelatedTo.Partner.split(",")
+                : dtRelatedTo.Partner.split("");
               dtRelatedTo.Partner =
                 dtRelatedTo.Partner &&
                 dtRelatedTo.Partner.indexOf(" ") > 0 &&
@@ -329,7 +337,7 @@ exports.addRelation = async (req, res) => {
                   ? item?.RefId
                   : dtRelatedTo.Partner &&
                     dtRelatedTo.Partner.indexOf(item?.RefId) < 1
-                  ? dtRelatedTo.Partner + "," + item?.RefId
+                  ? strRef.push(item?.RefId)
                   : item?.RefId;
 
               dtRelatedTo.save();
@@ -342,10 +350,17 @@ exports.addRelation = async (req, res) => {
               break;
 
             case "parent":
+              console.log("Parent", dtRelatedTo.Parent);
+              strRef = dtRelatedTo?.Parent?.indexOf(",")
+                ? dtRelatedTo?.Parent?.split(",")
+                : dtRelatedTo?.Parent?.split("");
               dtRelatedTo.Parent =
-                dtRelatedTo.Parent &&
-                dtRelatedTo.Parent.indexOf(item?.RefId) < 1
-                  ? dtRelatedTo.Parent + "," + item?.RefId
+                dtRelatedTo?.Parent?.indexOf(" ") > 0 &&
+                dtRelatedTo?.Parent?.indexOf(item?.RefId) < 1
+                  ? item?.RefId
+                  : dtRelatedTo?.Parent &&
+                    dtRelatedTo?.Parent?.indexOf(item?.RefId) < 1
+                  ? strRef.push(item?.RefId)
                   : item?.RefId;
 
               dtRelatedTo.save();
@@ -363,14 +378,18 @@ exports.addRelation = async (req, res) => {
 
           switch (spt[1]) {
             case "parent":
+              strRef = dtRelatedAs.Parent.indexOf(",")
+                ? dtRelatedAs.Parent.split(",")
+                : dtRelatedAs.Parent.split("");
               dtRelatedAs.Parent =
                 dtRelatedAs.Parent &&
                 dtRelatedAs.Parent.indexOf(" ") > 0 &&
-                dtRelatedAs.Parent.indexOf(newRelation?.RelationId) < 1
+                dtRelatedAs.Parent.includes(newRelation?.RelationId) === false
                   ? newRelation?.RelationId
                   : dtRelatedAs.Parent &&
-                    dtRelatedAs.Parent.indexOf(newRelation?.RelationId) < 1
-                  ? dtRelatedAs.Parent + "," + newRelation?.RelationId
+                    dtRelatedAs.Parent.includes(newRelation?.RelationId) ===
+                      false
+                  ? strRef.push(newRelation?.RelationId)
                   : newRelation?.RelationId;
 
               dtRelatedAs.save();
@@ -382,6 +401,9 @@ exports.addRelation = async (req, res) => {
               );
               break;
             case "spouse":
+              strRef = dtRelatedAs.Partner.indexOf(",")
+                ? dtRelatedAs.Partner.split(",")
+                : dtRelatedAs.Partner.split("");
               dtRelatedAs.Partner =
                 dtRelatedAs?.Partner &&
                 dtRelatedAs.Partner.indexOf(" ") > 0 &&
@@ -389,12 +411,15 @@ exports.addRelation = async (req, res) => {
                   ? newRelation?.RelationId
                   : dtRelatedAs.Partner &&
                     dtRelatedAs.Partner.indexOf(newRelation?.RelationId) < 1
-                  ? dtRelatedAs?.Partner + "," + newRelation?.RelationId
+                  ? strRef.push(newRelation?.RelationId)
                   : newRelation?.RelationId;
               dtRelatedAs.save();
               console.log("Spouse", "here");
               break;
             case "sibling":
+              strRef = dtRelatedAs.Sibling.indexOf(",")
+                ? dtRelatedAs.Sibling.split(",")
+                : dtRelatedAs.Sibling.split("");
               dtRelatedAs.Sibling =
                 dtRelatedAs.Sibling &&
                 dtRelatedAs.Sibling.indexOf(" ") > 0 &&
@@ -402,12 +427,15 @@ exports.addRelation = async (req, res) => {
                   ? newRelation?.RelationId
                   : dtRelatedAs.Sibling &&
                     dtRelatedAs.Sibling.indexOf(newRelation?.RelationId) < 1
-                  ? dtRelatedAs.Sibling + "," + newRelation?.RelationId
+                  ? strRef.push(newRelation?.RelationId)
                   : newRelation?.RelationId;
               dtRelatedAs.save();
               console.log("Sibling", "here");
               break;
             case "child":
+              strRef = dtRelatedAs.Child.indexOf(",")
+                ? dtRelatedAs.Child.split(",")
+                : dtRelatedAs.Child.split("");
               dtRelatedAs.Child =
                 dtRelatedAs.Child &&
                 dtRelatedAs.Child.indexOf(" ") > 0 &&
@@ -415,7 +443,7 @@ exports.addRelation = async (req, res) => {
                   ? newRelation?.RelationId
                   : dtRelatedAs.Child &&
                     dtRelatedAs.Child.indexOf(newRelation?.RelationId) < 1
-                  ? dtRelatedAs.Child + "," + newRelation?.RelationId
+                  ? strRef.push(newRelation?.RelationId)
                   : newRelation?.RelationId;
               dtRelatedAs.save();
               console.log("Child", "here");
