@@ -147,65 +147,206 @@ exports.addRelation = async (req, res) => {
           : (rLevel = parseInt(spt[0]) - 1);
 
         console.log("rLevel", rLevel);
-        const foundRef = await relationprimary.findOne({
+        let rDiscriminator = "";
+        spt[1] === "parent" && item?.RelatedAs === "child"
+          ? (rDiscriminator = "parent")
+          : spt[1] === "child" && item?.RelatedAs === "parent"
+          ? (rDiscriminator = "child")
+          : spt[1] === "parent" && item?.RelatedAs === "parent"
+          ? (rDiscriminator = "parent")
+          : spt[1] === "parent" && item?.RelatedAs === "spouse"
+          ? (rDiscriminator = "spouse")
+          : "";
+
+        let rDiscriminator2 = "";
+        spt[1] === "parent" && item?.RelatedAs === "child"
+          ? (rDiscriminator2 = "child")
+          : spt[1] === "child" && item?.RelatedAs === "parent"
+          ? (rDiscriminator = "parent")
+          : spt[1] === "parent" && item?.RelatedAs === "parent"
+          ? (rDiscriminator2 = "child")
+          : spt[1] === "parent" && item?.RelatedAs === "spouse"
+          ? (rDiscriminator2 = "spouse")
+          : "";
+
+        console.log("rLevel", rLevel);
+        // Related As
+        const dtRelatedAs = await relationprimary.findOne({
           where: {
             UserId: UserId,
-            Level: rLevel,
-            RelationId: RefId ? RefId : item?.RefId,
+            RelationId: item?.RefId,
+          },
+        });
+
+        // Related To
+        const dtRelatedTo = await relationprimary.findOne({
+          where: {
+            Level: spt[0],
+            RelationId: newRelation?.RelationId,
           },
         });
         console.log("spt[1]", spt[1]);
+        let strRef = [];
 
-        switch (spt[1]) {
+        //Related As either Parent,Spouse or Child
+
+        switch (rDiscriminator) {
+          case "child":
+            console.log("Children", dtRelatedTo.Children);
+            strRef =
+              dtRelatedTo.Children?.includes(",") === true
+                ? dtRelatedTo.Children?.split(",")
+                : dtRelatedTo.Children;
+            dtRelatedTo.Children =
+              dtRelatedTo.Children &&
+              dtRelatedTo.Children.includes(" ") &&
+              dtRelatedTo.Children.includes(item?.RefId) === false
+                ? item?.RefId
+                : dtRelatedTo.Children &&
+                  dtRelatedTo.Children.includes(item?.RefId) === false
+                ? strRef.push(item?.RefId)
+                : item?.RefId;
+            dtRelatedTo.Level = parseInt(dtRelatedAs.Level) + 1;
+            dtRelatedTo.save();
+            console.log(
+              "child",
+              dtRelatedTo.Children
+                ? dtRelatedTo?.Children + "," + item?.RefId
+                : item?.RefId
+            );
+            break;
+
+          case "spouse":
+            strRef = dtRelatedTo.Partner.includes(",")
+              ? dtRelatedTo.Partner.split(",")
+              : dtRelatedTo.Partner;
+            dtRelatedTo.Partner =
+              dtRelatedTo.Partner &&
+              dtRelatedTo.Partner.includes(" ") &&
+              dtRelatedTo.Partner.includes(item?.RefId) === false
+                ? item?.RefId
+                : dtRelatedTo.Partner &&
+                  dtRelatedTo.Partner.includes(item?.RefId) === false
+                ? strRef.push(item?.RefId)
+                : item?.RefId;
+
+            dtRelatedTo.save();
+            console.log(
+              "Spouse",
+              dtRelatedTo.Partner
+                ? dtRelatedTo?.Partner + "," + item?.RefId
+                : item?.RefId
+            );
+            break;
+
           case "parent":
-            foundRef.Parent =
-              foundRef.Parent && foundRef.Parent.includes(item?.RelationId)
-                ? foundRef.Parent + "," + item?.RelationId
-                : item?.RelationId;
-
-            foundRef.save();
+            console.log("Parent", dtRelatedTo.Parent);
+            strRef = dtRelatedTo?.Parent?.includes(",")
+              ? dtRelatedTo?.Parent?.split(",")
+              : dtRelatedTo?.Parent;
+            dtRelatedTo.Parent =
+              dtRelatedTo?.Parent?.includes(" ") &&
+              dtRelatedTo?.Parent?.includes(item?.RefId) === false
+                ? item?.RefId
+                : dtRelatedTo?.Parent &&
+                  dtRelatedTo?.Parent?.includes(item?.RefId) === false
+                ? strRef.push(item?.RefId)
+                : item?.RefId;
+            // dtRelatedTo.Level = dtRelatedTo.Level - 1;
+            dtRelatedTo.save();
             console.log(
               "Parent",
-              foundRef.Parent
-                ? foundRef?.Parent + "," + item?.RelationId
-                : item?.RelationId
+              dtRelatedTo.Parent
+                ? dtRelatedTo?.Parent + "," + item?.RefId
+                : item?.RefId
+            );
+            break;
+
+          default:
+            console.log("Default", "here");
+        }
+
+        //Related As either Parent,Spouse or Child
+
+        switch (rDiscriminator2) {
+          case "parent":
+            strRef =
+              dtRelatedAs.Parent?.includes(",") === true
+                ? dtRelatedAs.Parent?.split(",")
+                : dtRelatedAs.Parent;
+            dtRelatedAs.Parent =
+              dtRelatedAs.Parent &&
+              dtRelatedAs.Parent?.includes(" ") &&
+              dtRelatedAs.Parent?.includes(newRelation?.RelationId) === false
+                ? newRelation?.RelationId
+                : dtRelatedAs.Parent &&
+                  dtRelatedAs.Parent?.includes(newRelation?.RelationId) ===
+                    false
+                ? strRef.push(newRelation?.RelationId)
+                : newRelation?.RelationId;
+            // dtRelatedAs.Level = dtRelatedAs.Level + 1;
+            dtRelatedAs.save();
+            console.log(
+              "Parent",
+              dtRelatedAs.Parent
+                ? dtRelatedAs?.Parent + "," + newRelation?.RelationId
+                : newRelation?.RelationId
             );
             break;
           case "spouse":
-            foundRef.Partner =
-              foundRef.Partner !== null
-                ? !foundRef.Partner.includes(item?.RelationId)
-                  ? foundRef?.Partner + "," + item?.RelationId
-                  : foundRef?.Partner
-                : item?.RelationId;
-            foundRef.save();
+            strRef = dtRelatedAs.Partner?.includes(",")
+              ? dtRelatedAs.Partner?.split(",")
+              : dtRelatedAs.Partner;
+            dtRelatedAs.Partner =
+              dtRelatedAs?.Partner &&
+              dtRelatedAs.Partner?.includes(" ") &&
+              dtRelatedAs.Partner?.includes(newRelation?.RelationId) === false
+                ? newRelation?.RelationId
+                : dtRelatedAs.Partner &&
+                  dtRelatedAs.Partner?.includes(newRelation?.RelationId) ===
+                    false
+                ? strRef.push(newRelation?.RelationId)
+                : newRelation?.RelationId;
+            dtRelatedAs.save();
             console.log("Spouse", "here");
-            // console.log("indexOf", foundRef.Partner.indexOf(item?.RelationId));
-
             break;
           case "sibling":
-            foundRef.Sibling =
-              foundRef.Sibling && foundRef.Sibling.indexOf(item?.RelationId) < 1
-                ? foundRef.Sibling + "," + item?.RelationId
-                : item?.RelationId;
-            foundRef.save();
+            strRef = dtRelatedAs.Sibling?.includes(",")
+              ? dtRelatedAs.Sibling?.split(",")
+              : dtRelatedAs.Sibling;
+            dtRelatedAs.Sibling =
+              dtRelatedAs.Sibling &&
+              dtRelatedAs.Sibling?.includes(" ") > 0 &&
+              dtRelatedAs.Sibling?.includes(newRelation?.RelationId) === false
+                ? newRelation?.RelationId
+                : dtRelatedAs.Sibling &&
+                  dtRelatedAs.Sibling?.includes(newRelation?.RelationId) ===
+                    false
+                ? strRef.push(newRelation?.RelationId)
+                : newRelation?.RelationId;
+            dtRelatedAs.save();
             console.log("Sibling", "here");
             break;
           case "child":
-            foundRef.Child =
-              foundRef.Child && foundRef.Child.indexOf(item?.RelationId) < 1
-                ? foundRef.Child + "," + item?.RelationId
-                : item?.RelationId;
-            foundRef.save();
+            strRef = dtRelatedAs.Children?.includes(",")
+              ? dtRelatedAs.Children?.split(",")
+              : dtRelatedAs.Children;
+            dtRelatedAs.Children =
+              dtRelatedAs.Children &&
+              dtRelatedAs.Children?.includes(" ") &&
+              dtRelatedAs.Children?.includes(newRelation?.RelationId) === false
+                ? newRelation?.RelationId
+                : dtRelatedAs.Children &&
+                  dtRelatedAs.Children?.includes(newRelation?.RelationId) ===
+                    false
+                ? strRef.push(newRelation?.RelationId)
+                : newRelation?.RelationId;
+            dtRelatedAs.Level = parseInt(dtRelatedAs.Level) + 1;
+            dtRelatedAs.save();
             console.log("Child", "here");
             break;
           default:
-            foundRef.Child =
-              foundRef.Child && foundRef.Child.indexOf(item?.RelationId) < 1
-                ? foundRef.Child + "," + item?.RelationId
-                : item?.RelationId;
-            foundRef.save();
-            console.log("Default", "here");
+            console.log("dtRelatedAs", "here");
         }
 
         if (newRelation) cnt++;
@@ -227,8 +368,9 @@ exports.addRelation = async (req, res) => {
           LastName: item.LastName,
           MiddleName: item.MiddleName,
           NickName: item.NickName,
+          Sex: item.Sex,
           Level: spt[0],
-          RefId: RefId ? RefId : item.RefId,
+          RefId: item.RefId,
           UserId: UserId,
           createdBy: UserId,
           createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
@@ -270,6 +412,13 @@ exports.addRelation = async (req, res) => {
             createdAt: moment(Date.now()).format("YYYY-MM-DD HH:mm:ss"),
           });
 
+          if (item?.RelatedAs === "") {
+            return res.status(200).send({
+              message:
+                "Added relation information without connecting to a family tree!",
+            });
+          }
+
           //update reference user with relation type
 
           let rLevel = 0;
@@ -281,17 +430,44 @@ exports.addRelation = async (req, res) => {
             ? (rLevel = parseInt(spt[0]))
             : spt[1] === "parent"
             ? (rLevel = parseInt(spt[0]) - 1)
-            : (rLevel = parseInt(spt[0]) - 1);
+            : (rLevel = parseInt(spt[0]) - 1); // Level: rLevel,
+
+          let rDiscriminator = "";
+          spt[1] === "parent" && item?.RelatedAs === "child"
+            ? (rDiscriminator = "parent")
+            : spt[1] === "child" && item?.RelatedAs === "parent"
+            ? (rDiscriminator = "child")
+            : spt[1] === "child" && item?.RelatedAs === "child"
+            ? (rDiscriminator = "child")
+            : spt[1] === "parent" && item?.RelatedAs === "parent"
+            ? (rDiscriminator = "parent")
+            : spt[1] === "parent" && item?.RelatedAs === "spouse"
+            ? (rDiscriminator = "spouse")
+            : "";
+
+          let rDiscriminator2 = "";
+          spt[1] === "parent" && item?.RelatedAs === "child"
+            ? (rDiscriminator2 = "child")
+            : spt[1] === "child" && item?.RelatedAs === "parent"
+            ? (rDiscriminator2 = "parent")
+            : spt[1] === "child" && item?.RelatedAs === "child"
+            ? (rDiscriminator2 = "parent")
+            : spt[1] === "parent" && item?.RelatedAs === "parent"
+            ? (rDiscriminator2 = "child")
+            : spt[1] === "parent" && item?.RelatedAs === "spouse"
+            ? (rDiscriminator2 = "spouse")
+            : "";
 
           console.log("rLevel", rLevel);
+          // Related As
           const dtRelatedAs = await relationprimary.findOne({
             where: {
               UserId: UserId,
-              Level: rLevel,
               RelationId: item?.RefId,
             },
           });
 
+          // Related To
           const dtRelatedTo = await relationprimary.findOne({
             where: {
               Level: spt[0],
@@ -299,25 +475,33 @@ exports.addRelation = async (req, res) => {
             },
           });
           console.log("spt[1]", spt[1]);
-          let strRef = "";
-          switch (item?.RelatedAs) {
+          let strRef = [];
+
+          //Related As either Parent,Spouse or Child
+
+          switch (rDiscriminator) {
             case "child":
               console.log("Children", dtRelatedTo.Children);
               strRef =
                 dtRelatedTo.Children?.includes(",") === true
-                  ? dtRelatedTo.Children?.split(",")
-                  : dtRelatedTo.Children?.split("");
+                  ? dtRelatedTo.Children?.replace(/^"(.*)"$/, "$1").split(",")
+                  : dtRelatedTo.Children?.replace(/^"(.*)"$/, "$1").split("");
               dtRelatedTo.Children =
                 dtRelatedTo.Children &&
-                dtRelatedTo.Children.indexOf(" ") > 0 &&
-                dtRelatedTo.Children.indexOf(item?.RefId) < 1
-                  ? item?.RefId
+                dtRelatedTo.Children.includes(" ") &&
+                dtRelatedTo.Children.includes(item?.RefId.toString()) === false
+                  ? item?.RefId.toString()
                   : dtRelatedTo.Children &&
-                    dtRelatedTo.Children.indexOf(item?.RefId) < 1
-                  ? strRef.push(item?.RefId)
-                  : item?.RefId;
-
+                    dtRelatedTo.Children.includes(item?.RefId.toString()) ===
+                      false
+                  ? strRef.push(item?.RefId.toString())
+                  : item?.RefId.toString();
+              dtRelatedTo.Level = parseInt(dtRelatedAs.Level) + 1;
+              dtRelatedTo.RelationType =
+                dtRelatedAs.RelationType === "child" ? "parent" : "child";
+              dtRelatedTo.Children = strRef.join();
               dtRelatedTo.save();
+              strRef = [];
               console.log(
                 "child",
                 dtRelatedTo.Children
@@ -327,43 +511,49 @@ exports.addRelation = async (req, res) => {
               break;
 
             case "spouse":
-              strRef = dtRelatedTo.Partner.indexOf(",")
-                ? dtRelatedTo.Partner.split(",")
-                : dtRelatedTo.Partner.split("");
+              console.log("RefId", item?.RefId.toString());
+              strRef = [];
+              console.log("strRef", typeOf(strRef));
+              strRef = dtRelatedTo.Partner?.includes(",")
+                ? dtRelatedTo.Partner?.replace(/^"(.*)"$/, "$1").split(",")
+                : dtRelatedTo.Partner?.replace(/^"(.*)"$/, "$1").split("");
+              console.log("strRef1", typeOf(strRef));
               dtRelatedTo.Partner =
                 dtRelatedTo.Partner &&
-                dtRelatedTo.Partner.indexOf(" ") > 0 &&
-                dtRelatedTo.Partner.indexOf(item?.RefId) < 1
-                  ? item?.RefId
+                dtRelatedTo.Partner?.includes(" ") &&
+                dtRelatedTo.Partner?.includes(item?.RefId.toString()) === false
+                  ? strRef.push(item?.RefId.toString())
                   : dtRelatedTo.Partner &&
-                    dtRelatedTo.Partner.indexOf(item?.RefId) < 1
-                  ? strRef.push(item?.RefId)
-                  : item?.RefId;
+                    dtRelatedTo.Partner?.includes(item?.RefId.toString()) ===
+                      false
+                  ? strRef.push(item?.RefId.toString())
+                  : strRef.push(item?.RefId.toString());
 
+              dtRelatedTo.Partner = strRef.join();
               dtRelatedTo.save();
-              console.log(
-                "Spouse",
-                dtRelatedTo.Partner
-                  ? dtRelatedTo?.Partner + "," + item?.RefId
-                  : item?.RefId
-              );
+              console.log("Spouse", strRef.join());
+              strRef = [];
+
               break;
 
             case "parent":
               console.log("Parent", dtRelatedTo.Parent);
-              strRef = dtRelatedTo?.Parent?.indexOf(",")
-                ? dtRelatedTo?.Parent?.split(",")
-                : dtRelatedTo?.Parent?.split("");
+              strRef = dtRelatedTo?.Parent?.includes(",")
+                ? dtRelatedTo?.Parent?.replace(/^"(.*)"$/, "$1").split(",")
+                : dtRelatedTo?.Parent?.replace(/^"(.*)"$/, "$1").split("");
               dtRelatedTo.Parent =
-                dtRelatedTo?.Parent?.indexOf(" ") > 0 &&
-                dtRelatedTo?.Parent?.indexOf(item?.RefId) < 1
+                dtRelatedTo?.Parent?.includes(" ") &&
+                dtRelatedTo?.Parent?.includes(item?.RefId) === false
                   ? item?.RefId
                   : dtRelatedTo?.Parent &&
-                    dtRelatedTo?.Parent?.indexOf(item?.RefId) < 1
-                  ? strRef.push(item?.RefId)
-                  : item?.RefId;
-
+                    dtRelatedTo?.Parent?.includes(item?.RefId.toString()) ===
+                      false
+                  ? strRef.push(item?.RefId.toString())
+                  : item?.RefId.toString();
+              dtRelatedTo.Level = parseInt(dtRelatedAs.Level) - 1;
+              dtRelatedTo.Parent = strRef.join();
               dtRelatedTo.save();
+              strRef = [];
               console.log(
                 "Parent",
                 dtRelatedTo.Parent
@@ -376,24 +566,31 @@ exports.addRelation = async (req, res) => {
               console.log("Default", "here");
           }
 
-          switch (spt[1]) {
+          //Related As either Parent,Spouse or Child
+
+          switch (rDiscriminator2) {
             case "parent":
               strRef =
-                dtRelatedAs.Parent.includes(",") === true
-                  ? dtRelatedAs.Parent.split(",")
-                  : dtRelatedAs.Parent.split("");
+                dtRelatedAs.Parent?.includes(",") === true
+                  ? dtRelatedAs.Parent?.replace(/^"(.*)"$/, "$1").split(",")
+                  : dtRelatedAs.Parent.replace(/^"(.*)"$/, "$1").split("");
               dtRelatedAs.Parent =
                 dtRelatedAs.Parent &&
-                dtRelatedAs.Parent.indexOf(" ") > 0 &&
-                dtRelatedAs.Parent.includes(newRelation?.RelationId) === false
-                  ? newRelation?.RelationId
+                dtRelatedAs.Parent?.includes(" ") &&
+                dtRelatedAs.Parent?.includes(
+                  newRelation?.RelationId.toString()
+                ) === false
+                  ? newRelation?.RelationId.toString()
                   : dtRelatedAs.Parent &&
-                    dtRelatedAs.Parent.includes(newRelation?.RelationId) ===
-                      false
-                  ? strRef.push(newRelation?.RelationId)
-                  : newRelation?.RelationId;
-
+                    dtRelatedAs.Parent?.includes(
+                      newRelation?.RelationId.toString()
+                    ) === false
+                  ? strRef.push(newRelation?.RelationId.toString())
+                  : newRelation?.RelationId.toString();
+              // dtRelatedAs.Level = dtRelatedAs.Level + 1;
+              dtRelatedAs.Parent = strRef.join();
               dtRelatedAs.save();
+              strRef = [];
               console.log(
                 "Parent",
                 dtRelatedAs.Parent
@@ -402,52 +599,78 @@ exports.addRelation = async (req, res) => {
               );
               break;
             case "spouse":
-              strRef = dtRelatedAs.Partner.indexOf(",")
-                ? dtRelatedAs.Partner.split(",")
-                : dtRelatedAs.Partner.split("");
+              strRef = dtRelatedAs.Partner?.includes(",")
+                ? dtRelatedAs.Partner?.replace(/^"(.*)"$/, "$1").split(",")
+                : dtRelatedAs.Partner?.replace(/^"(.*)"$/, "$1").split("");
               dtRelatedAs.Partner =
                 dtRelatedAs?.Partner &&
-                dtRelatedAs.Partner.indexOf(" ") > 0 &&
-                dtRelatedAs.Partner.indexOf(newRelation?.RelationId) < 1
-                  ? newRelation?.RelationId
+                dtRelatedAs.Partner?.includes(" ") &&
+                dtRelatedAs.Partner?.includes(
+                  newRelation?.RelationId.toString()
+                ) === false
+                  ? newRelation?.RelationId.toString()
                   : dtRelatedAs.Partner &&
-                    dtRelatedAs.Partner.indexOf(newRelation?.RelationId) < 1
-                  ? strRef.push(newRelation?.RelationId)
-                  : newRelation?.RelationId;
+                    dtRelatedAs.Partner?.includes(
+                      newRelation?.RelationId.toString()
+                    ) === false
+                  ? strRef.push(newRelation?.RelationId.toString())
+                  : newRelation?.RelationId.toString();
+              dtRelatedAs.Partner = strRef.join();
               dtRelatedAs.save();
+              strRef = [];
               console.log("Spouse", "here");
               break;
             case "sibling":
-              strRef = dtRelatedAs.Sibling.indexOf(",")
-                ? dtRelatedAs.Sibling.split(",")
-                : dtRelatedAs.Sibling.split("");
+              strRef = dtRelatedAs.Sibling?.includes(",")
+                ? dtRelatedAs.Sibling?.replace(/^"(.*)"$/, "$1")
+                    .split(",")
+                    .split(",")
+                : dtRelatedAs.Sibling?.replace(/^"(.*)"$/, "$1").split("");
               dtRelatedAs.Sibling =
                 dtRelatedAs.Sibling &&
-                dtRelatedAs.Sibling.indexOf(" ") > 0 &&
-                dtRelatedAs.Sibling.indexOf(newRelation?.RelationId) < 1
-                  ? newRelation?.RelationId
+                dtRelatedAs.Sibling?.includes(" ") > 0 &&
+                dtRelatedAs.Sibling?.includes(
+                  newRelation?.RelationId.toString()
+                ) === false
+                  ? newRelation?.RelationId.toString()
                   : dtRelatedAs.Sibling &&
-                    dtRelatedAs.Sibling.indexOf(newRelation?.RelationId) < 1
-                  ? strRef.push(newRelation?.RelationId)
-                  : newRelation?.RelationId;
+                    dtRelatedAs.Sibling?.includes(
+                      newRelation?.RelationId.toString()
+                    ) === false
+                  ? strRef.push(newRelation?.RelationId.toString())
+                  : newRelation?.RelationId.toString();
+              dtRelatedAs.Sibling = strRef.join();
               dtRelatedAs.save();
+              strRef = [];
               console.log("Sibling", "here");
               break;
             case "child":
-              strRef = dtRelatedAs.Child.indexOf(",")
-                ? dtRelatedAs.Child.split(",")
-                : dtRelatedAs.Child.split("");
-              dtRelatedAs.Child =
-                dtRelatedAs.Child &&
-                dtRelatedAs.Child.indexOf(" ") > 0 &&
-                dtRelatedAs.Child.indexOf(newRelation?.RelationId) < 1
-                  ? newRelation?.RelationId
-                  : dtRelatedAs.Child &&
-                    dtRelatedAs.Child.indexOf(newRelation?.RelationId) < 1
-                  ? strRef.push(newRelation?.RelationId)
-                  : newRelation?.RelationId;
+              strRef =
+                dtRelatedAs.Children?.includes(",") === true
+                  ? dtRelatedAs.Children?.replace(/^"(.*)"$/, "$1").split(",")
+                  : dtRelatedAs.Children?.replace(/^"(.*)"$/, "$1").split("");
+              dtRelatedAs.Children =
+                dtRelatedAs.Children &&
+                dtRelatedAs.Children?.includes(" ") &&
+                dtRelatedAs.Children?.includes(
+                  newRelation?.RelationId.toString()
+                ) === false
+                  ? newRelation?.RelationId.toString()
+                  : dtRelatedAs.Children &&
+                    dtRelatedAs.Children?.includes(
+                      newRelation?.RelationId.toString()
+                    ) === false
+                  ? strRef.push(newRelation?.RelationId.toString())
+                  : newRelation?.RelationId.toString();
+              //  dtRelatedAs.Level = parseInt(dtRelatedAs.Level) + 1;
+              // dtRelatedAs.RelationType =
+              //   dtRelatedAs.RelationType === "child" ?? "parent";
+              dtRelatedAs.Children = strRef.join();
               dtRelatedAs.save();
-              console.log("Child", "here");
+
+              console.log("Child", strRef);
+              console.log("Child with join", strRef.join());
+              strRef = [];
               break;
             default:
               console.log("dtRelatedAs", "here");
@@ -469,6 +692,11 @@ exports.addRelation = async (req, res) => {
     });
   }
 };
+
+function convertArrayToString(strArr, f) {
+  const arr = strArr.push(f);
+  return arr.join();
+}
 
 exports.updateRelation = async (req, res) => {
   try {

@@ -38,6 +38,9 @@ module.exports = (sequelize, Sequelize) => {
     Nickname: {
       type: Sequelize.STRING,
     },
+    Sex: {
+      type: Sequelize.STRING,
+    },
     Level: {
       type: Sequelize.STRING,
     },
