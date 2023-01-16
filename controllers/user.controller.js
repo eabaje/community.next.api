@@ -440,7 +440,7 @@ exports.addRelation = async (req, res) => {
             : spt[1] === "child" && item?.RelatedAs === "child"
             ? (rDiscriminator = "child")
             : spt[1] === "parent" && item?.RelatedAs === "parent"
-            ? (rDiscriminator = "parent")
+            ? (rDiscriminator = "child")
             : spt[1] === "parent" && item?.RelatedAs === "spouse"
             ? (rDiscriminator = "spouse")
             : "";
@@ -453,7 +453,7 @@ exports.addRelation = async (req, res) => {
             : spt[1] === "child" && item?.RelatedAs === "child"
             ? (rDiscriminator2 = "parent")
             : spt[1] === "parent" && item?.RelatedAs === "parent"
-            ? (rDiscriminator2 = "child")
+            ? (rDiscriminator2 = "parent")
             : spt[1] === "parent" && item?.RelatedAs === "spouse"
             ? (rDiscriminator2 = "spouse")
             : "";
@@ -485,21 +485,20 @@ exports.addRelation = async (req, res) => {
               strRef =
                 dtRelatedTo.Children?.includes(",") === true
                   ? dtRelatedTo.Children?.replace(/^"(.*)"$/, "$1").split(",")
-                  : dtRelatedTo.Children?.replace(/^"(.*)"$/, "$1").split("");
+                  : dtRelatedTo.Children?.split("");
               dtRelatedTo.Children =
                 dtRelatedTo.Children &&
                 dtRelatedTo.Children.includes(" ") &&
-                dtRelatedTo.Children.includes(item?.RefId.toString()) === false
-                  ? item?.RefId.toString()
+                dtRelatedTo.Children.includes(item?.RefId) === false
+                  ? item?.RefId
                   : dtRelatedTo.Children &&
-                    dtRelatedTo.Children.includes(item?.RefId.toString()) ===
-                      false
+                    dtRelatedTo.Children.includes(item?.RefId) === false
                   ? strRef.push(item?.RefId.toString())
-                  : item?.RefId.toString();
+                  : item?.RefId;
               dtRelatedTo.Level = parseInt(dtRelatedAs.Level) + 1;
               dtRelatedTo.RelationType =
                 dtRelatedAs.RelationType === "child" ? "parent" : "child";
-              dtRelatedTo.Children = strRef.join();
+              dtRelatedTo.Children = strRef?.join();
               dtRelatedTo.save();
               strRef = [];
               console.log(
@@ -511,47 +510,50 @@ exports.addRelation = async (req, res) => {
               break;
 
             case "spouse":
-              console.log("RefId", item?.RefId.toString());
-              strRef = [];
-              console.log("strRef", typeOf(strRef));
-              strRef = dtRelatedTo.Partner?.includes(",")
-                ? dtRelatedTo.Partner?.replace(/^"(.*)"$/, "$1").split(",")
-                : dtRelatedTo.Partner?.replace(/^"(.*)"$/, "$1").split("");
-              console.log("strRef1", typeOf(strRef));
+              let strRefSpouse = [];
+              strRefSpouse =
+                dtRelatedTo.Partner?.includes(",") === true
+                  ? dtRelatedTo.Partner?.replace(/^"(.*)"$/, "$1").split(",")
+                  : dtRelatedTo.Partner?.split("");
+              console.log("Spouse", strRefSpouse);
               dtRelatedTo.Partner =
                 dtRelatedTo.Partner &&
                 dtRelatedTo.Partner?.includes(" ") &&
-                dtRelatedTo.Partner?.includes(item?.RefId.toString()) === false
-                  ? strRef.push(item?.RefId.toString())
+                dtRelatedTo.Partner?.includes(item?.RefId) === false
+                  ? item?.RefId
                   : dtRelatedTo.Partner &&
-                    dtRelatedTo.Partner?.includes(item?.RefId.toString()) ===
-                      false
-                  ? strRef.push(item?.RefId.toString())
-                  : strRef.push(item?.RefId.toString());
-
-              dtRelatedTo.Partner = strRef.join();
+                    dtRelatedTo.Partner?.includes(item?.RefId) === false
+                  ? strRefSpouse?.push(item?.RefId.toString())
+                  : item?.RefId;
+              dtRelatedTo.Partner = strRefSpouse?.join();
               dtRelatedTo.save();
-              console.log("Spouse", strRef.join());
-              strRef = [];
-
+              console.log("Spouse", strRefSpouse);
+              console.log("Spouse with join", strRefSpouse?.join());
+              strRefSpouse = [];
+              console.log(
+                "Spouse",
+                dtRelatedTo.Partner
+                  ? dtRelatedTo?.Partner + "," + item?.RefId
+                  : item?.RefId
+              );
               break;
 
             case "parent":
               console.log("Parent", dtRelatedTo.Parent);
-              strRef = dtRelatedTo?.Parent?.includes(",")
-                ? dtRelatedTo?.Parent?.replace(/^"(.*)"$/, "$1").split(",")
-                : dtRelatedTo?.Parent?.replace(/^"(.*)"$/, "$1").split("");
+              strRef =
+                dtRelatedTo?.Parent?.includes(",") === true
+                  ? dtRelatedTo?.Parent?.replace(/^"(.*)"$/, "$1").split(",")
+                  : dtRelatedTo?.Parent?.split("");
               dtRelatedTo.Parent =
                 dtRelatedTo?.Parent?.includes(" ") &&
                 dtRelatedTo?.Parent?.includes(item?.RefId) === false
                   ? item?.RefId
                   : dtRelatedTo?.Parent &&
-                    dtRelatedTo?.Parent?.includes(item?.RefId.toString()) ===
-                      false
-                  ? strRef.push(item?.RefId.toString())
-                  : item?.RefId.toString();
+                    dtRelatedTo?.Parent?.includes(item?.RefId) === false
+                  ? strRef?.push(item?.RefId.toString())
+                  : item?.RefId;
               dtRelatedTo.Level = parseInt(dtRelatedAs.Level) - 1;
-              dtRelatedTo.Parent = strRef.join();
+              dtRelatedTo.Parent = strRef?.join();
               dtRelatedTo.save();
               strRef = [];
               console.log(
@@ -573,22 +575,19 @@ exports.addRelation = async (req, res) => {
               strRef =
                 dtRelatedAs.Parent?.includes(",") === true
                   ? dtRelatedAs.Parent?.replace(/^"(.*)"$/, "$1").split(",")
-                  : dtRelatedAs.Parent.replace(/^"(.*)"$/, "$1").split("");
+                  : dtRelatedAs.Parent?.split("");
               dtRelatedAs.Parent =
                 dtRelatedAs.Parent &&
                 dtRelatedAs.Parent?.includes(" ") &&
-                dtRelatedAs.Parent?.includes(
-                  newRelation?.RelationId.toString()
-                ) === false
-                  ? newRelation?.RelationId.toString()
+                dtRelatedAs.Parent?.includes(newRelation?.RelationId) === false
+                  ? newRelation?.RelationId
                   : dtRelatedAs.Parent &&
-                    dtRelatedAs.Parent?.includes(
-                      newRelation?.RelationId.toString()
-                    ) === false
-                  ? strRef.push(newRelation?.RelationId.toString())
-                  : newRelation?.RelationId.toString();
+                    dtRelatedAs.Parent?.includes(newRelation?.RelationId) ===
+                      false
+                  ? strRef?.push(newRelation?.RelationId.toString())
+                  : newRelation?.RelationId;
               // dtRelatedAs.Level = dtRelatedAs.Level + 1;
-              dtRelatedAs.Parent = strRef.join();
+              dtRelatedAs.Parent = strRef?.join();
               dtRelatedAs.save();
               strRef = [];
               console.log(
@@ -599,47 +598,43 @@ exports.addRelation = async (req, res) => {
               );
               break;
             case "spouse":
-              strRef = dtRelatedAs.Partner?.includes(",")
-                ? dtRelatedAs.Partner?.replace(/^"(.*)"$/, "$1").split(",")
-                : dtRelatedAs.Partner?.replace(/^"(.*)"$/, "$1").split("");
+              strRef =
+                dtRelatedAs.Partner?.includes(",") === true
+                  ? dtRelatedAs.Partner?.replace(/^"(.*)"$/, "$1").split(",")
+                  : dtRelatedAs.Partner?.split("");
               dtRelatedAs.Partner =
                 dtRelatedAs?.Partner &&
                 dtRelatedAs.Partner?.includes(" ") &&
-                dtRelatedAs.Partner?.includes(
-                  newRelation?.RelationId.toString()
-                ) === false
-                  ? newRelation?.RelationId.toString()
+                dtRelatedAs.Partner?.includes(newRelation?.RelationId) === false
+                  ? newRelation?.RelationId
                   : dtRelatedAs.Partner &&
-                    dtRelatedAs.Partner?.includes(
-                      newRelation?.RelationId.toString()
-                    ) === false
-                  ? strRef.push(newRelation?.RelationId.toString())
-                  : newRelation?.RelationId.toString();
-              dtRelatedAs.Partner = strRef.join();
+                    dtRelatedAs.Partner?.includes(newRelation?.RelationId) ===
+                      false
+                  ? strRef?.push(newRelation?.RelationId.toString())
+                  : newRelation?.RelationId;
+              dtRelatedAs.Partner = strRef?.join();
               dtRelatedAs.save();
+              console.log("SpouseRelatedAs", strRef);
+              console.log("SpouseRelatedAs with join", strRef.join());
               strRef = [];
               console.log("Spouse", "here");
               break;
             case "sibling":
-              strRef = dtRelatedAs.Sibling?.includes(",")
-                ? dtRelatedAs.Sibling?.replace(/^"(.*)"$/, "$1")
-                    .split(",")
-                    .split(",")
-                : dtRelatedAs.Sibling?.replace(/^"(.*)"$/, "$1").split("");
+              strRef =
+                dtRelatedAs.Sibling?.includes(",") === true
+                  ? dtRelatedAs.Sibling?.replace(/^"(.*)"$/, "$1").split(",")
+                  : dtRelatedAs.Sibling?.split("");
               dtRelatedAs.Sibling =
                 dtRelatedAs.Sibling &&
                 dtRelatedAs.Sibling?.includes(" ") > 0 &&
-                dtRelatedAs.Sibling?.includes(
-                  newRelation?.RelationId.toString()
-                ) === false
-                  ? newRelation?.RelationId.toString()
+                dtRelatedAs.Sibling?.includes(newRelation?.RelationId) === false
+                  ? newRelation?.RelationId
                   : dtRelatedAs.Sibling &&
-                    dtRelatedAs.Sibling?.includes(
-                      newRelation?.RelationId.toString()
-                    ) === false
-                  ? strRef.push(newRelation?.RelationId.toString())
-                  : newRelation?.RelationId.toString();
-              dtRelatedAs.Sibling = strRef.join();
+                    dtRelatedAs.Sibling?.includes(newRelation?.RelationId) ===
+                      false
+                  ? strRef.push(newRelation?.RelationId)
+                  : newRelation?.RelationId;
+
               dtRelatedAs.save();
               strRef = [];
               console.log("Sibling", "here");
@@ -648,24 +643,22 @@ exports.addRelation = async (req, res) => {
               strRef =
                 dtRelatedAs.Children?.includes(",") === true
                   ? dtRelatedAs.Children?.replace(/^"(.*)"$/, "$1").split(",")
-                  : dtRelatedAs.Children?.replace(/^"(.*)"$/, "$1").split("");
+                  : dtRelatedAs.Children?.split("");
               dtRelatedAs.Children =
                 dtRelatedAs.Children &&
                 dtRelatedAs.Children?.includes(" ") &&
-                dtRelatedAs.Children?.includes(
-                  newRelation?.RelationId.toString()
-                ) === false
-                  ? newRelation?.RelationId.toString()
+                dtRelatedAs.Children?.includes(newRelation?.RelationId) ===
+                  false
+                  ? newRelation?.RelationId
                   : dtRelatedAs.Children &&
-                    dtRelatedAs.Children?.includes(
-                      newRelation?.RelationId.toString()
-                    ) === false
-                  ? strRef.push(newRelation?.RelationId.toString())
-                  : newRelation?.RelationId.toString();
+                    dtRelatedAs.Children?.includes(newRelation?.RelationId) ===
+                      false
+                  ? strRef?.push(newRelation?.RelationId.toString())
+                  : newRelation?.RelationId;
               //  dtRelatedAs.Level = parseInt(dtRelatedAs.Level) + 1;
               // dtRelatedAs.RelationType =
               //   dtRelatedAs.RelationType === "child" ?? "parent";
-              dtRelatedAs.Children = strRef.join();
+              dtRelatedAs.Children = strRef?.join();
               dtRelatedAs.save();
 
               console.log("Child", strRef);
